@@ -1,8 +1,6 @@
 # CSC766-Project
 
-# step 1: 
-
-install emsdk
+# step 1: install emsdk
 
 ```
 git clone https://github.com/emscripten-core/emsdk.git
