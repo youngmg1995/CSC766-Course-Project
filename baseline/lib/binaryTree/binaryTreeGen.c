@@ -19,7 +19,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include<time.h>
+#include <time.h>
+
+#include "types.h"
 
 
 #define	TEST_1_N		5
@@ -37,6 +39,7 @@
 
 extern double genrand64_real2(void);
 extern void init_genrand64(unsigned long long seed);
+
 
 
 /******************************************************************************* 
@@ -67,7 +70,7 @@ int assign(int N, int i, int j)
 	return k;
 }
 
-void genInversionTable(int* invTable, int N)
+void genInversionTable(int *invTable, int N)
 {
 	*invTable = 0;
 	int i, j;
@@ -89,6 +92,44 @@ void genTree2StdOut(int N)
 	{
 		i = assign(N, i, j);
 		printf("%d\n", i);
+	}
+}
+
+BTNode * preOrderIT2BT(int *invTable, BTNode *btNodeArray, ITNode *itNodeArray, int N)
+{
+	ITNode *currentIT, *prevIT;
+	BTNode *currentBT, *prevBT;
+
+	currentBT 			= itNodeArray;
+	currentBT->id		= 0;
+	currentBT->val		= 0;
+
+	currentIT 			= itNodeArray;
+	currentIT->val		= *invTable;
+	currentIT->node		= currentBT;
+	currentIT->parent	= NULL;
+	
+	int i, j;
+	for (i=1; i<=N; i++)
+	{
+		invTable++;
+		prevIT = currentIT;
+		prevBT = currentBT;
+		itNodeArray++;
+		btNodeArray++;
+
+		if (*invTable < *(invTable-1))
+		{
+			// move left
+		}
+		else if (*invTable < *(invTable-1))
+		{
+			// backtrack
+		}
+		else
+		{
+			// move right
+		}
 	}
 }
 
@@ -114,7 +155,7 @@ int catalan(int x)
 	return factorial(2*x) / ((x+1)*xFact*xFact);
 }
 
-bool invTabIsEqual(int* tab1, int N1, int* tab2, int N2)
+bool invTabIsEqual(int *tab1, int N1, int *tab2, int N2)
 {
 	if (N1 != N2) return false;
 
@@ -126,7 +167,7 @@ bool invTabIsEqual(int* tab1, int N1, int* tab2, int N2)
 	return true;
 }
 
-void assignTab(int* invTabSet, int N, int* tabID, int depth, int prev)
+void assignTab(int *invTabSet, int N, int *tabID, int depth, int prev)
 {
 	if (depth >= N)
 	{
@@ -148,13 +189,13 @@ void assignTab(int* invTabSet, int N, int* tabID, int depth, int prev)
 
 }
 
-void genInvTabSet(int* invTabSet, int N)
+void genInvTabSet(int *invTabSet, int N)
 {
 	int tabID = 0;
 	assignTab(invTabSet, N, &tabID, 0, -1);
 }
 
-void updateSums(int* invTable, int* invTabSet, int* tabSums, int N, int C)
+void updateSums(int *invTable, int *invTabSet, int *tabSums, int N, int C)
 {
 	int i;
 	for (i=0; i<C; i++)
@@ -171,7 +212,7 @@ void updateSums(int* invTable, int* invTabSet, int* tabSums, int N, int C)
 	}
 }
 
-void printInvTab(int* invTable, int N)
+void printInvTab(int *invTable, int N)
 {
 	int i;
 	for (i=0; i<N; i++, invTable++)
@@ -199,9 +240,9 @@ void invTabUnitTest()
 
 	int C = catalan(TEST_1_N);
 
-	int* invTable = (int*) malloc(TEST_1_N * sizeof(int));
-	int* invTabSet = (int*) malloc(C * TEST_1_N * sizeof(int));
-	int* tabSums = (int*) malloc(C * sizeof(int));
+	int *invTable = (int *) malloc(TEST_1_N * sizeof(int));
+	int *invTabSet = (int *) malloc(C * TEST_1_N * sizeof(int));
+	int *tabSums = (int *) malloc(C * sizeof(int));
 
 	init_genrand64(time(0));
 
@@ -268,7 +309,7 @@ void invTabUnitTest()
 /******************************************************************************* 
 ------------------------------------- MAIN -------------------------------------
 *******************************************************************************/
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	invTabUnitTest();
 }
