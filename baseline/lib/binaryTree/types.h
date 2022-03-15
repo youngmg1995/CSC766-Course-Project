@@ -25,41 +25,22 @@
 /******************************************************************************* 
 ---------------------------------- TYPE DEFS -----------------------------------
 *******************************************************************************/
-typedef struct BTNode{
+typedef struct BTNode BTNode;
+struct BTNode{
   int id;
   int val;
-  struct BTNode *left;
-  struct BTNode *right;
-} BTNode;
+  BTNode *left;
+  BTNode *right;
+};
 
-typedef struct ITNode{
+typedef struct ITNode ITNode;
+struct ITNode{
   int val;
   BTNode *node;
-  struct ITNode *parent;
-  struct ITNode *left;
-  struct ITNode *right;
-} ITNode;
-
-
-/******************************************************************************* 
--------------------------------- FUNCTION DEFS ---------------------------------
-*******************************************************************************/
-void initBTNode(BTNode *node)
-{
-	node->id	= 0;
-	node->val	= 0;
-	node->left	= NULL;
-	node->right	= NULL;
-}
-
-void initITNode(ITNode *node)
-{
-	node->val		= 0;
-	node->node		= NULL;
-	node->parent	= NULL;
-	node->left		= NULL;
-	node->right		= NULL;
-}
+  ITNode *parent;
+  ITNode *left;
+  ITNode *right;
+};
 
 
 #endif

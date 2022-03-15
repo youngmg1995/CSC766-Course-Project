@@ -25,8 +25,11 @@
 /******************************************************************************* 
 --------------------------------- DECLARATIONS ---------------------------------
 *******************************************************************************/
-void init_genrand64(unsigned long long seed);
-void genInversionTable(int* invTable, int N);
+extern void init_genrand64(unsigned long long seed);
+extern void genInversionTable(int* invTable, int N);
+
+extern void initBTNode(BTNode *node);
+extern void initITNode(ITNode *node);
 
 
 #endif
