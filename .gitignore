@@ -1,0 +1,5 @@
+# compilation targets
+*.exe
+
+# resources directory (where I have useful papers & info)
+/resources
