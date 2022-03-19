@@ -55,7 +55,7 @@ directories :
 .PHONY: binaryTree
 binaryTree : directories $(APP_DIR)/$(BIN_DIR)/$(APP)
 	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> openmp: ./$(word 2,$^)"
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> binaryTree: ./$(word 2,$^)"
 	@echo " ******************************************************************************  \n"
 
 
@@ -83,6 +83,6 @@ clean-all:
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 
 .PHONY: run-binaryTree
-run-openmp: binaryTree
+run-binaryTree: binaryTree
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)
 #	./$(APP_DIR)/$(BIN_DIR)/$(APP) -f $(FILE_BIN) $(ARGS)

@@ -139,7 +139,7 @@ Tree * preOrderIT2BT(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int 
 	currentIT->tree		= currentBT;
 	currentIT->parent	= NULL;
 	
-	int i, j;
+	int i;
 	for (i=1; i<N; i++)
 	{
 		invTable++;

@@ -16,7 +16,7 @@
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include <stddef.h>
+#include <stdlib.h>
 
 #include "types.h"
 
@@ -140,7 +140,6 @@ Tree * delete(int id, Tree * t)
 {
 	//Deletes node from the tree
 	// Return a pointer to the resulting tree
-	Tree * x;
 	Tree *tmp_cell;
 	
 	if (t==NULL) return NULL;

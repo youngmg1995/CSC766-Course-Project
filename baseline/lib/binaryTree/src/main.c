@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 		genInvTabSet(invTabSet, N);
 		for (i=0; i<C; i++)	{ tabSums[i] = 0; }
 
-		printf("N = %d , C = %d , Samples = %d \n", N, N, C, TEST_1_SAMPLES);
+		printf("N = %d , C = %d , Samples = %d \n", N, C, TEST_1_SAMPLES);
 		printf("************************************\n");
 
 		for (i=0; i<TEST_1_SAMPLES; i++)

@@ -1,6 +1,7 @@
 # compilation targets
-*.
 bin/
+obj/
+
 
 # resources directory (where I have useful papers & info)
 /resources
