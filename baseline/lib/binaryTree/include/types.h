@@ -25,6 +25,8 @@
 /******************************************************************************* 
 ---------------------------------- TYPE DEFS -----------------------------------
 *******************************************************************************/
+
+/* basic binary tree (primary type used in module) */
 typedef struct Tree Tree;
 struct Tree
 {
@@ -34,6 +36,7 @@ struct Tree
   Tree *right;
 };
 
+/* type used while building binary tree from inversion table */
 typedef struct ITNode ITNode;
 struct ITNode
 {
@@ -42,6 +45,16 @@ struct ITNode
   ITNode *parent;
 };
 
+// /* binary tree queue, used for level-order traversal */
+// typedef struct TreeQueue TreeQueue;
+// struct TreeQueue
+// {
+//   int size;
+
+// }
+
+/* defines callback function type for performing actions during tree traversal */
+typedef void (*TreeCallBack)(Tree *);
 
 #endif
 /******************************************************************************* 

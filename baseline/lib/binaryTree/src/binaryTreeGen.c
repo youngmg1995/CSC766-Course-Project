@@ -19,7 +19,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 
 #include "binaryTree.h"
 #include "util.h"

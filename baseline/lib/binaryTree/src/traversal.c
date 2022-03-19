@@ -18,6 +18,7 @@
 *******************************************************************************/
 #include <stddef.h>
 
+#include "types.h"
 #include "binaryTree.h"
 
 
@@ -60,13 +61,64 @@ void postOrder(Tree *root)
 	}
 }
 
-void breadthFirst(Tree *root)
+// void levelOrder(Tree *root)
+// {
+// }
+
+void orderedTraversal(Tree *treeArray, int N)
+{
+	int i;
+	for (i=0; i<N; i++, treeArray++)
+	{
+		// do something
+	}
+}
+
+
+
+/******************************************************************************* 
+----------------------------- CALLBACK TRAVERSALS ------------------------------
+*******************************************************************************/
+void preOrderCB(Tree *root, TreeCallBack callBack)
+{
+	if (root != NULL)
+	{	
+		callBack(root);
+		preOrder(root->left);
+		preOrder(root->right);
+	}
+}
+
+void inOrderCB(Tree *root, TreeCallBack callBack)
+{
+	if (root != NULL)
+	{	
+		preOrder(root->left);
+		callBack(root);
+		preOrder(root->right);
+	}
+}
+
+void postOrderCB(Tree *root, TreeCallBack callBack)
 {
 	if (root != NULL)
 	{	
 		preOrder(root->left);
 		preOrder(root->right);
-		// do something here
+		callBack(root);
+	}
+}
+
+// void levelOrder(Tree *root)
+// {
+// }
+
+void orderedTraversalCB(Tree *treeArray, int N, TreeCallBack callBack)
+{
+	int i;
+	for (i=0; i<N; i++, treeArray++)
+	{
+		callBack(treeArray);
 	}
 }
 

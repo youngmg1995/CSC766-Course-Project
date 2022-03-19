@@ -240,8 +240,6 @@ void validateInvTabGen()
 	int *invTabSet = (int *) malloc(C * TEST_1_N * sizeof(int));
 	int *tabSums = (int *) malloc(C * sizeof(int));
 
-	init_genrand64(time(0));
-
 	int N, i, total, *curr;
 	double perc;
 	for (N=1; N<=TEST_1_N; N++)
@@ -450,6 +448,7 @@ int main(int argc, char *argv[])
 	printf("\n");
 
 	int testNum = 1;
+	init_genrand64(time(0));
 
 
 	/* ---------------------------------------------------------------------- */

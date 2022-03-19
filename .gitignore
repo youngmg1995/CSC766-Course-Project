@@ -2,6 +2,8 @@
 bin/
 obj/
 
-
 # resources directory (where I have useful papers & info)
 /resources
+
+# vscode settings
+.vscode
