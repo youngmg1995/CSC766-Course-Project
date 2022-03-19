@@ -33,8 +33,6 @@ void initITNode(ITNode *node)
 	node->val		= 0;
 	node->tree		= NULL;
 	node->parent	= NULL;
-	node->left		= NULL;
-	node->right		= NULL;
 }
 
 double getP(int N, int i, int j)
@@ -106,9 +104,9 @@ void printInvTab(int *invTable, int N, bool vert)
 		{	
 			printf("%d ", *invTable);
 		}
-		printf("\n");
+		// printf("\n");
 	}
-	printf("\n");
+	// printf("\n");
 }
 
 void genTree2StdOut(int N)
@@ -124,14 +122,78 @@ void genTree2StdOut(int N)
 	}
 }
 
-Tree * preOrderIT2BT(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N)
+Tree * invTab2BT(int *invTable, int N)
 {
+	ITNode *itNodeArray = (ITNode *) malloc(N * sizeof(ITNode));
+	Tree *root = (Tree *) malloc(sizeof(Tree));
+
+	ITNode *currentIT, *prevIT;
+	Tree *currentBT, *prevBT;
+
+	currentBT 			= root;
+	currentBT->id		= 0;
+	currentBT->data		= NULL;
+	currentBT->left		= NULL;
+	currentBT->right	= NULL;
+	
+	currentIT 			= itNodeArray;
+	currentIT->val		= *invTable;
+	currentIT->tree		= currentBT;
+	currentIT->parent	= NULL;
+	
+	int i;
+	for (i=1; i<N; i++)
+	{
+		invTable++;
+		prevIT = currentIT;
+		prevBT = currentBT;
+
+		currentBT 			= (Tree *) malloc(sizeof(Tree));
+		currentBT->id		= i;
+		currentBT->data		= NULL;
+		currentBT->left		= NULL;
+		currentBT->right	= NULL;
+
+		currentIT++;
+		currentIT->val		= *invTable;
+		currentIT->tree		= currentBT;
+		currentIT->parent	= NULL;
+
+		if (currentIT->val > prevIT->val)
+		{
+			// printf("Moving Left\n");
+			prevBT->left = currentBT;
+			currentIT->parent = prevIT;
+		}
+		else 
+		{
+			while (currentIT->val < prevIT->val) 
+			{
+				// printf("Moving Up\n");
+				prevIT = prevIT->parent;
+			};
+			// printf("Moving Right\n");
+			prevIT->tree->right = currentBT;
+			currentIT->parent = prevIT;
+		}
+	}
+
+	free(itNodeArray);
+
+	return root;
+}
+
+Tree * invTab2ContBT(int *invTable, Tree *btNodeArray, int N)
+{
+	ITNode *itNodeArray = (ITNode *) malloc(N * sizeof(ITNode));
 	ITNode *currentIT, *prevIT;
 	Tree *currentBT, *prevBT, *root;
 
 	currentBT 			= btNodeArray;
 	currentBT->id		= 0;
 	currentBT->data		= NULL;
+	currentBT->left		= NULL;
+	currentBT->right	= NULL;
 	root 				= currentBT;
 
 	currentIT 			= itNodeArray;
@@ -150,76 +212,92 @@ Tree * preOrderIT2BT(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int 
 		currentBT 			= btNodeArray;
 		currentBT->id		= i;
 		currentBT->data		= NULL;
+		currentBT->left		= NULL;
+		currentBT->right	= NULL;
 
-		itNodeArray++;
-		currentIT 			= itNodeArray;
+		currentIT++;
 		currentIT->val		= *invTable;
 		currentIT->tree		= currentBT;
 		currentIT->parent	= NULL;
 
-		// printf("%d %d\n", i, *invTable);
-		// printf("%d %d %d %d\n", i, prevIT->val, prevIT->tree->id, prevIT->tree->val);
-
 		if (currentIT->val > prevIT->val)
 		{
 			// printf("Moving Left\n");
-			// move left
 			prevBT->left = currentBT;
-			
-
-			prevIT->left = currentIT;
 			currentIT->parent = prevIT;
 		}
 		else 
 		{
-			// backtrack
 			while (currentIT->val < prevIT->val) 
 			{
 				// printf("Moving Up\n");
 				prevIT = prevIT->parent;
 			};
 			// printf("Moving Right\n");
-			
 			prevIT->tree->right = currentBT;
-			
-			prevIT->right = currentIT;
 			currentIT->parent = prevIT;
 		}
-		// printf("%d Prev: %d %d , Curr: %d %d\n", i, prevBT->id, prevBT->val, currentBT->id, currentBT->val);
 	}
+
+	free(itNodeArray);
 
 	return root;
 }
+
+void bs2BST(Tree *root, int *id)
+{
+	if (root != NULL)
+	{
+		bs2BST(root->left, id);
+		root->id = *id;
+		(*id)++;
+		bs2BST(root->right, id);
+	}
+}
+
+void convert2BST(Tree *root)
+{	
+	int id = 0;
+	bs2BST(root, &id);
+}
+
 
 
 /******************************************************************************* 
 ------------------------------- PRIMARY EXPORTS --------------------------------
 *******************************************************************************/
-
-Tree * genRandomTree(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N)
+Tree * genRandomTree(int *invTable, int N, bool isBST)
 {
 	genInversionTable(invTable, N);
-	return preOrderIT2BT(invTable, btNodeArray, itNodeArray, N);
+	Tree *root = invTab2BT(invTable, N);
+	if (isBST) convert2BST(root);
+	return root;
 }
 
-Tree * genBalancedTree(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int depth)
+Tree * genContRandomTree(int *invTable, Tree *btNodeArray, int N, bool isBST)
+{
+	genInversionTable(invTable, N);	
+	Tree *root = invTab2ContBT(invTable, btNodeArray, N);
+	if (isBST) convert2BST(root);
+	return root;
+}
+
+Tree * genBalancedTree(int *invTable, int depth, bool isBST)
 {
 	genBalancedIT(invTable, depth);
-	return preOrderIT2BT(invTable, btNodeArray, itNodeArray, (1<<(depth+1))-1);
+	Tree *root = invTab2BT(invTable, (1<<(depth+1))-1);
+	if (isBST) convert2BST(root);
+	return root;
 }
 
-// Tree * genTree(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N, bool isBalanced)
-// {
-// 	if (isBalanced)
-// 	{
-		
-// 	}
-// 	else
-// 	{
-// 		genInversionTable(invTable, N);
-// 		return preOrderIT2BT(invTable, btNodeArray, itNodeArray, N);
-// 	}
-// }
+Tree * genContBalancedTree(int *invTable, Tree *btNodeArray, int depth, bool isBST)
+{
+	genBalancedIT(invTable, depth);
+	Tree *root = invTab2ContBT(invTable, btNodeArray, (1<<(depth+1))-1);
+	if (isBST) convert2BST(root);
+	return root;
+}
+
 
 /******************************************************************************* 
 --------------------------------- END OF FILE ----------------------------------

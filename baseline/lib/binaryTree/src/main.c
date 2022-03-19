@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #include "types.h"
@@ -42,6 +43,46 @@
 /******************************************************************************* 
 ------------------------------- HELPER FUNCTIONS -------------------------------
 *******************************************************************************/
+void printUnitTestMsg(int *testNum, const char message[])
+{
+	const char delimiter[] = "================================================================================";
+	int n = strlen(delimiter);
+	int m = strlen(message);
+
+	int p = (n-m-8)/2;
+	p = p <= 0 ? 0 : p;
+	int q = p <= 0 ? 0 : n - m - p - 8;
+
+	char *spacer1 = (char *) malloc((p+1) *sizeof(char));
+	int i;
+	for (i=0; i<p; i++)
+	{
+		spacer1[i] = ' ';
+	}
+	spacer1[p] = '\0';
+
+	char *spacer2 = (char *) malloc((q+1) *sizeof(char));
+	for (i=0; i<q; i++)
+	{
+		spacer2[i] = ' ';
+	}
+	spacer2[q] = '\0';
+
+
+	printf("\n");
+	printf("%s\n", delimiter);
+	printf("%s\n", delimiter);
+	printf("%sTest %d: %s%s\n", spacer1, *testNum, message, spacer2);
+	printf("%s\n", delimiter);
+	printf("%s\n", delimiter);
+	printf("\n");
+
+	free(spacer1);
+	free(spacer2);
+
+	(*testNum)++;
+}
+
 bool invTabIsEqual(int *tab1, int N1, int *tab2, int N2)
 {
 	if (N1 != N2) return false;
@@ -100,26 +141,99 @@ void updateSums(int *invTable, int *invTabSet, int *tabSums, int N, int C)
 }
 
 
+
 /******************************************************************************* 
-------------------------------------- MAIN -------------------------------------
+---------------------------------- UNIT TESTS ----------------------------------
 *******************************************************************************/
-int main(int argc, char *argv[])
+void validateBST()
 {
-	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("###############################################################################\n");
-	printf("########################### Binary Tree Unit Tests ############################\n");
-	printf("###############################################################################\n");
-	printf("\n");
+	Tree *bstRoot = NULL;
+	Tree *tmp;
 
 
-	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("=========================================================\n");
-	printf("        Test 1: Random Inversion Table Correctness       \n");
-	printf("=========================================================\n");
+	printf("Inserting into BST: id = %d\n", 4);
+	printf("************************************\n");
+	bstRoot = insert(4, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
 	printf("\n");
 
+	printf("Inserting into BST: id = %d\n", 23);
+	printf("************************************\n");
+	bstRoot = insert(23, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Inserting into BST: id = %d\n", 53);
+	printf("************************************\n");
+	bstRoot = insert(53, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Inserting into BST: id = %d\n", 10);
+	printf("************************************\n");
+	bstRoot = insert(10, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Inserting into BST: id = %d\n", 8);
+	printf("************************************\n");
+	bstRoot = insert(8, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Inserting into BST: id = %d\n", 1);
+	printf("************************************\n");
+	bstRoot = insert(1, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Inserting into BST: id = %d\n", 30);
+	printf("************************************\n");
+	bstRoot = insert(30, NULL, bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Find MIN in BST\n");
+	printf("************************************\n");
+	tmp = find_min(bstRoot);
+	printf("Min ID = %d\n", tmp->id);
+	printf("\n");
+
+	printf("Find MAX in BST\n");
+	printf("************************************\n");
+	tmp = find_max(bstRoot);
+	printf("Max ID = %d\n", tmp->id);
+	printf("\n");
+
+	printf("Find Specific ID in BST: id = %d\n", 10);
+	printf("************************************\n");
+	tmp = find(10, bstRoot);
+	printf("Located ID = %d\n", tmp->id);
+	printf("\n");
+
+	printf("Deleting from BST: id = %d\n", 4);
+	printf("************************************\n");
+	bstRoot = delete(4, bstRoot, NULL);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Deleting from BST: id = %d\n", 53);
+	printf("************************************\n");
+	bstRoot = delete(53, bstRoot, NULL);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+	printf("Deleting/Freeing BST\n");
+	printf("************************************\n");
+	bstRoot = make_empty(bstRoot);
+	print_ascii_tree(bstRoot);
+	printf("\n");
+
+}
+
+
+void validateInvTabGen()
+{
 	int C = catalan(TEST_1_N);
 
 	int *invTable = (int *) malloc(TEST_1_N * sizeof(int));
@@ -152,7 +266,7 @@ int main(int argc, char *argv[])
 			total += tabSums[i];
 			perc = ((double) tabSums[i]/TEST_1_SAMPLES * 100);
 			printInvTab(curr, N, false);
-			printf(" %8d = %4.2f %% \n", tabSums[i], perc);
+			printf("%8d = %4.2f %% \n", tabSums[i], perc);
 			curr += N;
 		}
 		perc = ((double) total/TEST_1_SAMPLES * 100);
@@ -163,14 +277,12 @@ int main(int argc, char *argv[])
 	free(invTable);
 	free(invTabSet);
 	free(tabSums);
+}
 
-
-	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("=========================================================\n");
-	printf("     Test 2: Inversion Table Translation Validation      \n");
-	printf("=========================================================\n");
-	printf("\n");
+void validateInvTabTanslation()
+{
+	int *invTable;
+	Tree *binaryTree, *btNodeArray;
 
 	printf("Validation Inversion Table: N = %d\n", TEST_2_N);
 	printf("************************************\n");
@@ -184,157 +296,195 @@ int main(int argc, char *argv[])
 	invTable[6] = 1;
 	invTable[7] = 1;
 	printInvTab(invTable, TEST_2_N, false);
+	printf("\n\n");
 
 	printf("Correct Binary Tree: N = %d\n", TEST_2_N);
 	printf("************************************\n");
 	Tree valTree[TEST_2_N];
 	valTree[0].id = 0;  
-	// valTree[0].val = 0;  
 	valTree[0].left = &(valTree[1]); 
 	valTree[0].right = &(valTree[5]); 
 	valTree[1].id = 1;  
-	// valTree[1].val = 1;  
 	valTree[1].left = &(valTree[2]); 
 	valTree[1].right = &(valTree[4]); 
 	valTree[2].id = 2;  
-	// valTree[2].val = 2;  
 	valTree[2].left = NULL; 
 	valTree[2].right = &(valTree[3]);; 
 	valTree[3].id = 3;  
-	// valTree[3].val = 3;  
 	valTree[3].left = NULL; 
 	valTree[3].right = NULL; 
 	valTree[4].id = 4;  
-	// valTree[4].val = 4;
 	valTree[4].left = NULL; 
 	valTree[4].right = NULL;
 	valTree[5].id = 5;  
-	// valTree[5].val = 5;  
 	valTree[5].left = &(valTree[6]); 
 	valTree[5].right = NULL; 
 	valTree[6].id = 6;  
-	// valTree[6].val = 6;  
 	valTree[6].left = NULL; 
 	valTree[6].right = &(valTree[7]); 
 	valTree[7].id = 7;  
-	// valTree[7].val = 7;  
 	valTree[7].left = NULL; 
 	valTree[7].right = NULL; 
 	print_ascii_tree(&(valTree[0]));
 	printf("\n");
 
-	printf("Generated Binary Tree: N = %d\n", TEST_2_N);
+	printf("Translated Binary Tree: N = %d\n", TEST_2_N);
 	printf("************************************\n");
-	Tree *btNodeArray = (Tree *) malloc(TEST_2_N * sizeof(Tree));
-	ITNode *itNodeArray = (ITNode *) malloc(TEST_2_N * sizeof(ITNode));
-	Tree *currentBT = btNodeArray;
-	ITNode *currentIT = itNodeArray;
-	for (i=0; i<TEST_2_N; i++, currentBT++, currentIT++)
-	{
-		initTree(currentBT);
-		initITNode(currentIT);
-	}
+	binaryTree = invTab2BT(invTable, TEST_2_N);
+	print_ascii_tree(binaryTree);
+	printf("\n");
 
-	Tree *binaryTree = preOrderIT2BT(invTable, btNodeArray, itNodeArray, TEST_2_N);
+	printf("Translated Contiguous Binary Tree: N = %d\n", TEST_2_N);
+	printf("************************************\n");
+	btNodeArray = (Tree *) malloc(TEST_2_N * sizeof(Tree));
+	binaryTree = make_empty(binaryTree);
+	binaryTree = invTab2ContBT(invTable, btNodeArray, TEST_2_N);
+	print_ascii_tree(binaryTree);
+	printf("\n");
 
+	printf("Translated Binary Search Tree: N = %d\n", TEST_2_N);
+	printf("************************************\n");
+	convert2BST(binaryTree);
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
 	free(invTable);
-	free(itNodeArray);
 	free(btNodeArray);	
+}
 
-
-	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("=========================================================\n");
-	printf("    Test 3: Inversion Table & Binary Tree Generation     \n");
-	printf("=========================================================\n");
-	printf("\n");
-
-	printf("Generated Inversion Table: N = %d\n", TEST_3_N);
-	printf("************************************\n");
-	invTable = (int *) malloc(TEST_3_N * sizeof(int));
-	btNodeArray = (Tree *) malloc(TEST_3_N * sizeof(Tree));
-	itNodeArray = (ITNode *) malloc(TEST_3_N * sizeof(ITNode));
-	currentBT = btNodeArray;
-	currentIT = itNodeArray;
-	for (i=0; i<TEST_3_N; i++, currentBT++, currentIT++)
-	{
-		initTree(currentBT);
-		initITNode(currentIT);
-	}
-	binaryTree = genRandomTree(invTable, btNodeArray, itNodeArray, TEST_3_N);
-	printInvTab(invTable, TEST_3_N, false);
+void exampleInvTabTreeGen()
+{
+	int *invTable;
+	Tree *binaryTree, *btNodeArray;
 
 	printf("Generated Binary Tree: N = %d\n", TEST_3_N);
 	printf("************************************\n");
+	invTable = (int *) malloc(TEST_3_N * sizeof(int));
+	binaryTree = genRandomTree(invTable, TEST_3_N, false);
+	printInvTab(invTable, TEST_3_N, false);
+	printf("\n\n");
+	print_ascii_tree(binaryTree);
+	printf("\n");
+
+	printf("Generated Contiguos Binary Tree: N = %d\n", TEST_3_N);
+	printf("***************************************\n");
+	btNodeArray = (Tree *) malloc(TEST_3_N * sizeof(Tree));
+	binaryTree = make_empty(binaryTree);
+	binaryTree = genContRandomTree(invTable, btNodeArray, TEST_3_N, false);
+	printInvTab(invTable, TEST_3_N, false);
+	printf("\n\n");
+	print_ascii_tree(binaryTree);
+	printf("\n");
+
+	printf("Generated Binary Search Tree: N = %d\n", TEST_3_N);
+	printf("************************************\n");
+	binaryTree = genRandomTree(invTable, TEST_3_N, true);
+	printInvTab(invTable, TEST_3_N, false);
+	printf("\n\n");
+	print_ascii_tree(binaryTree);
+	printf("\n");
+
+	printf("Generated Contiguos Binary Search Tree: N = %d\n", TEST_3_N);
+	printf("**********************************************\n");
+	binaryTree = make_empty(binaryTree);
+	binaryTree = genContRandomTree(invTable, btNodeArray, TEST_3_N, true);
+	printInvTab(invTable, TEST_3_N, false);
+	printf("\n\n");
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
 	free(invTable);
-	free(itNodeArray);
 	free(btNodeArray);	
+}
 
-
-	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("=========================================================\n");
-	printf("      Test 4: Inversion Table Direct to Output       \n");
-	printf("=========================================================\n");
-	printf("\n");
-	
+void exampleInvTab2Output()
+{
 	genTree2StdOut(TEST_3_N);
 	printf("\n");	
+}
 
-
-	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("=========================================================\n");
-	printf("         Test 5: Balanced Binary Tree Generation         \n");
-	printf("=========================================================\n");
-	printf("\n");
+void validateBalancedTreeGen()
+{
+	int *invTable, N, depth;
+	Tree *binaryTree, *btNodeArray;
 
 	N = (1<<(TEST_5_DEPTH+1))-1;
 	invTable = (int *) malloc(N * sizeof(int));
 	btNodeArray = (Tree *) malloc(N * sizeof(Tree));
-	itNodeArray = (ITNode *) malloc(N * sizeof(ITNode));
 
-	int depth;
 	for (depth=0; depth<=TEST_5_DEPTH; depth++)
 	{
 		N = (1<<(depth+1))-1;
-		currentBT = btNodeArray;
-		currentIT = itNodeArray;
-		for (i=0; i<N; i++, currentBT++, currentIT++)
-		{
-			initTree(currentBT);
-			initITNode(currentIT);
-		}
 
 		printf("Balanced Binary Tree: depth = %d , N = %d\n", depth, N);
 		printf("*********************************************\n");
-		binaryTree = genBalancedTree(invTable, btNodeArray, itNodeArray, depth);
+		binaryTree = genContBalancedTree(invTable, btNodeArray, depth, false);
 		printInvTab(invTable, N, false);
+		printf("\n\n");
+		print_ascii_tree(binaryTree);
+		printf("\n");
+
+		printf("Balanced Binary Search Tree: depth = %d , N = %d\n", depth, N);
+		printf("************************************************\n");
+		binaryTree = genContBalancedTree(invTable, btNodeArray, depth, true);
+		printInvTab(invTable, N, false);
+		printf("\n\n");
 		print_ascii_tree(binaryTree);
 		printf("\n");
 	}
 
 	free(invTable);
-	free(itNodeArray);
 	free(btNodeArray);	
+}
 
+/******************************************************************************* 
+------------------------------------- MAIN -------------------------------------
+*******************************************************************************/
+int main(int argc, char *argv[])
+{
+	/* ---------------------------------------------------------------------- */
+	printf("\n");
+	printf("###############################################################################\n");
+	printf("########################### Binary Tree Unit Tests ############################\n");
+	printf("###############################################################################\n");
+	printf("\n");
+
+	int testNum = 1;
 
 
 	/* ---------------------------------------------------------------------- */
-	printf("\n");
-	printf("=========================================================\n");
-	printf("          Test 6: Tree Generation Measurements           \n");
-	printf("=========================================================\n");
-	printf("\n");
-
 	
+	printUnitTestMsg(&testNum, "Validate Binary Search Tree Structure");
+	validateBST();
+
 	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Validate Inversion Table Gen. Correctness");
+	validateInvTabGen();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Example Inversion Table Direct to Output");
+	exampleInvTab2Output();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Validate Inversion Table Translation Correctness");
+	validateInvTabTanslation();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Example Random Binary Tree Generation");
+	exampleInvTabTreeGen();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Example Balanced Binary Tree Generation ");
+	validateBalancedTreeGen();
+
+	/* ---------------------------------------------------------------------- */
+
+	return (0);
 }
 
 

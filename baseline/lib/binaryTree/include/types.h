@@ -40,8 +40,6 @@ struct ITNode
   int val;
   Tree *tree;
   ITNode *parent;
-  ITNode *left;
-  ITNode *right;
 };
 
 

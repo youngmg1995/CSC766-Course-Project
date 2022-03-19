@@ -107,15 +107,14 @@ Tree * insert(int id, void *data, Tree *t)
 	
 	if (t == NULL) 
 	{
-	new_node = (Tree *) malloc (sizeof (Tree));
-	if (new_node == NULL) 
-	{
-		return t;
-	}
+		new_node = (Tree *) malloc (sizeof (Tree));
+		if (new_node == NULL) 
+		{
+			return t;
+		}
 
-	new_node->id = id;
-	new_node->data = data;
-
+		new_node->id = id;
+		new_node->data = data;
 		new_node->left = new_node->right = NULL;
 		return new_node;
 	}
@@ -136,7 +135,7 @@ Tree * insert(int id, void *data, Tree *t)
 	return t;
 }
 
-Tree * delete(int id, Tree * t) 
+Tree * delete(int id, Tree * t, void *data) 
 {
 	//Deletes node from the tree
 	// Return a pointer to the resulting tree
@@ -146,18 +145,18 @@ Tree * delete(int id, Tree * t)
 	
 	if (id < t->id) 
 	{
-		t->left = delete(id, t->left);
+		t->left = delete(id, t->left, data);
 	} 
 	else if (id > t->id) 
 	{
-		t->right = delete(id, t->right);
+		t->right = delete(id, t->right, data);
 	} 
 	else if (t->left && t->right)
 	{
 		tmp_cell = find_min(t->right);
 		t->id = tmp_cell->id;
 		t->data = tmp_cell->data;
-		t->right = delete(t->id, t->right);
+		t->right = delete(t->id, t->right, data);
 	}
 	else
 	{ 
@@ -170,6 +169,7 @@ Tree * delete(int id, Tree * t)
 		{
 			t = t->left;
 		}
+		data = tmp_cell->data;
 		free(tmp_cell);
 	}
 

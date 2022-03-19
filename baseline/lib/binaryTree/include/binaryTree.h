@@ -34,7 +34,7 @@ extern Tree * find_min(Tree *t);
 extern Tree * find_max(Tree *t);
 extern Tree * find(int id, Tree *t);
 extern Tree * insert(int id, void *data, Tree *t);
-extern Tree * delete(int id, Tree * t);
+extern Tree * delete(int id, Tree * t, void *data);
 
 
 

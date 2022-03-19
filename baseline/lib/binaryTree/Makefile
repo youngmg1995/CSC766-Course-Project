@@ -54,16 +54,16 @@ directories :
 
 .PHONY: binaryTree
 binaryTree : directories $(APP_DIR)/$(BIN_DIR)/$(APP)
-	@echo "\n ******************************************************************************  "
+	@echo " ****************************************************************************** "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> binaryTree: ./$(word 2,$^)"
-	@echo " ******************************************************************************  \n"
+	@echo " ****************************************************************************** "
 
 
 $(APP_DIR)/$(BIN_DIR)/$(APP) :  $(OBJ_FILES)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/%.c $(INC_FILES)
-	$(CC) $(CFLAGS) $(APP_INC) -c -o $@ $<
+	@$(CC) $(CFLAGS) $(APP_INC) -c -o $@ $<
 
 
 
