@@ -2,34 +2,47 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file binaryTree.h
+ * @file types.h
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief 
+ * @brief Defines binary tree types and other types used to create/draw them.
  * @version 0.1
- * @date 2022-03-06
+ * @date 2022-03-07
  * 
  * @copyright Copyright (c) 2022
  * 
  */
 
-#ifndef	BINARYTREEGEN_H
-#define	BINARYTREEGEN_H
+#ifndef	__BINARYTREE_TYPES_H
+#define	__BINARYTREE_TYPES_H
 
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include "types.h"
+
 
 
 /******************************************************************************* 
---------------------------------- DECLARATIONS ---------------------------------
+---------------------------------- TYPE DEFS -----------------------------------
 *******************************************************************************/
-extern void init_genrand64(unsigned long long seed);
-extern void genInversionTable(int* invTable, int N);
+typedef struct Tree Tree;
+struct Tree
+{
+  int id;
+  void *data;
+  Tree *left;
+  Tree *right;
+};
 
-extern void initBTNode(BTNode *node);
-extern void initITNode(ITNode *node);
+typedef struct ITNode ITNode;
+struct ITNode
+{
+  int val;
+  Tree *tree;
+  ITNode *parent;
+  ITNode *left;
+  ITNode *right;
+};
 
 
 #endif

@@ -1,146 +1,30 @@
+/******************************************************************************* 
+------------------------------------- INFO -------------------------------------
+*******************************************************************************/
+/**
+ * @file binaryTreeDrawer.c
+ * @author Unknown - taken from this Stack Overflow Post: 
+ * 		- https://stackoverflow.com/questions/801740/c-how-to-draw-a-binary-tree-to-the-console
+ * @brief Defines functionality for drawing binary trees to the console.
+ * 		- Mainly used for unit tests and validation purposes.
+ * @version 0.1
+ * @date 2022-03-06
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
+
+
+/******************************************************************************* 
+------------------------------- IMPORTS & PARAMS -------------------------------
+*******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "types.h"
-
-
-BTNode *make_empty(BTNode *t)
-{
-	if (t != NULL)
-	{
-	make_empty(t->left);
-	make_empty(t->right);
-	free(t);
-	}
-
-	return NULL;
-}
-
-BTNode *find_min(BTNode *t)
-{
-	if (t == NULL)
-	{
-		return NULL;
-	}
-	else if (t->left == NULL)
-	{
-		return t;
-	}
-	else
-	{
-		return find_min(t->left);
-	}
-}
-
-BTNode *find_max(BTNode *t)
-{
-	if (t == NULL)
-	{
-		return NULL;
-	}
-	else if (t->right == NULL)
-	{
-		return t;
-	}
-	else
-	{
-		return find_max(t->right);
-	}
-}
-
-BTNode *find(int elem, BTNode *t)
-{
-	if (t == NULL)
-	{
-	return NULL;
-	}
-
-	if (elem < t->val)
-	{
-	return find(elem, t->left);
-	}
-	else if (elem > t->val)
-	{
-	return find(elem, t->right);
-	}
-	else
-	{
-	return t;
-	}
-}
-
-//Insert i into the tree t, duplicate will be discarded
-//Return a pointer to the resulting tree.                 
-BTNode * insert(int value, BTNode * t) 
-{
-	BTNode * new_node;
-	
-	if (t == NULL) 
-	{
-	new_node = (BTNode *) malloc (sizeof (BTNode));
-	if (new_node == NULL) 
-	{
-		return t;
-	}
-
-	new_node->val = value;
-
-		new_node->left = new_node->right = NULL;
-		return new_node;
-	}
-	
-	if (value < t->val) 
-	{
-	t->left = insert(value, t->left);
-	} 
-	else if (value > t->val) 
-	{
-		t->right = insert(value, t->right);
-	} 
-	else 
-	{ 
-	//duplicate, ignore it
-		return t;
-	}
-	return t;
-}
-
-BTNode * delete(int value, BTNode * t) 
-{
-	//Deletes node from the tree
-	// Return a pointer to the resulting tree
-	BTNode * x;
-	BTNode *tmp_cell;
-	
-	if (t==NULL) return NULL;
-	
-	if (value < t->val) 
-	{
-	t->left = delete(value, t->left);
-	} 
-	else if (value > t->val) 
-	{
-		t->right = delete(value, t->right);
-	} 
-	else if (t->left && t->right)
-	{
-	tmp_cell = find_min(t->right);
-	t->val = tmp_cell->val;
-	t->right = delete(t->val, t->right);
-	}
-	else
-	{ 
-	tmp_cell = t;
-	if (t->left == NULL)
-		t = t->right;
-	else if (t->right == NULL)
-		t = t->left;
-	free(tmp_cell);
-	}
-
-	return t;
-}
+#include "binaryTree.h"
 
 
 //printing tree in ascii
@@ -188,7 +72,7 @@ int MAX (int X, int Y)
 	return ((X) > (Y)) ? (X) : (Y);
 }
 
-asciinode * build_ascii_tree_recursive(BTNode * t) 
+asciinode * build_ascii_tree_recursive(Tree * t) 
 {
 	asciinode * node;
 	
@@ -208,7 +92,7 @@ asciinode * build_ascii_tree_recursive(BTNode * t)
 		node->right->parent_dir = 1;
 	}
 
-	sprintf(node->label, "%d", t->val);
+	sprintf(node->label, "%d", t->id);
 	node->lablen = strlen(node->label);
 
 	return node;
@@ -216,7 +100,7 @@ asciinode * build_ascii_tree_recursive(BTNode * t)
 
 
 //Copy the tree into the ascii node structre
-asciinode * build_ascii_tree(BTNode * t) 
+asciinode * build_ascii_tree(Tree * t) 
 {
 	asciinode *node;
 	if (t == NULL) return NULL;
@@ -396,7 +280,7 @@ void print_level(asciinode *node, int x, int level)
 }
 
 //prints ascii tree for given Tree structure
-void print_ascii_tree(BTNode * t) 
+void print_ascii_tree(Tree * t) 
 {
 	asciinode *proot;
 	int xmin, i;
@@ -432,30 +316,30 @@ void print_ascii_tree(BTNode * t)
 // {
 //   //A sample use of these functions.  Start with the empty tree
 //   //insert some stuff into it, and then delete it
-//   BTNode * root;
+//   Tree * root;
 //   int i;
 //   root = NULL;    
 	
 //   make_empty(root);
 
-//   printf("\nAfter inserting val 10..\n");
+//   printf("\nAfter inserting id 10..\n");
 //   root = insert(10, root);
 //   print_ascii_tree(root);
 
-//   printf("\nAfter inserting val 5..\n");
+//   printf("\nAfter inserting id 5..\n");
 //   root = insert(5, root);
 //   print_ascii_tree(root);
 
-//   printf("\nAfter inserting val 15..\n");
+//   printf("\nAfter inserting id 15..\n");
 //   root = insert(15, root);
 //   print_ascii_tree(root);
 
-//   printf("\nAfter inserting vals 9, 13..\n");
+//   printf("\nAfter inserting ids 9, 13..\n");
 //   root = insert(9, root);
 //   root = insert(13, root);
 //   print_ascii_tree(root);
 
-//   printf("\nAfter inserting vals 2, 6, 12, 14, ..\n");
+//   printf("\nAfter inserting ids 2, 6, 12, 14, ..\n");
 //   root = insert(2, root);
 //   root = insert(6, root);
 //   root = insert(12, root);

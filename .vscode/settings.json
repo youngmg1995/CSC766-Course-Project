@@ -1,6 +1,8 @@
 {
 	"files.associations": {
 		"stddef.h": "c",
-		"xutility": "c"
+		"xutility": "c",
+		"stdio.h": "c",
+		"types.h": "c"
 	}
 }
