@@ -2,10 +2,11 @@
 ############################# GENERAL DIRECTORIES ##############################
 ################################################################################
 # globals binary /bin
-APP                 = run-binaryTree
+# APP                 = run-binaryTree
+TEST				= test-binaryTree
 
 # dirs Root app
-APP_DIR             = .
+ROOT_DIR             = .
 
 # dir root/managed_folders
 SRC_DIR           	= src
@@ -20,11 +21,11 @@ BIN_DIR			  	= bin
 ################################################################################
 # compliler
 CC		    = gcc
-APP_INC     = -I$(APP_DIR)/$(INC_DIR)
 
 # flags
 # CFLAGS   =  -O3 -Wall -m64 -fopenmp -g
-CFLAGS   =  -O1 -Wall
+INC_FLAG     = -I$(ROOT_DIR)/$(INC_DIR)
+CFLAGS   =  -O3 -Wall $(INC_FLAG)
 LFLAGS 	 = -lm 
 
 
@@ -32,9 +33,9 @@ LFLAGS 	 = -lm
 ################################################################################
 ############################ COMPILATION VARIABLES #############################
 ################################################################################
-SRC_FILE				= $(wildcard $(APP_DIR)/$(SRC_DIR)/*.c)
-OBJ_FILES				= $(patsubst $(APP_DIR)/$(SRC_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/%.o,$(SRC_FILE))
-INC_FILES				= $(wildcard $(APP_DIR)/$(INC_DIR)/*.h)
+SRC_FILE				= $(wildcard $(ROOT_DIR)/$(SRC_DIR)/*.c)
+OBJ_FILES				= $(patsubst $(ROOT_DIR)/$(SRC_DIR)/%.c,$(ROOT_DIR)/$(OBJ_DIR)/%.o,$(SRC_FILE))
+INC_FILES				= $(wildcard $(ROOT_DIR)/$(INC_DIR)/*.h)
 ALL_HEADER_FILES		= $(INC_FILES_ALGO)
 
 
@@ -44,26 +45,26 @@ ALL_HEADER_FILES		= $(INC_FILES_ALGO)
 ################################################################################
 
 .PHONY: all
-all: binaryTree
+all: test
 
 .PHONY: directories
 directories :
-	@mkdir -p $(APP_DIR)/$(BIN_DIR)
-	@mkdir -p $(APP_DIR)/$(OBJ_DIR)
+	@mkdir -p $(ROOT_DIR)/$(BIN_DIR)
+	@mkdir -p $(ROOT_DIR)/$(OBJ_DIR)
 
 
-.PHONY: binaryTree
-binaryTree : directories $(APP_DIR)/$(BIN_DIR)/$(APP)
+.PHONY: test
+test : directories $(ROOT_DIR)/$(BIN_DIR)/$(TEST)
 	@echo " ****************************************************************************** "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> binaryTree: ./$(word 2,$^)"
 	@echo " ****************************************************************************** "
 
 
-$(APP_DIR)/$(BIN_DIR)/$(APP) :  $(OBJ_FILES)
+$(ROOT_DIR)/$(BIN_DIR)/$(TEST) :  $(OBJ_FILES)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
-$(APP_DIR)/$(OBJ_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/%.c $(INC_FILES)
-	@$(CC) $(CFLAGS) $(APP_INC) -c -o $@ $<
+$(ROOT_DIR)/$(OBJ_DIR)/%.o : $(ROOT_DIR)/$(SRC_DIR)/%.c $(INC_FILES)
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 
 
@@ -71,18 +72,18 @@ $(APP_DIR)/$(OBJ_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/%.c $(INC_FILES)
 ############################### Top Level Rules ################################
 ################################################################################
 
-.PHONY: run
-run: run-binaryTree
+.PHONY: test
+run: test-binaryTree
 
 .PHONY: clean
 clean: clean-all
 
 .PHONY: clean-all
 clean-all:
-	@rm -fr $(APP_DIR)/$(OBJ_DIR)
-	@rm -fr $(APP_DIR)/$(BIN_DIR)
+	@rm -fr $(ROOT_DIR)/$(OBJ_DIR)
+	@rm -fr $(ROOT_DIR)/$(BIN_DIR)
 
-.PHONY: run-binaryTree
-run-binaryTree: binaryTree
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)
-#	./$(APP_DIR)/$(BIN_DIR)/$(APP) -f $(FILE_BIN) $(ARGS)
+.PHONY: run-test
+run-test: test
+	./$(ROOT_DIR)/$(BIN_DIR)/$(TEST)
+#	./$(ROOT_DIR)/$(BIN_DIR)/$(APP) -f $(FILE_BIN) $(ARGS)
