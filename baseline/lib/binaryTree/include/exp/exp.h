@@ -12,59 +12,33 @@
  * 
  */
 
-#ifndef	__BINARYTREE_TYPES_H
-#define	__BINARYTREE_TYPES_H
+#ifndef	__BINARYTREE_EXP_H
+#define	__BINARYTREE_EXP_H
 
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
+#include <time.h>
 
+#include "types.h"
 
 
 /******************************************************************************* 
 ---------------------------------- TYPE DEFS -----------------------------------
 *******************************************************************************/
 
-/* basic binary tree (primary type used in module) */
-typedef struct Tree Tree;
-struct Tree
+/* type used to store info for timing tree traversal experiments */
+typedef struct TimeInfo
 {
-  int id;
-  void *data;
-  Tree *left;
-  Tree *right;
-};
+  clock_t cycles;
+  double seconds;
+  int samples;
+} TimeInfo;
 
-/* type used while building binary tree from inversion table */
-typedef struct ITNode ITNode;
-struct ITNode
-{
-  int val;
-  Tree *tree;
-  ITNode *parent;
-};
-
-/* type used to get info about generated binary tree */
-typedef struct TreeInfo
-{
-  int size;
-  int leaves;
-  int depth;
-  float density;
-  Tree *root;
-} TreeInfo;
-
-/* defines callback function type for performing actions during tree traversal */
-typedef void (*TreeCallback)(Tree *);
-
-// /* binary tree queue, used for level-order traversal */
-// typedef struct TreeQueue TreeQueue;
-// struct TreeQueue
-// {
-//   int size;
-
-// }
+/* types for passing function pointer to traversal function */
+typedef void (*TraversalFunc)(Tree *);
+typedef void (*TraversalFuncCB)(Tree *, TreeCallback);
 
 #endif
 /******************************************************************************* 

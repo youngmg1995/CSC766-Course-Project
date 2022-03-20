@@ -36,10 +36,10 @@ extern Tree * genBalancedTree(int depth, bool isBST);
 extern Tree * genContBalancedTree(Tree *btNodeArray, int depth, bool isBST);
 
 /* optimized tree generators */ 
-extern void genRandomTreeOptimized(int *invTable, ITNode *itNodeArray, int N, bool isBST, TreeInfo *treeInfo);
-extern void genContRandomTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N, bool isBST, TreeInfo *treeInfo);
-extern void genBalancedTreeOptimized(int *invTable, ITNode *itNodeArray, int depth, bool isBST, TreeInfo *treeInfo);
-extern void genContBalancedTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int depth, bool isBST, TreeInfo *treeInfo);
+extern TreeInfo genRandomTreeOptimized(int *invTable, ITNode *itNodeArray, int N, bool isBST);
+extern TreeInfo genContRandomTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N, bool isBST);
+extern TreeInfo genBalancedTreeOptimized(int *invTable, ITNode *itNodeArray, int depth, bool isBST);
+extern TreeInfo genContBalancedTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int depth, bool isBST);
 
 /* other useful functions */ 
 extern Tree * invTab2BT(int *invTable, int N);

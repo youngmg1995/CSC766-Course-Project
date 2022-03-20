@@ -357,7 +357,7 @@ void exampleInvTabTreeGen()
 	int *invTable;
 	Tree *binaryTree, *btNodeArray;
 	ITNode *itNodeArray;
-	TreeInfo treeInfo = {0};
+	TreeInfo treeInfo;
 
 	invTable = (int *) malloc(TEST_4_N * sizeof(int));
 	btNodeArray = (Tree *) malloc(TEST_4_N * sizeof(Tree));
@@ -366,7 +366,7 @@ void exampleInvTabTreeGen()
 
 	printf("Generated Binary Tree: N = %d\n", TEST_4_N);
 	printf("************************************\n");
-	genRandomTreeOptimized(invTable, itNodeArray, TEST_4_N, false, &treeInfo);
+	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, TEST_4_N, false);
 	binaryTree = treeInfo.root;
 	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
@@ -382,7 +382,7 @@ void exampleInvTabTreeGen()
 	printf("Generated Contiguous Binary Tree: N = %d\n", TEST_4_N);
 	printf("***************************************\n");
 	binaryTree = make_empty(binaryTree);
-	genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, TEST_4_N, false, &treeInfo);
+	treeInfo = genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, TEST_4_N, false);
 	binaryTree = treeInfo.root;
 	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
@@ -397,7 +397,7 @@ void exampleInvTabTreeGen()
 
 	printf("Generated Binary Search Tree: N = %d\n", TEST_4_N);
 	printf("************************************\n");
-	genRandomTreeOptimized(invTable, itNodeArray, TEST_4_N, true, &treeInfo);
+	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, TEST_4_N, true);
 	binaryTree = treeInfo.root;
 	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
@@ -413,7 +413,7 @@ void exampleInvTabTreeGen()
 	printf("Generated Contiguous Binary Search Tree: N = %d\n", TEST_4_N);
 	printf("**********************************************\n");
 	binaryTree = make_empty(binaryTree);
-	genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, TEST_4_N, true, &treeInfo);
+	treeInfo = genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, TEST_4_N, true);
 	binaryTree = treeInfo.root;
 	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
@@ -442,7 +442,7 @@ void validateBalancedTreeGen()
 	int *invTable, N, depth;
 	Tree *binaryTree, *btNodeArray;
 	ITNode *itNodeArray;
-	TreeInfo treeInfo = {0};
+	TreeInfo treeInfo;
 
 	N = (1<<(TEST_6_DEPTH+1))-1;
 	invTable = (int *) malloc(N * sizeof(int));
@@ -455,7 +455,7 @@ void validateBalancedTreeGen()
 
 		printf("Balanced Binary Tree: depth = %d , N = %d\n", depth, N);
 		printf("*********************************************\n");
-		genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false, &treeInfo);
+		treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false);
 		binaryTree = treeInfo.root;
 		printInvTab(invTable, N, false);
 		printf("\n\n");
@@ -464,7 +464,7 @@ void validateBalancedTreeGen()
 
 		printf("Balanced Binary Search Tree: depth = %d , N = %d\n", depth, N);
 		printf("************************************************\n");
-		genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, true, &treeInfo);
+		treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, true);
 		printInvTab(invTable, N, false);
 		printf("\n\n");
 		print_ascii_tree(binaryTree);
@@ -483,13 +483,13 @@ void validateTraversal()
 	int *invTable;
 	Tree *binaryTree, *btNodeArray, *binaryTreeCont;
 	ITNode *itNodeArray;
-	TreeInfo treeInfo = {0};
+	TreeInfo treeInfo;
 	
 	invTable = (int *) malloc(TEST_7_N * sizeof(int));
 	btNodeArray = (Tree *) malloc(TEST_7_N * sizeof(Tree));
 	itNodeArray = (ITNode *) malloc(TEST_7_N * sizeof(ITNode));
 
-	genRandomTreeOptimized(invTable, itNodeArray, TEST_7_N, true, &treeInfo);
+	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, TEST_7_N, true);
 	binaryTree = treeInfo.root;
 	binaryTreeCont = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, TEST_7_N);
 	convert2BST(binaryTreeCont);

@@ -99,6 +99,8 @@ void genInversionTableOptimized(int *invTable, int N, TreeInfo *treeInfo)
 			depth -= (i - *invTable - 1);
 		}
 	}
+
+	treeInfo->density = treeDensity(treeInfo->size, treeInfo->leaves);
 }
 
 void genBalancedIT(int *invTable, int depth)
@@ -458,40 +460,50 @@ Tree * genContBalancedTree(Tree *btNodeArray, int depth, bool isBST)
 /* -------------------------------------------------------------------------- */
 
 /* optimized version that don't require memory allocation but require it be passed in (as itNodeArray) */
-void genRandomTreeOptimized(int *invTable, ITNode *itNodeArray, int N, bool isBST, TreeInfo *treeInfo)
-{
-	treeInfo->size = N;
-	genInversionTableOptimized(invTable, N, treeInfo);
-	treeInfo->root = invTab2BTOptimized(invTable, itNodeArray, N);
-	if (isBST) convert2BST(treeInfo->root);
+TreeInfo genRandomTreeOptimized(int *invTable, ITNode *itNodeArray, int N, bool isBST)
+{	
+	TreeInfo treeInfo = {0};
+	treeInfo.size = N;
+	genInversionTableOptimized(invTable, N, &treeInfo);
+	treeInfo.root = invTab2BTOptimized(invTable, itNodeArray, N);
+	if (isBST) convert2BST(treeInfo.root);
+	return treeInfo;
 }
 
-void genContRandomTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N, bool isBST, TreeInfo *treeInfo)
+TreeInfo genContRandomTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N, bool isBST)
 {
-	treeInfo->size = N;
-	genInversionTableOptimized(invTable, N, treeInfo);	
-	treeInfo->root = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, N);
-	if (isBST) convert2BST(treeInfo->root);
+	TreeInfo treeInfo = {0};
+	treeInfo.size = N;
+	genInversionTableOptimized(invTable, N, &treeInfo);	
+	treeInfo.root = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, N);
+	if (isBST) convert2BST(treeInfo.root);
+	return treeInfo;
 }
 
-void genBalancedTreeOptimized(int *invTable, ITNode *itNodeArray, int depth, bool isBST, TreeInfo *treeInfo)
+TreeInfo genBalancedTreeOptimized(int *invTable, ITNode *itNodeArray, int depth, bool isBST)
 {
-	treeInfo->size = (1<<(depth+1))-1;
-	treeInfo->depth = depth;
-	treeInfo->leaves = (1<<depth);
+	TreeInfo treeInfo = {0};
+	treeInfo.size = (1<<(depth+1))-1;
+	treeInfo.depth = depth;
+	treeInfo.leaves = (1<<depth);
+	treeInfo.density = treeDensity(treeInfo.size, treeInfo.leaves);
 	genBalancedIT(invTable, depth);
-	treeInfo->root = invTab2BTOptimized(invTable, itNodeArray, treeInfo->size);
-	if (isBST) convert2BST(treeInfo->root);
+	treeInfo.root = invTab2BTOptimized(invTable, itNodeArray, treeInfo.size);
+	if (isBST) convert2BST(treeInfo.root);
+	return treeInfo;
 }
 
-void genContBalancedTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int depth, bool isBST, TreeInfo *treeInfo)
+TreeInfo genContBalancedTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int depth, bool isBST)
 {
-	treeInfo->size = (1<<(depth+1))-1;
-	treeInfo->depth = depth;
-	treeInfo->leaves = (1<<depth);
+	TreeInfo treeInfo = {0};
+	treeInfo.size = (1<<(depth+1))-1;
+	treeInfo.depth = depth;
+	treeInfo.leaves = (1<<depth);
+	treeInfo.density = treeDensity(treeInfo.size, treeInfo.leaves);
 	genBalancedIT(invTable, depth);
-	treeInfo->root = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, treeInfo->size);
-	if (isBST) convert2BST(treeInfo->root);
+	treeInfo.root = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, treeInfo.size);
+	if (isBST) convert2BST(treeInfo.root);
+	return treeInfo;
 }
 
 /* -------------------------------------------------------------------------- */
