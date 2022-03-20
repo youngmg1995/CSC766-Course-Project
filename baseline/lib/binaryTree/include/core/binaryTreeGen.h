@@ -29,15 +29,23 @@
 /******************************************************************************* 
 --------------------------------- DECLARATIONS ---------------------------------
 *******************************************************************************/
-/* tree generators */ 
-extern Tree * genRandomTree(int *invTable, int N, bool isBST);
-extern Tree * genContRandomTree(int *invTable, Tree *btNodeArray, int N, bool isBST);
-extern Tree * genBalancedTree(int *invTable, int depth, bool isBST);
-extern Tree * genContBalancedTree(int *invTable, Tree *btNodeArray, int depth, bool isBST);
+/* basic tree generators */ 
+extern Tree * genRandomTree(int N, bool isBST);
+extern Tree * genContRandomTree(Tree *btNodeArray, int N, bool isBST);
+extern Tree * genBalancedTree(int depth, bool isBST);
+extern Tree * genContBalancedTree(Tree *btNodeArray, int depth, bool isBST);
+
+/* optimized tree generators */ 
+extern void genRandomTreeOptimized(int *invTable, ITNode *itNodeArray, int N, bool isBST, TreeInfo *treeInfo);
+extern void genContRandomTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N, bool isBST, TreeInfo *treeInfo);
+extern void genBalancedTreeOptimized(int *invTable, ITNode *itNodeArray, int depth, bool isBST, TreeInfo *treeInfo);
+extern void genContBalancedTreeOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int depth, bool isBST, TreeInfo *treeInfo);
 
 /* other useful functions */ 
 extern Tree * invTab2BT(int *invTable, int N);
 extern Tree * invTab2ContBT(int *invTable, Tree *btNodeArray, int N);
+extern Tree * invTab2BTOptimized(int *invTable, ITNode *itNodeArray, int N);
+extern Tree * invTab2ContBTOptimized(int *invTable, Tree *btNodeArray, ITNode *itNodeArray, int N);
 extern void convert2BST(Tree *root);
 extern void genTree2StdOut(int N);
 extern void genInversionTable(int *invTable, int N);

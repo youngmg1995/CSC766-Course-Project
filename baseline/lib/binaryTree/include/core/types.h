@@ -45,6 +45,18 @@ struct ITNode
   ITNode *parent;
 };
 
+/* type used to get info about generated binary tree */
+typedef struct TreeInfo
+{
+  int size;
+  int leaves;
+  int depth;
+  Tree *root;
+} TreeInfo;
+
+/* defines callback function type for performing actions during tree traversal */
+typedef void (*TreeCallback)(Tree *);
+
 // /* binary tree queue, used for level-order traversal */
 // typedef struct TreeQueue TreeQueue;
 // struct TreeQueue
@@ -52,9 +64,6 @@ struct ITNode
 //   int size;
 
 // }
-
-/* defines callback function type for performing actions during tree traversal */
-typedef void (*TreeCallback)(Tree *);
 
 #endif
 /******************************************************************************* 

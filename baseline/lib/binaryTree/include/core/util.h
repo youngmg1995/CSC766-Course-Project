@@ -31,6 +31,7 @@
 /* math stuff */
 extern int factorial(int x);
 extern int catalan(int x);
+extern float treeDensity(int N, int l);
 
 /* random number generation */
 extern double genrand64_real2(void);

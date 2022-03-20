@@ -2,9 +2,9 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file binaryTreeGen.c
+ * @file traversal.c
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief Defines functions for generating binary trees.
+ * @brief Defines functions for traversing binary trees.
  * @version 0.1
  * @date 2022-03-06
  * 

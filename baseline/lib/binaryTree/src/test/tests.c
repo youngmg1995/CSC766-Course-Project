@@ -2,7 +2,7 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file main.c
+ * @file tests.c
  * @author Mitchell Young (mgyoung@ncsu.edu)
  * @brief Runs unit tests for generating binary trees.
  * @version 0.1
@@ -279,7 +279,7 @@ void validateInvTabGen()
 	free(tabSums);
 }
 
-void validateInvTabTanslation()
+void validateInvTabTranslation()
 {
 	int *invTable;
 	Tree *binaryTree, *btNodeArray;
@@ -356,45 +356,79 @@ void exampleInvTabTreeGen()
 {
 	int *invTable;
 	Tree *binaryTree, *btNodeArray;
+	ITNode *itNodeArray;
+	TreeInfo treeInfo = {0};
+
+	invTable = (int *) malloc(TEST_4_N * sizeof(int));
+	btNodeArray = (Tree *) malloc(TEST_4_N * sizeof(Tree));
+	itNodeArray = (ITNode *) malloc(TEST_4_N * sizeof(ITNode));
+
 
 	printf("Generated Binary Tree: N = %d\n", TEST_4_N);
 	printf("************************************\n");
-	invTable = (int *) malloc(TEST_4_N * sizeof(int));
-	binaryTree = genRandomTree(invTable, TEST_4_N, false);
+	genRandomTreeOptimized(invTable, itNodeArray, TEST_4_N, false, &treeInfo);
+	binaryTree = treeInfo.root;
+	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
-	printf("\n\n");
+	printf("\n");
+	printf(
+		"Size = %d , Depth = %d , Leaves = %d , Density = %.2f\n", 
+		treeInfo.size, treeInfo.depth, treeInfo.leaves, treeDensity(treeInfo.size, treeInfo.leaves)
+	);
+	printf("\n");
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
 	printf("Generated Contiguous Binary Tree: N = %d\n", TEST_4_N);
 	printf("***************************************\n");
-	btNodeArray = (Tree *) malloc(TEST_4_N * sizeof(Tree));
 	binaryTree = make_empty(binaryTree);
-	binaryTree = genContRandomTree(invTable, btNodeArray, TEST_4_N, false);
+	genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, TEST_4_N, false, &treeInfo);
+	binaryTree = treeInfo.root;
+	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
-	printf("\n\n");
+	printf("\n");
+	printf(
+		"Size = %d , Depth = %d , Leaves = %d , Density = %.2f\n", 
+		treeInfo.size, treeInfo.depth, treeInfo.leaves, treeDensity(treeInfo.size, treeInfo.leaves)
+	);
+	printf("\n");
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
 	printf("Generated Binary Search Tree: N = %d\n", TEST_4_N);
 	printf("************************************\n");
-	binaryTree = genRandomTree(invTable, TEST_4_N, true);
+	genRandomTreeOptimized(invTable, itNodeArray, TEST_4_N, true, &treeInfo);
+	binaryTree = treeInfo.root;
+	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
-	printf("\n\n");
+	printf("\n");
+	printf(
+		"Size = %d , Depth = %d , Leaves = %d , Density = %.2f\n", 
+		treeInfo.size, treeInfo.depth, treeInfo.leaves, treeDensity(treeInfo.size, treeInfo.leaves)
+	);
+	printf("\n");
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
 	printf("Generated Contiguous Binary Search Tree: N = %d\n", TEST_4_N);
 	printf("**********************************************\n");
 	binaryTree = make_empty(binaryTree);
-	binaryTree = genContRandomTree(invTable, btNodeArray, TEST_4_N, true);
+	genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, TEST_4_N, true, &treeInfo);
+	binaryTree = treeInfo.root;
+	printf("Inv. Table: ");
 	printInvTab(invTable, TEST_4_N, false);
-	printf("\n\n");
+	printf("\n");
+	printf(
+		"Size = %d , Depth = %d , Leaves = %d , Density = %.2f\n", 
+		treeInfo.size, treeInfo.depth, treeInfo.leaves, treeDensity(treeInfo.size, treeInfo.leaves)
+	);
+	printf("\n");
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
 	free(invTable);
 	free(btNodeArray);	
+	free(itNodeArray);
 }
 
 void exampleInvTab2Output()
@@ -407,10 +441,13 @@ void validateBalancedTreeGen()
 {
 	int *invTable, N, depth;
 	Tree *binaryTree, *btNodeArray;
+	ITNode *itNodeArray;
+	TreeInfo treeInfo = {0};
 
 	N = (1<<(TEST_6_DEPTH+1))-1;
 	invTable = (int *) malloc(N * sizeof(int));
 	btNodeArray = (Tree *) malloc(N * sizeof(Tree));
+	itNodeArray = (ITNode *) malloc(N * sizeof(ITNode));
 
 	for (depth=0; depth<=TEST_6_DEPTH; depth++)
 	{
@@ -418,7 +455,8 @@ void validateBalancedTreeGen()
 
 		printf("Balanced Binary Tree: depth = %d , N = %d\n", depth, N);
 		printf("*********************************************\n");
-		binaryTree = genContBalancedTree(invTable, btNodeArray, depth, false);
+		genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false, &treeInfo);
+		binaryTree = treeInfo.root;
 		printInvTab(invTable, N, false);
 		printf("\n\n");
 		print_ascii_tree(binaryTree);
@@ -426,34 +464,41 @@ void validateBalancedTreeGen()
 
 		printf("Balanced Binary Search Tree: depth = %d , N = %d\n", depth, N);
 		printf("************************************************\n");
-		binaryTree = genContBalancedTree(invTable, btNodeArray, depth, true);
+		genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, true, &treeInfo);
 		printInvTab(invTable, N, false);
 		printf("\n\n");
 		print_ascii_tree(binaryTree);
 		printf("\n");
 	}
 
+	printf("Before Free\n");
 	free(invTable);
-	free(btNodeArray);	
+	free(btNodeArray);
+	free(itNodeArray);
+	printf("After Free\n");
 }
 
 void validateTraversal()
 {
 	int *invTable;
 	Tree *binaryTree, *btNodeArray, *binaryTreeCont;
+	ITNode *itNodeArray;
+	TreeInfo treeInfo = {0};
+	
 	invTable = (int *) malloc(TEST_7_N * sizeof(int));
-	binaryTree = genRandomTree(invTable, TEST_7_N, true);
-
 	btNodeArray = (Tree *) malloc(TEST_7_N * sizeof(Tree));
-	binaryTreeCont = invTab2ContBT(invTable, btNodeArray, TEST_7_N);
+	itNodeArray = (ITNode *) malloc(TEST_7_N * sizeof(ITNode));
+
+	genRandomTreeOptimized(invTable, itNodeArray, TEST_7_N, true, &treeInfo);
+	binaryTree = treeInfo.root;
+	binaryTreeCont = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, TEST_7_N);
 	convert2BST(binaryTreeCont);
 
 	TreeCallback callback = &printNode;
 
+
 	printf("Generated Binary Tree: N = %d\n", TEST_7_N);
 	printf("************************************\n");
-	printInvTab(invTable, TEST_7_N, false);
-	printf("\n\n");
 	print_ascii_tree(binaryTree);
 	printf("\n");
 
@@ -479,6 +524,7 @@ void validateTraversal()
 
 	free(invTable);
 	free(btNodeArray);	
+	free(itNodeArray);
 	binaryTree = make_empty(binaryTree);
 }
 
@@ -516,7 +562,7 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 	
 	printUnitTestMsg(&testNum, "Validate Inversion Table Translation Correctness");
-	validateInvTabTanslation();
+	validateInvTabTranslation();
 
 	/* ---------------------------------------------------------------------- */
 	
