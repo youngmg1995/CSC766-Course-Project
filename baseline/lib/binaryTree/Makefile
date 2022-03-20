@@ -14,8 +14,14 @@ INC_DIR			  	:= $(ROOT_DIR)/include
 OBJ_DIR				:= $(ROOT_DIR)/obj
 BIN_DIR			  	:= $(ROOT_DIR)/bin
 
-# unit test directories
-TEST_SRC_DIR		:= .
+# core directories
+CORE_SRC_DIR		:= $(SRC_DIR)/core
+CORE_INC_DIR		:= $(INC_DIR)/core
+CORE_OBJ_DIR		:= $(OBJ_DIR)/core
+
+# unit tests directories
+TEST_SRC_DIR		:= $(SRC_DIR)/test
+TEST_INC_DIR		:= $(INC_DIR)/test
 TEST_OBJ_DIR		:= $(OBJ_DIR)/test
 
 
@@ -26,10 +32,13 @@ TEST_OBJ_DIR		:= $(OBJ_DIR)/test
 # compliler
 CC			:= gcc
 
+# include directories
+CORE_INC	:= -I$(CORE_INC_DIR)
+TEST_INC	:= -I$(CORE_INC_DIR) -I$(TEST_INC_DIR)
+
 # flags
 # CFLAGS   =  -O3 -Wall -m64 -fopenmp -g
-INC_FLAG	:= -I$(INC_DIR)
-CFLAGS		:= -O3 -Wall $(INC_FLAG)
+CFLAGS		:= -O3 -Wall
 LFLAGS		:= -lm 
 
 
@@ -37,84 +46,90 @@ LFLAGS		:= -lm
 ################################################################################
 ############################ COMPILATION VARIABLES #############################
 ################################################################################
-SRC_FILES				:= $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES				:= $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
-INC_FILES				:= $(wildcard $(INC_DIR)/*.h)
-ALL_HEADER_FILES		:= $(INC_FILES_ALGO)
+CORE_SRC_FILES			:= $(wildcard $(CORE_SRC_DIR)/*.c)
+CORE_OBJ_FILES			:= $(patsubst $(CORE_SRC_DIR)/%.c,$(CORE_OBJ_DIR)/%.o,$(CORE_SRC_FILES))
+CORE_INC_FILES			:= $(wildcard $(CORE_INC_DIR)/*.h)
 
 TEST_SRC_FILES			:= $(wildcard $(TEST_SRC_DIR)/*.c)
 TEST_OBJ_FILES			:= $(patsubst $(TEST_SRC_DIR)/%.c,$(TEST_OBJ_DIR)/%.o,$(TEST_SRC_FILES))
+TEST_INC_FILES			:= $(wildcard $(TEST_INC_DIR)/*.h)
+
+ALL_SRC_FILES			:= $(CORE_SRC_FILES) $(TEST_SRC_FILES)
+ALL_OBJ_FILES			:= $(CORE_OBJ_FILES) $(TEST_OBJ_FILES)
+ALL_INC_FILES			:= $(CORE_INC_FILES) $(TEST_INC_FILES)
 
 
 
 ################################################################################
-################################### BUILDING ###################################
+##################################### CORE #####################################
 ################################################################################
 .PHONY: build
-build: build-binaryTree
+build: build-core
 
-.PHONY: build-directories
-build-directories :
-	@mkdir -p $(BIN_DIR)
-	@mkdir -p $(OBJ_DIR)
+.PHONY: build-all
+build-all: build-core build-test
 
-.PHONY: build-binaryTree
-build-binaryTree : build-directories $(OBJ_FILES)
+.PHONY: core-directories
+core-directories :
+	@mkdir -p $(CORE_OBJ_DIR)
+
+.PHONY: build-core
+build-core : core-directories $(CORE_OBJ_FILES)
 	@echo " ****************************************************************************** "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> build-binaryTree: ./$(word 2,$^)"
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> build-core: ./$(word 2,$^)"
 	@echo " ****************************************************************************** "
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(INC_FILES)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+$(CORE_OBJ_DIR)/%.o : $(CORE_SRC_DIR)/%.c $(CORE_INC_FILES)
+	$(CC) $(CFLAGS) $(CORE_INC) -c -o $@ $<
 
+
+################################################################################
+##################################### TEST #####################################
+################################################################################
+.PHONY: test
+test: build-test
+	$(BIN_DIR)/$(TEST)
 
 .PHONY: test-directories
 test-directories :
+	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(TEST_OBJ_DIR)
 
 .PHONY: build-test
-build-test : build-binaryTree test-directories $(BIN_DIR)/$(TEST)
+build-test : build-core test-directories $(BIN_DIR)/$(TEST)
 	@echo " ****************************************************************************** "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> test-binaryTree: ./$(word 2,$^)"
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> build-test: ./$(word 2,$^)"
 	@echo " ****************************************************************************** "
 
-$(BIN_DIR)/$(TEST) :  $(TEST_OBJ_FILES) $(OBJ_FILES)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+$(BIN_DIR)/$(TEST) :  $(TEST_OBJ_FILES) $(CORE_OBJ_FILES)
+	$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
-$(TEST_OBJ_DIR)/%.o : $(TEST_SRC_DIR)/%.c $(INC_FILES)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+$(TEST_OBJ_DIR)/%.o : $(TEST_SRC_DIR)/%.c $(TEST_INC_FILES)
+	$(CC) $(CFLAGS) $(TEST_INC) -c -o $@ $<
 
-
-################################################################################
-################################### TESTING ####################################
-################################################################################
-.PHONY: test
-test: test-binaryTree
-
-.PHONY: test-binaryTree
-test-binaryTree : build-test
-	$(BIN_DIR)/$(TEST)
 
 
 ################################################################################
-################################### CLEANING ###################################
+#################################### CLEAN #####################################
 ################################################################################
 
 .PHONY: clean
 clean: clean-all
 
 .PHONY: clean-all
-clean-all: clean-build clean-test
-
-.PHONY: clean-build
-clean-build:
+clean-all:
 	@rm -fr $(OBJ_DIR)
 	@rm -fr $(BIN_DIR)
+
+
+.PHONY: clean-core
+clean-core:
+	@rm -fr $(CORE_OBJ_DIR)
 
 .PHONY: clean-test
 clean-test:
 	@rm -fr $(TEST_OBJ_DIR)
-	@rm -fr $(BIN_DIR)/$(TEST)
+	@rm -fr $(BIN_DIR)/$(TEST).exe
 
 
 

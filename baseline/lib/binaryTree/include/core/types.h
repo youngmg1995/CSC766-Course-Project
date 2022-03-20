@@ -54,7 +54,7 @@ struct ITNode
 // }
 
 /* defines callback function type for performing actions during tree traversal */
-typedef void (*TreeCallBack)(Tree *);
+typedef void (*TreeCallback)(Tree *);
 
 #endif
 /******************************************************************************* 

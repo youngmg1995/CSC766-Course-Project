@@ -19,7 +19,6 @@
 #include <stddef.h>
 
 #include "types.h"
-#include "binaryTree.h"
 
 
 /******************************************************************************* 
@@ -45,9 +44,9 @@ void inOrder(Tree *root)
 {
 	if (root != NULL)
 	{	
-		preOrder(root->left);
+		inOrder(root->left);
 		// do something here
-		preOrder(root->right);
+		inOrder(root->right);
 	}
 }
 
@@ -55,8 +54,8 @@ void postOrder(Tree *root)
 {
 	if (root != NULL)
 	{	
-		preOrder(root->left);
-		preOrder(root->right);
+		postOrder(root->left);
+		postOrder(root->right);
 		// do something here
 	}
 }
@@ -65,7 +64,7 @@ void postOrder(Tree *root)
 // {
 // }
 
-void orderedTraversal(Tree *treeArray, int N)
+void contiguousOrder(Tree *treeArray, int N)
 {
 	int i;
 	for (i=0; i<N; i++, treeArray++)
@@ -79,33 +78,33 @@ void orderedTraversal(Tree *treeArray, int N)
 /******************************************************************************* 
 ----------------------------- CALLBACK TRAVERSALS ------------------------------
 *******************************************************************************/
-void preOrderCB(Tree *root, TreeCallBack callBack)
+void preOrderCB(Tree *root, TreeCallback callback)
 {
 	if (root != NULL)
 	{	
-		callBack(root);
-		preOrder(root->left);
-		preOrder(root->right);
+		callback(root);
+		preOrderCB(root->left, callback);
+		preOrderCB(root->right, callback);
 	}
 }
 
-void inOrderCB(Tree *root, TreeCallBack callBack)
+void inOrderCB(Tree *root, TreeCallback callback)
 {
 	if (root != NULL)
 	{	
-		preOrder(root->left);
-		callBack(root);
-		preOrder(root->right);
+		inOrderCB(root->left, callback);
+		callback(root);
+		inOrderCB(root->right, callback);
 	}
 }
 
-void postOrderCB(Tree *root, TreeCallBack callBack)
+void postOrderCB(Tree *root, TreeCallback callback)
 {
 	if (root != NULL)
 	{	
-		preOrder(root->left);
-		preOrder(root->right);
-		callBack(root);
+		postOrderCB(root->left, callback);
+		postOrderCB(root->right, callback);
+		callback(root);
 	}
 }
 
@@ -113,12 +112,12 @@ void postOrderCB(Tree *root, TreeCallBack callBack)
 // {
 // }
 
-void orderedTraversalCB(Tree *treeArray, int N, TreeCallBack callBack)
+void contiguousOrderCB(Tree *treeArray, int N, TreeCallback callback)
 {
 	int i;
 	for (i=0; i<N; i++, treeArray++)
 	{
-		callBack(treeArray);
+		callback(treeArray);
 	}
 }
 
