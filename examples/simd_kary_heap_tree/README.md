@@ -35,5 +35,6 @@ Find element 3 at index 415061.
 |Duration of SIMD search| 312|
 
 ## 4. TBD
-Currently I can not compile code in larger order of static array. <br>
+1. Currently I can not compile code in larger order of static array. <br>
 emcc compiler will throw error cause it run out of initial memory location.
+2. repeat experiment, calculating average speed up using multithread.
