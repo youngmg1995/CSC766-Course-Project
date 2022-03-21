@@ -5,5 +5,8 @@ obj/
 # resources directory (where I have useful papers & info)
 /resources
 
+# experimental data
+/.data
+
 # vscode settings
-.vscode
+.vscode/

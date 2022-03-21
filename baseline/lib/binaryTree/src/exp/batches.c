@@ -299,7 +299,7 @@ void traversalBatchCB(
 	);
 	timeTraversalContCB(
 		treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "contiguous", "contiguous-order", callbackName
+		"balanced", "contiguous", "contiguous-order", callbackName
 	);
 
 	/* ---------------------------------------------------------------------- */

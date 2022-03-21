@@ -51,6 +51,39 @@ void printExpResults(
 	}
 }
 
+// void mem_flush(const void *p, unsigned int allocation_size){
+//     const size_t cache_line = 64;
+//     const char *cp = (const char *)p;
+//     size_t i = 0;
+
+//     if (p == NULL || allocation_size <= 0)
+// 		return;
+
+//     for (i = 0; i < allocation_size; i += cache_line) 
+// 	{
+// 		asm volatile("clflush (%0)\n\t"
+// 						: 
+// 						: "r"(&cp[i])
+// 						: "memory");
+//     }
+
+//     asm volatile("sfence\n\t"
+//                  :
+//                  :
+//                  : "memory");
+// }
+
+// void clearCache()
+// {
+// 	long N = 1<<40;
+// 	char *lotsofmem = (char *) malloc(N * sizeof(char));
+// 	int i;
+// 	for (i=0; i<N; i++)
+// 	{
+// 		lotsofmem[i] = 0;
+// 	}
+// 	free(lotsofmem);
+// }
 
 
 /******************************************************************************* 
@@ -69,6 +102,8 @@ TimeInfo timeTraversal(
 
 	int i;
 	clock_t tic, toc;
+
+	// mem_flush(treeInfo.root, treeInfo.size * sizeof(Tree));
 
 	tic = clock();
 	for (i=0; i<samples; i++)
