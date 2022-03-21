@@ -336,13 +336,13 @@ int main()
      duration = duration_cast<microseconds>(stop - start);
     cout << "Duration of SIMD search: "<<duration.count() << endl;
 
-    printf("\n\nExtracted max is %d",
+    /*printf("\n\nExtracted max is %d",
                    extractMax(arr, &n, k));
  
     printf("\n\nHeap after extract max: \n");
     for (int i=0; i<n; i++)
         printf("%d ", arr[i]);
- 
+    */
     for(int i=11; i<capacity-100;i++){
       element = i;
       insert(arr, &n, k, element);
