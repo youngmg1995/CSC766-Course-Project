@@ -25,3 +25,15 @@ emcc -v
 make comp
 make run
 ```
+
+## 3. result
+Search element 3.<br> 
+Find element 3 at index 415061.
+||microseconds|
+|---|---|
+|Duration of original search| 540|
+|Duration of SIMD search| 312|
+
+## 4. TBD
+Currently I can not compile code in larger order of static array. <br>
+emcc compiler will throw error cause it run out of initial memory location.
