@@ -34,14 +34,14 @@ void initITNode(ITNode *node)
 	node->parent	= NULL;
 }
 
-double getP(int N, int i, int j)
+double getP(double N, double i, double j)
 {
-	return ( (double) (i+3)*(N-j) ) / ( (i+2)*(2*(N-j)+i+1) );
+	return ( (i+3)*(N-j) ) / ( (i+2)*(2*(N-j)+i+1) );
 }
 
-double getQ(int N, int j, int k)
+double getQ(double N, double j, double k)
 {
-	return  ( (double) (k+1)*(N-j+k+1) ) / ( (k+2)*(2*(N-j)+k-1) );
+	return  ( (k+1)*(N-j+k+1) ) / ( (k+2)*(2*(N-j)+k-1) );
 }
 
 int assign(int N, int i, int j)

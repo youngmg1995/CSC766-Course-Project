@@ -38,6 +38,7 @@ extern Tree * find(int id, Tree *t);
 extern Tree * insert(int id, void *data, Tree *t);
 extern Tree * delete(int id, Tree * t, void *data);
 extern void printNode(Tree *t);
+extern void incrementID(Tree *t);
 
 /* traversals */
 extern void preOrder(Tree *root);

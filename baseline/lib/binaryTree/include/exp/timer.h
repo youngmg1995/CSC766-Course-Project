@@ -12,37 +12,45 @@
  * 
  */
 
-#ifndef	__BINARYTREE_EXP_H
-#define	__BINARYTREE_EXP_H
+#ifndef	__BINARYTREE_TIMER_H
+#define	__BINARYTREE_TIMER_H
 
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include <time.h>
-
-#include "types.h"
+#include "exp.h"
 
 
 /******************************************************************************* 
 ---------------------------------- FUNC DECL -----------------------------------
 *******************************************************************************/
 
-/* type used to store info for timing tree traversal experiments */
-typedef struct TimeInfo
-{
-  clock_t cycles;
-  double seconds;
-  int samples;
-  double avgCycles;
-  double avgSeconds;
-} TimeInfo;
+/* functions for timing each tree traversal */
+extern TimeInfo timeTraversal(
+	TreeInfo treeInfo, TraversalFunc traversalFunc, int samples, 
+	bool printResults, bool verbose, const char treeType[], const char storageType[],
+	const char traversalName[], const char callbackName[]
+);
 
-/* types for passing function pointer to traversal function */
-typedef void (*TraversalFunc)(Tree *);
-typedef void (*TraversalFuncCB)(Tree *, TreeCallback);
-typedef void (*TraversalFuncCont)(Tree *, int);
-typedef void (*TraversalFuncContCB)(Tree *, int, TreeCallback);
+extern TimeInfo timeTraversalCB(
+	TreeInfo treeInfo, TraversalFuncCB traversalFunc, TreeCallback callback, int samples, 
+	bool printResults, bool verbose, const char treeType[], const char storageType[],
+	const char traversalName[], const char callbackName[]
+);
+
+extern TimeInfo timeTraversalCont(
+	TreeInfo treeInfo, Tree *btNodeArray, TraversalFuncCont traversalFunc, int samples, 
+	bool printResults, bool verbose, const char treeType[], const char storageType[],
+	const char traversalName[], const char callbackName[]
+);
+
+extern TimeInfo timeTraversalContCB(
+	TreeInfo treeInfo,  Tree *btNodeArray, TraversalFuncContCB traversalFunc, TreeCallback callback, int samples, 
+	bool printResults, bool verbose, const char treeType[], const char storageType[],
+	const char traversalName[], const char callbackName[]
+);
+
 
 #endif
 /******************************************************************************* 

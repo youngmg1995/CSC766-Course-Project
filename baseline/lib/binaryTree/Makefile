@@ -106,7 +106,7 @@ ALL_INC_FILES			:= $(CORE_INC_FILES) $(TEST_INC_FILES) $(EXP_INC_FILES)
 # ------------------------------------------------------------------------------
 
 .PHONY: build
-build: build-core
+build: build-all
 
 .PHONY: build-all
 build-all: build-core build-test build-exp
@@ -208,7 +208,7 @@ clean-test:
 
 .PHONY: run-exp
 run-exp: build-exp
-	$(BIN_DIR)/$(EXP)
+	$(BIN_DIR)/$(EXP) >> /dev/null
 
 # ------------------------------------------------------------------------------
 

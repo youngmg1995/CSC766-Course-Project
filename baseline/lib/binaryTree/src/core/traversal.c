@@ -69,7 +69,10 @@ void contiguousOrder(Tree *treeArray, int N)
 	int i;
 	for (i=0; i<N; i++, treeArray++)
 	{
-		// do something
+		if (treeArray != NULL)
+		{
+			// do something
+		}
 	}
 }
 
@@ -117,7 +120,10 @@ void contiguousOrderCB(Tree *treeArray, int N, TreeCallback callback)
 	int i;
 	for (i=0; i<N; i++, treeArray++)
 	{
-		callback(treeArray);
+		if (treeArray != NULL)
+		{
+			callback(treeArray);
+		}
 	}
 }
 

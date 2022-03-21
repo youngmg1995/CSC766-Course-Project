@@ -12,37 +12,31 @@
  * 
  */
 
-#ifndef	__BINARYTREE_EXP_H
-#define	__BINARYTREE_EXP_H
+#ifndef	__BINARYTREE_BATCH_H
+#define	__BINARYTREE_BATCH_H
 
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include <time.h>
-
-#include "types.h"
+#include "exp.h"
 
 
 /******************************************************************************* 
 ---------------------------------- FUNC DECL -----------------------------------
 *******************************************************************************/
 
-/* type used to store info for timing tree traversal experiments */
-typedef struct TimeInfo
-{
-  clock_t cycles;
-  double seconds;
-  int samples;
-  double avgCycles;
-  double avgSeconds;
-} TimeInfo;
+/* functions for timing each tree traversal */
+extern void traversalBatch(
+	int depth, int samples, bool printResults, bool verbose
+);
 
-/* types for passing function pointer to traversal function */
-typedef void (*TraversalFunc)(Tree *);
-typedef void (*TraversalFuncCB)(Tree *, TreeCallback);
-typedef void (*TraversalFuncCont)(Tree *, int);
-typedef void (*TraversalFuncContCB)(Tree *, int, TreeCallback);
+extern void traversalBatchCB(
+	int depth, int samples, TreeCallback callback, const char callbackName[], 
+	bool printResults, bool verbose
+);
+
+
 
 #endif
 /******************************************************************************* 

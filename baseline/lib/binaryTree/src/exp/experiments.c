@@ -18,98 +18,12 @@
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 #include "binaryTree.h"
-#include "binaryTreeGen.h"
-#include "exp.h"
-#include "types.h"
 #include "util.h"
 
+#include "batches.h"
 
-/******************************************************************************* 
-------------------------------- HELPER FUNCTIONS -------------------------------
-*******************************************************************************/
-
-TimeInfo timeTraversal(Tree *root, TraversalFunc traversalFunc, int samples)
-{
-	TimeInfo timeInfo = {0};
-
-	int i;
-	clock_t tic, toc;
-
-	tic = clock();
-	for (i=0; i<samples; i++)
-	{
-		traversalFunc(root);
-	}
-	toc = clock();
-
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-
-	return timeInfo;
-}
-
-TimeInfo timeTraversalCB(Tree *root, TraversalFuncCB traversalFunc, TreeCallback callback, int samples)
-{
-	TimeInfo timeInfo = {0};
-
-	int i;
-	clock_t tic, toc;
-
-	tic = clock();
-	for (i=0; i<samples; i++)
-	{
-		traversalFunc(root, callback);
-	}
-	toc = clock();
-
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-
-	return timeInfo;
-}
-
-void timingSample(int N, int samples)
-{
-	int *invTable;
-	Tree *btNodeArray;
-	ITNode *itNodeArray;
-
-	N = 1<<10;
-	invTable = (int *) malloc(N * sizeof(int));
-	btNodeArray = (Tree *) malloc(N * sizeof(Tree));
-	itNodeArray = (ITNode *) malloc(N * sizeof(ITNode)); 
-
-	TreeInfo treeInfo, treeInfoCont; 
-	TimeInfo timeInfo, timeInfoCont;
-	
-	TraversalFunc inOrderTraversal = &inOrder;
-
-
-	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
-	treeInfoCont = genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, N, false);
-
-	timeInfo = 	timeTraversal(treeInfo.root, inOrderTraversal, samples);
-	timeInfoCont = 	timeTraversal(treeInfoCont.root, inOrderTraversal, samples);
-	fprintf(
-		stderr, "N = %d , Depth = %d, Leaves = %d , Density = %.3f , Traversal = %s , Samples = %d , Cycles = %ld , Seconds = %f\n",
-		treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, "In-Order", timeInfo.samples, timeInfo.cycles, timeInfo.seconds 
-	);
-	fprintf(
-		stderr, "N = %d , Depth = %d, Leaves = %d , Density = %.3f , Traversal = %s , Samples = %d , Cycles = %ld , Seconds = %f\n",
-		treeInfoCont.size, treeInfoCont.depth, treeInfoCont.leaves, treeInfoCont.density, "In-Order", timeInfoCont.samples, timeInfoCont.cycles, timeInfoCont.seconds 
-	);
-
-	free(invTable);
-	make_empty(treeInfo.root);
-	free(btNodeArray);
-	free(itNodeArray);
-}
 
 
 /******************************************************************************* 
@@ -127,9 +41,22 @@ int main(int argc, char *argv[])
 
 	init_genrand64(time(0));
 
+	TreeCallback incrementCallback = &incrementID;
+	TreeCallback printCallback = &printNode;
+
+	bool printResults = true;
+	bool verbose = false;
+
 	/* ---------------------------------------------------------------------- */
 
-	timingSample(1<<10, 1<<10);
+	fprintf(stderr, "\n");
+	traversalBatch(18, 1, printResults, verbose);
+
+	fprintf(stderr, "\n");
+	traversalBatchCB(18, 1, incrementCallback, "increment-id", printResults, verbose);
+
+	fprintf(stderr, "\n");
+	traversalBatchCB(18, 1, printCallback, "print-id", printResults, verbose);
 
 	/* ---------------------------------------------------------------------- */
 	
