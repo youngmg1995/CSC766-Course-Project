@@ -21,6 +21,7 @@
 #include <time.h>
 
 #include "types.h"
+#include "queue.h"
 
 #include "exp.h"
 
@@ -129,6 +130,84 @@ TimeInfo timeTraversalCB(
 
 	return timeInfo;
 }
+
+TimeInfo timeTraversalLevel(
+	TreeInfo treeInfo, TreeQueue *treeQueue, TraversalFuncLevel traversalFunc, int samples,
+	bool printResults, bool verbose, const char treeType[], const char storageType[],
+	const char traversalName[], const char callbackName[]
+)
+{
+	TimeInfo timeInfo = {0};
+
+	resetTQ(treeQueue);
+
+	int i;
+	clock_t tic, toc;
+
+	tic = clock();
+	for (i=0; i<samples; i++)
+	{
+		traversalFunc(treeInfo.root, treeQueue);
+	}
+	toc = clock();
+
+	timeInfo.samples 	= samples;
+	timeInfo.cycles		= toc - tic;
+	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+
+	if (printResults)
+	{
+		printExpResults(
+			treeInfo, timeInfo, treeType, storageType, traversalName, 
+			callbackName, verbose
+		);
+	}
+
+	return timeInfo;
+}
+
+/* -------------------------------------------------------------------------- */
+
+TimeInfo timeTraversalLevelCB(
+	TreeInfo treeInfo, TreeQueue *treeQueue, TraversalFuncLevelCB traversalFunc, TreeCallback callback, int samples, 
+	bool printResults, bool verbose, const char treeType[], const char storageType[],
+	const char traversalName[], const char callbackName[]
+)
+{
+	TimeInfo timeInfo = {0};
+
+	resetTQ(treeQueue);
+
+	int i;
+	clock_t tic, toc;
+
+	tic = clock();
+	for (i=0; i<samples; i++)
+	{
+		traversalFunc(treeInfo.root, treeQueue, callback);
+	}
+	toc = clock();
+
+	timeInfo.samples 	= samples;
+	timeInfo.cycles		= toc - tic;
+	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+
+	if (printResults)
+	{
+		printExpResults(
+			treeInfo, timeInfo, treeType, storageType, traversalName, 
+			callbackName, verbose
+		);
+	}
+
+	return timeInfo;
+}
+
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 

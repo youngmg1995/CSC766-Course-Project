@@ -12,61 +12,31 @@
  * 
  */
 
-#ifndef	__BINARYTREE_TYPES_H
-#define	__BINARYTREE_TYPES_H
+#ifndef	__BINARYTREE_QUEUE_H
+#define	__BINARYTREE_QUEUE_H
 
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
+#include <stdbool.h>
+
+#include "types.h"
 
 
 
 /******************************************************************************* 
----------------------------------- TYPE DEFS -----------------------------------
+---------------------------- FUNCTION DECLARATIONS -----------------------------
 *******************************************************************************/
+extern void initTQ(TreeQueue *tq, int capacity);
+extern void freeTQ(TreeQueue *tq);
+extern void resetTQ(TreeQueue *tq);
+extern bool isEmptyTQ(TreeQueue *tq);
+extern bool isFullTQ(TreeQueue *tq);
+extern void enQueueTQ(TreeQueue *tq, Tree *t);
+extern Tree * deQueueTQ(TreeQueue *tq);
 
-/* basic binary tree (primary type used in module) */
-typedef struct Tree Tree;
-struct Tree
-{
-  int id;
-  void *data;
-  Tree *left;
-  Tree *right;
-};
 
-/* type used while building binary tree from inversion table */
-typedef struct ITNode ITNode;
-struct ITNode
-{
-  int val;
-  Tree *tree;
-  ITNode *parent;
-};
-
-/* type used to get info about generated binary tree */
-typedef struct TreeInfo
-{
-  int size;
-  int leaves;
-  int depth;
-  float density;
-  Tree *root;
-} TreeInfo;
-
-/* defines callback function type for performing actions during tree traversal */
-typedef void (*TreeCallback)(Tree *);
-
-/* binary tree queue, used for level-order traversal */
-typedef struct TreeQueue
-{
-  int capacity;
-	int size;
-	int front;
-	int back;
-	Tree **queue;
-} TreeQueue;
 
 #endif
 /******************************************************************************* 

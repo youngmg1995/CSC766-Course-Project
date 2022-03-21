@@ -44,10 +44,12 @@ extern void incrementID(Tree *t);
 extern void preOrder(Tree *root);
 extern void inOrder(Tree *root);
 extern void postOrder(Tree *root);
+extern void levelOrder(Tree *root, TreeQueue *treeQueue);
 extern void contiguousOrder(Tree *treeArray, int N);
 extern void preOrderCB(Tree *root, TreeCallback callBack);
 extern void inOrderCB(Tree *root, TreeCallback callBack);
 extern void postOrderCB(Tree *root, TreeCallback callBack);
+extern void levelOrderCB(Tree *root, TreeQueue *treeQueue, TreeCallback callBack);
 extern void contiguousOrderCB(Tree *treeArray, int N, TreeCallback callBack);
 
 

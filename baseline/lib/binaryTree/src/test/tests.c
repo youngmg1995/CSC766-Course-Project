@@ -25,6 +25,7 @@
 #include "types.h"
 #include "binaryTree.h"
 #include "binaryTreeGen.h"
+#include "queue.h"
 #include "util.h"
 
 
@@ -471,11 +472,9 @@ void validateBalancedTreeGen()
 		printf("\n");
 	}
 
-	printf("Before Free\n");
 	free(invTable);
 	free(btNodeArray);
 	free(itNodeArray);
-	printf("After Free\n");
 }
 
 void validateTraversal()
@@ -493,6 +492,9 @@ void validateTraversal()
 	binaryTree = treeInfo.root;
 	binaryTreeCont = invTab2ContBTOptimized(invTable, btNodeArray, itNodeArray, TEST_7_N);
 	convert2BST(binaryTreeCont);
+	
+	TreeQueue treeQueue = {0};
+	initTQ(&treeQueue, TEST_7_N);
 
 	TreeCallback callback = &printNode;
 
@@ -517,6 +519,11 @@ void validateTraversal()
 	postOrderCB(binaryTree, callback);
 	printf("\n\n");
 
+	printf("Level-Order Traversal: Callback = %s\n", "printNode");
+	printf("********************************************\n");
+	levelOrderCB(binaryTree, &treeQueue, callback);
+	printf("\n\n");
+
 	printf("Contiguous Order Traversal: Callback = %s\n", "printNode");
 	printf("*************************************************\n");
 	contiguousOrderCB(binaryTreeCont, TEST_7_N, callback);
@@ -526,6 +533,7 @@ void validateTraversal()
 	free(btNodeArray);	
 	free(itNodeArray);
 	binaryTree = make_empty(binaryTree);
+	freeTQ(&treeQueue);
 }
 
 /******************************************************************************* 

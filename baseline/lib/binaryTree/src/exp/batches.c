@@ -22,6 +22,7 @@
 #include "binaryTree.h"
 #include "binaryTreeGen.h"
 #include "types.h"
+#include "queue.h"
 
 #include "exp.h"
 #include "timer.h"
@@ -40,15 +41,20 @@ void traversalBatch(int depth, int samples, bool printResults, bool verbose)
 	int *invTable;
 	Tree *btNodeArray;
 	ITNode *itNodeArray;
-	TreeInfo treeInfo; 
+	TreeInfo treeInfo;
 
 	invTable = (int *) malloc(N * sizeof(int));
 	btNodeArray = (Tree *) malloc(N * sizeof(Tree));
 	itNodeArray = (ITNode *) malloc(N * sizeof(ITNode)); 
+
+	TreeQueue tq = {0};
+	TreeQueue *treeQueue = &tq;
+	initTQ(treeQueue, N);
 	
 	TraversalFunc preOrderTraversal = &preOrder;
 	TraversalFunc inOrderTraversal = &inOrder;
 	TraversalFunc postOrderTraversal = &postOrder;
+	TraversalFuncLevel levelOrderTraversal = &levelOrder;
 	TraversalFuncCont contiguousOrderTraversal = &contiguousOrder;
 
 
@@ -70,6 +76,10 @@ void traversalBatch(int depth, int samples, bool printResults, bool verbose)
 		treeInfo, postOrderTraversal, samples, printResults, verbose, 
 		"random", "fragmented", "post-order", "NULL"
 	);
+	timeTraversalLevel(
+		treeInfo, treeQueue, levelOrderTraversal, samples, printResults, verbose, 
+		"random", "fragmented", "level-order", "NULL"
+	);
 
 	make_empty(treeInfo.root);
 
@@ -90,6 +100,10 @@ void traversalBatch(int depth, int samples, bool printResults, bool verbose)
 	timeTraversal(
 		treeInfo, postOrderTraversal, samples, printResults, verbose, 
 		"random", "contiguous", "post-order", "NULL"
+	);
+	timeTraversalLevel(
+		treeInfo, treeQueue, levelOrderTraversal, samples, printResults, verbose, 
+		"random", "contiguous", "level-order", "NULL"
 	);
 	timeTraversalCont(
 		treeInfo, btNodeArray, contiguousOrderTraversal, samples, printResults, verbose, 
@@ -114,6 +128,10 @@ void traversalBatch(int depth, int samples, bool printResults, bool verbose)
 		treeInfo, postOrderTraversal, samples, printResults, verbose, 
 		"balanced", "fragmented", "post-order", "NULL"
 	);
+	timeTraversalLevel(
+		treeInfo, treeQueue, levelOrderTraversal, samples, printResults, verbose, 
+		"balanced", "fragmented", "level-order", "NULL"
+	);
 
 	make_empty(treeInfo.root);
 
@@ -135,9 +153,13 @@ void traversalBatch(int depth, int samples, bool printResults, bool verbose)
 		treeInfo, postOrderTraversal, samples, printResults, verbose, 
 		"balanced", "contiguous", "post-order", "NULL"
 	);
+	timeTraversalLevel(
+		treeInfo, treeQueue, levelOrderTraversal, samples, printResults, verbose, 
+		"balanced", "contiguous", "level-order", "NULL"
+	);
 	timeTraversalCont(
 		treeInfo, btNodeArray, contiguousOrderTraversal, samples, printResults, verbose, 
-		"random", "contiguous", "contiguous-order", "NULL"
+		"balanced", "contiguous", "contiguous-order", "NULL"
 	);
 
 	/* ---------------------------------------------------------------------- */
@@ -164,10 +186,15 @@ void traversalBatchCB(
 	invTable = (int *) malloc(N * sizeof(int));
 	btNodeArray = (Tree *) malloc(N * sizeof(Tree));
 	itNodeArray = (ITNode *) malloc(N * sizeof(ITNode)); 
+
+	TreeQueue tq = {0};
+	TreeQueue *treeQueue = &tq;
+	initTQ(treeQueue, N);
 	
 	TraversalFuncCB preOrderTraversalCB = &preOrderCB;
 	TraversalFuncCB inOrderTraversalCB = &inOrderCB;
 	TraversalFuncCB postOrderTraversalCB = &postOrderCB;
+	TraversalFuncLevelCB levelOrderTraversalCB = &levelOrderCB;
 	TraversalFuncContCB contiguousOrderTraversalCB = &contiguousOrderCB;
 
 
@@ -189,6 +216,10 @@ void traversalBatchCB(
 		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
 		"random", "fragmented", "post-order", callbackName
 	);
+	timeTraversalLevelCB(
+		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+		"random", "fragmented", "level-order", callbackName
+	);
 
 	make_empty(treeInfo.root);
 
@@ -209,6 +240,10 @@ void traversalBatchCB(
 	timeTraversalCB(
 		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
 		"random", "contiguous", "post-order", callbackName
+	);
+	timeTraversalLevelCB(
+		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+		"random", "contiguous", "level-order", callbackName
 	);
 	timeTraversalContCB(
 		treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 
@@ -233,6 +268,10 @@ void traversalBatchCB(
 		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
 		"balanced", "fragmented", "post-order", callbackName
 	);
+	timeTraversalLevelCB(
+		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+		"balanced", "fragmented", "level-order", callbackName
+	);
 
 	make_empty(treeInfo.root);
 
@@ -253,6 +292,10 @@ void traversalBatchCB(
 	timeTraversalCB(
 		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
 		"balanced", "contiguous", "post-order", callbackName
+	);
+	timeTraversalLevelCB(
+		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+		"balanced", "contiguous", "level-order", callbackName
 	);
 	timeTraversalContCB(
 		treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 

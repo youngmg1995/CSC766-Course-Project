@@ -17,8 +17,10 @@
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
 #include <stddef.h>
+#include <stdio.h>
 
 #include "types.h"
+#include "queue.h"
 
 
 /******************************************************************************* 
@@ -60,9 +62,17 @@ void postOrder(Tree *root)
 	}
 }
 
-// void levelOrder(Tree *root)
-// {
-// }
+void levelOrder(Tree *root, TreeQueue *treeQueue)
+{
+	enQueueTQ(treeQueue, root);
+	while (!isEmptyTQ(treeQueue))
+	{
+		root = deQueueTQ(treeQueue);
+		if (root->left != NULL) enQueueTQ(treeQueue, root->left);
+		if (root->right != NULL) enQueueTQ(treeQueue, root->right);
+		// do something
+	}
+}
 
 void contiguousOrder(Tree *treeArray, int N)
 {
@@ -111,9 +121,17 @@ void postOrderCB(Tree *root, TreeCallback callback)
 	}
 }
 
-// void levelOrder(Tree *root)
-// {
-// }
+void levelOrderCB(Tree *root, TreeQueue *treeQueue, TreeCallback callback)
+{
+	enQueueTQ(treeQueue, root);
+	while (!isEmptyTQ(treeQueue))
+	{
+		root = deQueueTQ(treeQueue);
+		if (root->left != NULL) enQueueTQ(treeQueue, root->left);
+		if (root->right != NULL) enQueueTQ(treeQueue, root->right);
+		callback(root);
+	}
+}
 
 void contiguousOrderCB(Tree *treeArray, int N, TreeCallback callback)
 {

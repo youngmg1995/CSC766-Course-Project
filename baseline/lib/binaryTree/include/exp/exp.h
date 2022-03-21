@@ -41,6 +41,8 @@ typedef struct TimeInfo
 /* types for passing function pointer to traversal function */
 typedef void (*TraversalFunc)(Tree *);
 typedef void (*TraversalFuncCB)(Tree *, TreeCallback);
+typedef void (*TraversalFuncLevel)(Tree *, TreeQueue *);
+typedef void (*TraversalFuncLevelCB)(Tree *, TreeQueue *, TreeCallback);
 typedef void (*TraversalFuncCont)(Tree *, int);
 typedef void (*TraversalFuncContCB)(Tree *, int, TreeCallback);
 
