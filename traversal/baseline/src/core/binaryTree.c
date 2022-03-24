@@ -18,10 +18,11 @@
 *******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "types.h"
 
-
+static int sampleKey = 849037849;
 
 /******************************************************************************* 
 -------------------------------- FUNCTION DEFS ---------------------------------
@@ -181,9 +182,20 @@ void printNode(Tree *t)
 	printf("%d ", t->id);
 }
 
+void printNodeStdErr(Tree *t)
+{
+	fprintf(stderr, "%d ", t->id);
+}
+
 void incrementID(Tree *t)
 {
 	(t->id)++;
+}
+
+void searchKey(Tree *t)
+{
+	bool isMatch = (t->id) == sampleKey;
+	if (isMatch) sampleKey++;
 }
 
 

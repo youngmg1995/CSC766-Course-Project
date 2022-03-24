@@ -33,16 +33,17 @@ int main(int argc, char *argv[])
 {
 	/* ---------------------------------------------------------------------- */
 
-	printf("\n");
-	printf("###############################################################################\n");
-	printf("########################### Binary Tree Experiments ###########################\n");
-	printf("###############################################################################\n");
-	printf("\n");
+	// printf("\n");
+	// printf("###############################################################################\n");
+	// printf("########################### Binary Tree Experiments ###########################\n");
+	// printf("###############################################################################\n");
+	// printf("\n");
 
 	init_genrand64(time(0));
 
 	TreeCallback incrementCallback = &incrementID;
-	TreeCallback printCallback = &printNode;
+	TreeCallback printCallback = &printNodeStdErr;
+	TreeCallback searchCallback = &searchKey;
 
 	bool printResults = true;
 	bool verbose = false;
@@ -70,17 +71,20 @@ int main(int argc, char *argv[])
 			traversalBatchCB(depth, runs, incrementCallback, "increment-id", printResults, verbose);
 
 			// fprintf(stderr, "\n");
+			traversalBatchCB(depth, runs, searchCallback, "search-id", printResults, verbose);
+
+			// fprintf(stderr, "\n");
 			traversalBatchCB(depth, runs, printCallback, "print-id", printResults, verbose);
 		}
 	}
 
 	/* ---------------------------------------------------------------------- */
 	
-	printf("\n");
-	printf("###############################################################################\n");
-	printf("############################# End of Experiments ##############################\n");
-	printf("###############################################################################\n");
-	printf("\n");
+	// printf("\n");
+	// printf("###############################################################################\n");
+	// printf("############################# End of Experiments ##############################\n");
+	// printf("###############################################################################\n");
+	// printf("\n");
 	
 	/* ---------------------------------------------------------------------- */
 

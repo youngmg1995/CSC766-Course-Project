@@ -38,14 +38,14 @@ void printExpResults(
 	if (verbose)
 	{
 		fprintf(
-			stderr, "TreeType = %s , StorageType = %s , TraversalType = %s , Callback = %s , N = %d , Depth = %d, Leaves = %d , Density = %.3f , Samples = %d , Cycles = %ld , Seconds = %f, AvgCycles = %f , AvgSeconds = %f\n",
+			stdout, "TreeType = %s , StorageType = %s , TraversalType = %s , Callback = %s , N = %d , Depth = %d, Leaves = %d , Density = %.3f , Samples = %d , Cycles = %ld , Seconds = %f, AvgCycles = %f , AvgSeconds = %f\n",
 			treeType, storageType, traversalType, callbackName, treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.avgCycles, timeInfo.avgSeconds 
 		);
 	}
 	else
 	{
 		fprintf(
-			stderr, "%s,%s,%s,%s,%d,%d,%d,%f,%d,%ld,%f,%f,%f\n",
+			stdout, "%s,%s,%s,%s,%d,%d,%d,%f,%d,%ld,%f,%f,%f\n",
 			treeType, storageType, traversalType, callbackName, treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.avgCycles, timeInfo.avgSeconds 
 		);
 	}
