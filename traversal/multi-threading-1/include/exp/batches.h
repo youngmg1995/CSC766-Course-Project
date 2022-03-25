@@ -4,44 +4,37 @@
 /**
  * @file types.h
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief Header file for function declarations related to thread pool used
- *  in multi-threaded implementation of tree traversals.
+ * @brief Defines binary tree types and other types used to create/draw them.
  * @version 0.1
- * @date 2022-03-24
+ * @date 2022-03-07
  * 
  * @copyright Copyright (c) 2022
  * 
  */
 
-#ifndef	__BINARYTREE_THREADPOOL_H
-#define	__BINARYTREE_THREADPOOL_H
+#ifndef	__BINARYTREE_BATCH_H
+#define	__BINARYTREE_BATCH_H
 
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include <stdbool.h>
-
-#include "types.h"
-
-#define NUM_THREADS 3
-
+#include "exp.h"
 
 
 /******************************************************************************* 
----------------------------- FUNCTION DECLARATIONS -----------------------------
+---------------------------------- FUNC DECL -----------------------------------
 *******************************************************************************/
 
-/* functions for thread pool and task queue */
-extern void execTraversalTask(TraversalTask *task);
-extern void submitTraversalTask(TraversalTask task);
-extern void * startThread(void *args);
-extern void initThreadPool();
-extern void joinThreadPool();
+/* functions for timing each tree traversal */
+extern void traversalBatch(
+	int depth, int samples, bool printResults, bool verbose
+);
 
-/* new multi-threaded traversal functions */
-extern void preOrderMTWrapper(Tree * root, TreeCallback callback);
-extern void postOrderMTWrapper(Tree *root, TreeCallback callback);
+extern void traversalBatchCB(
+	int depth, int samples, TreeCallback callback, const char callbackName[], 
+	bool printResults, bool verbose
+);
 
 
 

@@ -34,7 +34,7 @@
 pthread_t threadPool[NUM_THREADS-1];
 volatile int threadCount = 0;
 
-TraversalTask taskQueue[255];
+TraversalTask taskQueue[TASK_QUEUE_SIZE];
 volatile int taskCount = 0;
 
 pthread_mutex_t queueMutex;
@@ -63,19 +63,24 @@ void submitTraversalTask(TraversalTask task)
 
 void * startThread(void *args)
 {
-    printf("Starting Thread\n");
+    // printf("Starting Thread\n");
 
-    while (addingTasks || taskCount > 0)
+    for (;;)
     {
+        if (!addingTasks && taskCount == 0) break;
+
         TraversalTask task;
 
         pthread_mutex_lock(&queueMutex);
-        while (taskCount == 0)
+        while (addingTasks && taskCount == 0)
         {
             pthread_cond_wait(&queueCond, &queueMutex);
         }
 
-        if (!addingTasks && taskCount == 0) break;
+        if (!addingTasks && taskCount == 0) {
+            pthread_mutex_unlock(&queueMutex);
+            break;
+        };
 
         // this queue can be improved/optimized
         task = taskQueue[0];
@@ -86,18 +91,18 @@ void * startThread(void *args)
         }
         taskCount--;
         pthread_mutex_unlock(&queueMutex);
-        printf("Executing Task: Node ID = %d\n", task.root->id);
+        // printf("Executing Task: Node ID = %d\n", task.root->id);
         execTraversalTask(&task); 
     }
 
-    printf("Finishing Thread\n");
+    // printf("Finishing Thread\n");
 
     return NULL;
 }
 
 void initThreadPool()
 {
-    printf("Initializing Threads from Main Thread\n");
+    // printf("Initializing Threads from Main Thread\n");
 
     pthread_mutex_init(&queueMutex, NULL);
     pthread_cond_init(&queueCond, NULL);
@@ -117,17 +122,19 @@ void initThreadPool()
         }
     }
 
-    printf("Finished Initializing Threads from Main Thread\n");
+    // printf("Finished Initializing Threads from Main Thread\n");
 }
 
 void joinThreadPool()
 {
-    printf("Joining Threads from Main Thread\n");
+    // printf("Joining Threads from Main Thread\n");
 
     pthread_mutex_lock(&queueMutex);
     addingTasks = false;
-    pthread_mutex_unlock(&queueMutex);
     pthread_cond_broadcast(&queueCond);
+    pthread_mutex_unlock(&queueMutex);
+
+    // printf("Set Adding Tasks to False\n");
 
     int t;
     for (t=0; t<NUM_THREADS-1; t++)
@@ -138,7 +145,7 @@ void joinThreadPool()
         }
         else
         {
-            printf("Joined Thread: ID = %d\n", t);
+            // printf("Joined Thread: ID = %d\n", t);
             threadCount--;
         }
     }
@@ -146,7 +153,7 @@ void joinThreadPool()
     pthread_mutex_destroy(&queueMutex);
     pthread_cond_destroy(&queueCond);
 
-    printf("Finished Joining Threads from Main Thread\n");
+    // printf("Finished Joining Threads from Main Thread\n");
 }
 
 
@@ -159,7 +166,7 @@ void preOrderMT(Tree * root, TreeCallback callback)
 {
 	if (root != NULL)
 	{	
-        printf("Creating Task for Root: id = %d\n", root->id);
+        // printf("Creating Task for Root: id = %d\n", root->id);
         TraversalTask task = {
             .root = root,
             .callback = callback,
@@ -176,7 +183,7 @@ void preOrderMTWrapper(Tree * root, TreeCallback callback)
 
 	if (root != NULL)
 	{	
-        printf("Creating Task for Root: id = %d\n", root->id);
+        // printf("Creating Task for Root: id = %d\n", root->id);
         TraversalTask task = {
             .root = root,
             .callback = callback,
@@ -197,7 +204,7 @@ void postOrderMT(Tree *root, TreeCallback callback)
 		postOrderMT(root->left, callback);
 		postOrderMT(root->right, callback);
 
-        printf("Creating Task for Root: id = %d\n", root->id);
+        // printf("Creating Task for Root: id = %d\n", root->id);
         TraversalTask task = {
             .root = root,
             .callback = callback,
@@ -214,7 +221,7 @@ void postOrderMTWrapper(Tree *root, TreeCallback callback)
 		postOrderMT(root->left, callback);
 		postOrderMT(root->right, callback);
 
-        printf("Creating Task for Root: id = %d\n", root->id);
+        // printf("Creating Task for Root: id = %d\n", root->id);
         TraversalTask task = {
             .root = root,
             .callback = callback,

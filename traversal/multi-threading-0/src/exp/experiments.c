@@ -51,21 +51,22 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 	int depth, i, runs;
 
-	int minDepth = 1;
-	int maxDepth = 25;
-	int samples = 10;
+	int minDepth = 15;
+	int maxDepth = 15;
+	int samples = 1;
 
 	for (depth = minDepth; depth<=maxDepth; depth++)
 	{
 		for (i=0; i<samples; i++)
 		{
-			if (depth <=10) 		{runs = 1000;}
-			else if (depth <=15)	{runs = 100;}
-			else if (depth <=20)	{runs = 10;}
-			else 					{runs = 1;}
+			// if (depth <=10) 		{runs = 1000;}
+			// else if (depth <=15)	{runs = 100;}
+			// else if (depth <=20)	{runs = 10;}
+			// else 					{runs = 1;}
+			runs = 1;
 
-			// fprintf(stderr, "\n");
-			traversalBatch(depth, runs, printResults, verbose);
+			// // fprintf(stderr, "\n");
+			// traversalBatch(depth, runs, printResults, verbose);
 
 			// fprintf(stderr, "\n");
 			traversalBatchCB(depth, runs, incrementCallback, "increment-id", printResults, verbose);
@@ -73,8 +74,8 @@ int main(int argc, char *argv[])
 			// fprintf(stderr, "\n");
 			traversalBatchCB(depth, runs, searchCallback, "search-id", printResults, verbose);
 
-			// fprintf(stderr, "\n");
-			traversalBatchCB(depth, runs, printCallback, "print-id", printResults, verbose);
+			// // fprintf(stderr, "\n");
+			// traversalBatchCB(depth, runs, printCallback, "print-id", printResults, verbose);
 		}
 	}
 

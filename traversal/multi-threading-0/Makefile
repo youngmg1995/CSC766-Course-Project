@@ -317,10 +317,10 @@ native-c-directories:
 	@mkdir -p $(NATIVE_C_BIN)
 
 $(NATIVE_C_TEST) : $(TEST_GCC_OBJ_FILES) $(CORE_GCC_OBJ_FILES) 
-	$(CC) $(GCC_CFLAGS) -o $@ $^  $(GCC_LFLAGS)
+	@$(CC) $(GCC_CFLAGS) -o $@ $^  $(GCC_LFLAGS)
 
 $(NATIVE_C_EXP) : $(EXP_GCC_OBJ_FILES) $(CORE_GCC_OBJ_FILES)
-	$(CC) $(GCC_CFLAGS) -o $@ $^  $(GCC_LFLAGS)
+	@$(CC) $(GCC_CFLAGS) -o $@ $^  $(GCC_LFLAGS)
 
 
 .PHONY: clean-native-c
@@ -358,10 +358,10 @@ native-js-directories:
 	@mkdir -p $(NATIVE_JS_BIN)
 
 $(NATIVE_JS_TEST) : $(TEST_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES) 
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
 
 $(NATIVE_JS_EXP) : $(EXP_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES)
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
 
 
 .PHONY: clean-native-js
@@ -399,10 +399,10 @@ native-wasm-directories:
 	@mkdir -p $(NATIVE_WASM_BIN)
 
 $(NATIVE_WASM_TEST) : $(TEST_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES) 
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
 
 $(NATIVE_WASM_EXP) : $(EXP_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES)
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
 
 
 .PHONY: clean-native-wasm
@@ -440,10 +440,10 @@ web-js-directories:
 	@mkdir -p $(WEB_JS_BIN)
 
 $(WEB_JS_TEST) : $(TEST_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES) 
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
 
 $(WEB_JS_EXP) : $(EXP_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES)
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS) $(NO_WASM_LFLAG)
 
 
 .PHONY: clean-web-js
@@ -481,10 +481,10 @@ web-wasm-directories:
 	@mkdir -p $(WEB_WASM_BIN)
 
 $(WEB_WASM_TEST) : $(TEST_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES) 
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
 
 $(WEB_WASM_EXP) : $(EXP_EMCC_OBJ_FILES) $(CORE_EMCC_OBJ_FILES)
-	$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
+	@$(EMCC) $(EMCC_CFLAGS) -o $@ $^  $(EMCC_LFLAGS)
 
 
 .PHONY: clean-web-wasm
