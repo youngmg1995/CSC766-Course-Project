@@ -69,8 +69,8 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 # ------------------------------------------------------------------------------
 
 # flags
-GCC_CFLAGS		:= -O3 -Wall
-GCC_LFLAGS		:= -lm 
+GCC_CFLAGS		:= -O3 -Wall -pthread
+GCC_LFLAGS		:= -lm -pthread -lpthread
 
 EMCC_CFLAGS		:= -O3 -Wall
 EMCC_LFLAGS 	:= -lm -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1  #INITIAL_MEMORY=2147418112

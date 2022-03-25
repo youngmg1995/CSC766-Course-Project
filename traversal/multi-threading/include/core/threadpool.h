@@ -4,9 +4,10 @@
 /**
  * @file types.h
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief Defines binary tree types and other types used to create/draw them.
+ * @brief Header file for function declarations related to thread pool used
+ *  in multi-threaded implementation of tree traversals.
  * @version 0.1
- * @date 2022-03-07
+ * @date 2022-03-24
  * 
  * @copyright Copyright (c) 2022
  * 
@@ -23,11 +24,24 @@
 
 #include "types.h"
 
+#define NUM_THREADS 3
+
 
 
 /******************************************************************************* 
 ---------------------------- FUNCTION DECLARATIONS -----------------------------
 *******************************************************************************/
+
+/* functions for thread pool and task queue */
+extern void execTraversalTask(TraversalTask *task);
+extern void submitTraversalTask(TraversalTask task);
+extern void * startThread(void *args);
+extern void initThreadPool();
+extern void joinThreadPool();
+
+/* new multi-threaded traversal functions */
+extern void preOrderMTWrapper(Tree * root, TreeCallback callback);
+extern void postOrderMTWrapper(Tree *root, TreeCallback callback);
 
 
 

@@ -26,6 +26,7 @@
 #include "binaryTree.h"
 #include "binaryTreeGen.h"
 #include "queue.h"
+#include "threadpool.h"
 #include "util.h"
 
 
@@ -41,6 +42,8 @@
 #define TEST_6_DEPTH	4
 
 #define	TEST_7_N		10
+
+#define	TEST_8_N		10
 
 
 /******************************************************************************* 
@@ -536,6 +539,48 @@ void validateTraversal()
 	freeTQ(&treeQueue);
 }
 
+void validateMultiThread() 
+{
+	int *invTable;
+	Tree *binaryTree;
+	ITNode *itNodeArray;
+	TreeInfo treeInfo;
+	
+	invTable = (int *) malloc(TEST_8_N * sizeof(int));
+	itNodeArray = (ITNode *) malloc(TEST_8_N * sizeof(ITNode));
+
+	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, TEST_8_N, true);
+	binaryTree = treeInfo.root;
+	
+	TreeQueue treeQueue = {0};
+	initTQ(&treeQueue, TEST_8_N);
+
+	TreeCallback callback = &printNode;
+
+
+	printf("Generated Binary Tree: N = %d\n", TEST_8_N);
+	printf("************************************\n");
+	print_ascii_tree(binaryTree);
+	printf("\n");
+
+	printf("Multi-Thread Pre-Order Traversal: Callback = %s\n", "printNode");
+	printf("********************************************\n");
+	preOrderMTWrapper(binaryTree, callback);
+	printf("\n\n");
+
+	printf("Multi-Thread Post-Order Traversal: Callback = %s\n", "printNode");
+	printf("********************************************\n");
+	postOrderMTWrapper(binaryTree, callback);
+	printf("\n\n");
+
+
+	free(invTable);
+	free(itNodeArray);
+	binaryTree = make_empty(binaryTree);
+	freeTQ(&treeQueue);
+	
+}
+
 /******************************************************************************* 
 ------------------------------------- MAIN -------------------------------------
 *******************************************************************************/
@@ -586,6 +631,11 @@ int main(int argc, char *argv[])
 	
 	printUnitTestMsg(&testNum, "Validate Tree Traversal Correctness");
 	validateTraversal();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Validate Mutli-Threaded Tree Traversal Correctness");
+	validateMultiThread();
 
 	/* ---------------------------------------------------------------------- */
 
