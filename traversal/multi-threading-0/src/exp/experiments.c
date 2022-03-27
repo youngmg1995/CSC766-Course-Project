@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 	TreeCallback incrementCallback = &incrementID;
 	TreeCallback printCallback = &printNodeStdErr;
 	TreeCallback searchCallback = &searchKey;
+	TreeCallback sleepCallback = &sleepNode;
 
 	bool printResults = true;
 	bool verbose = false;
@@ -51,8 +52,8 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 	int depth, i, runs;
 
-	int minDepth = 15;
-	int maxDepth = 15;
+	int minDepth = 18;
+	int maxDepth = 18;
 	int samples = 1;
 
 	for (depth = minDepth; depth<=maxDepth; depth++)
@@ -65,17 +66,15 @@ int main(int argc, char *argv[])
 			// else 					{runs = 1;}
 			runs = 1;
 
-			// // fprintf(stderr, "\n");
 			// traversalBatch(depth, runs, printResults, verbose);
 
-			// fprintf(stderr, "\n");
 			traversalBatchCB(depth, runs, incrementCallback, "increment-id", printResults, verbose);
 
-			// fprintf(stderr, "\n");
 			traversalBatchCB(depth, runs, searchCallback, "search-id", printResults, verbose);
 
-			// // fprintf(stderr, "\n");
-			// traversalBatchCB(depth, runs, printCallback, "print-id", printResults, verbose);
+			traversalBatchCB(depth, runs, printCallback, "print-id", printResults, verbose);
+
+			// traversalBatchCB(depth, runs, sleepCallback, "sleep-10ms", printResults, verbose);
 		}
 	}
 

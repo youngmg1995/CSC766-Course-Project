@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #include "types.h"
 
@@ -196,6 +197,19 @@ void searchKey(Tree *t)
 {
 	bool isMatch = (t->id) == sampleKey;
 	if (isMatch) sampleKey++;
+}
+
+void sleepNode(Tree *t)
+{
+	usleep(2000);
+	// int i;
+	// int *data = (int *) malloc(100000 * sizeof(int));
+	// for (i=0; i<100000; i++)
+	// {
+	// 	data[i] = 0;
+	// }
+	// t->data = (void *) data;
+	// free(data);
 }
 
 

@@ -24,8 +24,7 @@
 
 #include "types.h"
 
-#define NUM_THREADS 5
-#define TASK_QUEUE_SIZE 1<<16
+#define NUM_THREADS 8
 
 
 
@@ -34,7 +33,7 @@
 *******************************************************************************/
 
 /* functions for thread pool and task queue */
-extern void execTraversalTask(TraversalTask *task);
+extern void execTraversalTask(TraversalTask *task, ThreadInfo *);
 extern void submitTraversalTask(TraversalTask task);
 extern void * startThread(void *args);
 extern void initThreadPool();

@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "types.h"
 #include "queue.h"
@@ -38,52 +39,26 @@ void printExpResults(
 	if (verbose)
 	{
 		fprintf(
-			stdout, "TreeType = %s , StorageType = %s , TraversalType = %s , Callback = %s , N = %d , Depth = %d, Leaves = %d , Density = %.3f , Samples = %d , Cycles = %ld , Seconds = %f, AvgCycles = %f , AvgSeconds = %f\n",
-			treeType, storageType, traversalType, callbackName, treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.avgCycles, timeInfo.avgSeconds 
+			stdout, "TreeType = %s , StorageType = %s , TraversalType = %s , Callback = %s , N = %d , Depth = %d, Leaves = %d , Density = %.3f , Samples = %d , Cycles = %ld , Seconds = %f , WallSeconds = %f , AvgCycles = %f , AvgSeconds = %f , AvgWallSeconds = %f\n",
+			treeType, storageType, traversalType, callbackName, treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime, timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
 		);
 	}
 	else
 	{
 		fprintf(
-			stdout, "%s,%s,%s,%s,%d,%d,%d,%f,%d,%ld,%f,%f,%f\n",
-			treeType, storageType, traversalType, callbackName, treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.avgCycles, timeInfo.avgSeconds 
+			stdout, "%s,%s,%s,%s,%d,%d,%d,%f,%d,%ld,%f,%f,%f,%f,%f\n",
+			treeType, storageType, traversalType, callbackName, treeInfo.size, treeInfo.depth, treeInfo.leaves, treeInfo.density, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime,  timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
 		);
 	}
 }
 
-// void mem_flush(const void *p, unsigned int allocation_size){
-//     const size_t cache_line = 64;
-//     const char *cp = (const char *)p;
-//     size_t i = 0;
+double wallTimeDiff(struct timeval start, struct timeval end)
+{
+    long seconds = (end.tv_sec - start.tv_sec);
+    long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
+	return (double) micros / 1000000;
+}
 
-//     if (p == NULL || allocation_size <= 0)
-// 		return;
-
-//     for (i = 0; i < allocation_size; i += cache_line) 
-// 	{
-// 		asm volatile("clflush (%0)\n\t"
-// 						: 
-// 						: "r"(&cp[i])
-// 						: "memory");
-//     }
-
-//     asm volatile("sfence\n\t"
-//                  :
-//                  :
-//                  : "memory");
-// }
-
-// void clearCache()
-// {
-// 	long N = 1<<40;
-// 	char *lotsofmem = (char *) malloc(N * sizeof(char));
-// 	int i;
-// 	for (i=0; i<N; i++)
-// 	{
-// 		lotsofmem[i] = 0;
-// 	}
-// 	free(lotsofmem);
-// }
 
 
 /******************************************************************************* 
@@ -102,21 +77,24 @@ TimeInfo timeTraversal(
 
 	int i;
 	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
-	// mem_flush(treeInfo.root, treeInfo.size * sizeof(Tree));
-
+	gettimeofday(&startTime, NULL);
 	tic = clock();
 	for (i=0; i<samples; i++)
 	{
 		traversalFunc(treeInfo.root);
 	}
 	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
 	if (printResults)
 	{
@@ -141,19 +119,24 @@ TimeInfo timeTraversalCB(
 
 	int i;
 	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
+	gettimeofday(&startTime, NULL);
 	tic = clock();
 	for (i=0; i<samples; i++)
 	{
 		traversalFunc(treeInfo.root, callback);
 	}
 	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
 	if (printResults)
 	{
@@ -178,19 +161,24 @@ TimeInfo timeTraversalLevel(
 
 	int i;
 	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
+	gettimeofday(&startTime, NULL);
 	tic = clock();
 	for (i=0; i<samples; i++)
 	{
 		traversalFunc(treeInfo.root, treeQueue);
 	}
 	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
 	if (printResults)
 	{
@@ -217,19 +205,24 @@ TimeInfo timeTraversalLevelCB(
 
 	int i;
 	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
+	gettimeofday(&startTime, NULL);
 	tic = clock();
 	for (i=0; i<samples; i++)
 	{
 		traversalFunc(treeInfo.root, treeQueue, callback);
 	}
 	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
 	if (printResults)
 	{
@@ -256,19 +249,24 @@ TimeInfo timeTraversalCont(
 
 	int i;
 	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
+	gettimeofday(&startTime, NULL);
 	tic = clock();
 	for (i=0; i<samples; i++)
 	{
 		traversalFunc(btNodeArray, treeInfo.size);
 	}
 	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
 	if (printResults)
 	{
@@ -293,19 +291,24 @@ TimeInfo timeTraversalContCB(
 
 	int i;
 	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
+	gettimeofday(&startTime, NULL);
 	tic = clock();
 	for (i=0; i<samples; i++)
 	{
 		traversalFunc(btNodeArray, treeInfo.size, callback);
 	}
 	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 	= samples;
-	timeInfo.cycles		= toc - tic;
-	timeInfo.seconds	= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.avgCycles	= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds	= timeInfo.seconds / timeInfo.samples;
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
 	if (printResults)
 	{

@@ -44,6 +44,7 @@
 #define	TEST_7_N		10
 
 #define	TEST_8_N		15
+#define TEST_8_DEPTH	3
 
 
 /******************************************************************************* 
@@ -551,9 +552,6 @@ void validateMultiThread()
 
 	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, TEST_8_N, true);
 	binaryTree = treeInfo.root;
-	
-	TreeQueue treeQueue = {0};
-	initTQ(&treeQueue, TEST_8_N);
 
 	TreeCallback callback = &printNode;
 
@@ -574,10 +572,35 @@ void validateMultiThread()
 	printf("\n\n");
 
 
+	
 	free(invTable);
 	free(itNodeArray);
 	binaryTree = make_empty(binaryTree);
-	freeTQ(&treeQueue);
+	invTable = (int *) malloc(TEST_8_N * sizeof(int));
+	itNodeArray = (ITNode *) malloc(TEST_8_N * sizeof(ITNode));
+	treeInfo = genBalancedTreeOptimized(invTable, itNodeArray, TEST_8_DEPTH, true);
+	binaryTree = treeInfo.root;
+
+
+	printf("Generated Balanced Binary Tree: N = %d\n", TEST_8_N);
+	printf("************************************\n");
+	print_ascii_tree(binaryTree);
+	printf("\n");
+
+	printf("Multi-Thread Pre-Order Traversal: Callback = %s\n", "printNode");
+	printf("********************************************\n");
+	preOrderMTWrapper(binaryTree, callback);
+	printf("\n\n");
+
+	printf("Multi-Thread Post-Order Traversal: Callback = %s\n", "printNode");
+	printf("********************************************\n");
+	postOrderMTWrapper(binaryTree, callback);
+	printf("\n\n");
+
+
+	free(invTable);
+	free(itNodeArray);
+	binaryTree = make_empty(binaryTree);
 	
 }
 

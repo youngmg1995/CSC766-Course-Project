@@ -34,8 +34,10 @@ typedef struct TimeInfo
   clock_t cycles;
   double seconds;
   int samples;
+  double wallTime;
   double avgCycles;
   double avgSeconds;
+  double avgWallTime;
 } TimeInfo;
 
 /* types for passing function pointer to traversal function */

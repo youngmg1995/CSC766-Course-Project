@@ -68,9 +68,17 @@ typedef struct TreeQueue
 	Tree **queue;
 } TreeQueue;
 
+
+typedef struct ThreadInfo {
+    int threadID;
+	int tasks;
+    int callbacks;
+} ThreadInfo;
+
 /* types for passing function pointer to traversal function */
 typedef void (*TraversalFunc)(Tree *);
 typedef void (*TraversalFuncCB)(Tree *, TreeCallback);
+typedef void (*TraversalFuncCBInner)(Tree *, TreeCallback, ThreadInfo *);
 typedef void (*TraversalFuncLevel)(Tree *, TreeQueue *);
 typedef void (*TraversalFuncLevelCB)(Tree *, TreeQueue *, TreeCallback);
 typedef void (*TraversalFuncCont)(Tree *, int);
@@ -78,7 +86,7 @@ typedef void (*TraversalFuncContCB)(Tree *, int, TreeCallback);
 
 /* types used for multi-threading */
 typedef struct TraversalTask {
-	TraversalFuncCB traversalFunc;
+	TraversalFuncCBInner traversalFunc;
 	Tree * root;
 	TreeCallback callback;
 } TraversalTask;

@@ -78,7 +78,6 @@ typedef void (*TraversalFuncContCB)(Tree *, int, TreeCallback);
 
 /* types used for multi-threading */
 typedef struct TraversalTask {
-	TraversalFuncCB traversalFunc;
 	Tree * root;
 	TreeCallback callback;
 } TraversalTask;

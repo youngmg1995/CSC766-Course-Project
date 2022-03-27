@@ -72,8 +72,8 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 GCC_CFLAGS		:= -O3 -Wall -pthread
 GCC_LFLAGS		:= -lm -pthread -lpthread
 
-EMCC_CFLAGS		:= -O3 -Wall
-EMCC_LFLAGS 	:= -lm -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1  #INITIAL_MEMORY=2147418112
+EMCC_CFLAGS		:= -O3 -Wall  -pthread
+EMCC_LFLAGS 	:= -lm -pthread -lpthread -s ASSERTIONS=1 -s INITIAL_MEMORY=134217728 -s PTHREAD_POOL_SIZE=8 #-s INITIAL_MEMORY=2147418112 -s ALLOW_MEMORY_GROWTH=1  
 NO_WASM_LFLAG 	:= -s WASM=0
 
 # ------------------------------------------------------------------------------

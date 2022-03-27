@@ -34,8 +34,10 @@ typedef struct TimeInfo
   clock_t cycles;
   double seconds;
   int samples;
+  double wallTime;
   double avgCycles;
   double avgSeconds;
+  double avgWallTime;
 } TimeInfo;
 
 #endif
