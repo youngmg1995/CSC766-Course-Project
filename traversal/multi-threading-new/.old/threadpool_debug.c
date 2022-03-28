@@ -107,10 +107,13 @@ void destroyThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs)
 
 void execTraversalTask(TraversalThread *thread, ThreadPool *threadPool)
 {  
+    printf("Executing Traversal Task: Root = %d , Thread = %d\n", thread->task.root->id, thread->threadID);
+
     TraversalTask task = thread->task;
     task.traversalFunc(task.root, task.callback, thread, threadPool);
 
     // locks may not be necessary for altering thread (would anyone else try to acquire it while busy = true?)
+
     pthread_mutex_lock(&(threadPool->mutex));
     pthread_mutex_lock(&(thread->mutex));
     thread->busy = false;
@@ -122,15 +125,20 @@ void execTraversalTask(TraversalThread *thread, ThreadPool *threadPool)
     }
     pthread_mutex_unlock(&(thread->mutex));
     pthread_mutex_unlock(&(threadPool->mutex));
+
+    printf("Finished Executing Traversal Task: Root = %d , Thread = %d\n", thread->task.root->id, thread->threadID);
 }
 
 void wakeAllThreads(ThreadPool *threadPool, int threadID)
 {
+    printf("Signaling All Threads to Finish: %d\n", threadID);
+
     threadPool->finished = true;
     int i;
     TraversalThread *t;
     for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
     {
+        printf("Attmepted to Wake Thread %d\n", i);
         pthread_mutex_lock(&(t->mutex));
         pthread_mutex_unlock(&(t->mutex));
         pthread_cond_signal(&(t->cond));
@@ -139,23 +147,48 @@ void wakeAllThreads(ThreadPool *threadPool, int threadID)
 
 bool shouldExit(ThreadPool *threadPool, int threadID)
 {
+    // printf("Testing If Should Exit\n");
     int callbacks = 0;
     int i;
     TraversalThread *t;
+    // for (i=0, t=threadPool->threads; i<threadPool->size+1; i++, t++)
+    // {
+    //     callbacks += t->totalCallbacks;
+    // }
+    // printf("Testing If Should Exit: Callbacks = %d\n", callbacks);
 
     if (threadPool->finished)
     {
+        // printf("Finished Testing If Should Exit\n");
         return true;
     }
     else
     {
+        // printf("Grabbing Thread Pool Lock\n");
         pthread_mutex_lock(&(threadPool->mutex));
+        // printf("Grabbed Thread Pool Lock\n");
+
         bool result = !(threadPool->addingTasks || threadPool->taskCount > 0);
+
+        // printf("Should Exit?: AddingTasks = %s, TaskCount = %d , ShouldExit = %s\n",
+        //     threadPool->addingTasks ? "True" : "False", threadPool->taskCount, result ? "True" : "False"
+        // );
+
+        // int taskCount = 0;
+        // for (i=0, t=threadPool->threads; i<threadPool->size+1; i++, t++)
+        // {
+        //     taskCount += (int) t->busy;
+        // }
+        // printf("Testing If Should Exit: TaskCount = %d\n", taskCount);
+        
+
         if (result)
         {
             wakeAllThreads(threadPool, threadID);
         }
+
         pthread_mutex_unlock(&(threadPool->mutex));
+        // printf("Finished Testing If Should Exit\n");
         return result;
     }
 }
@@ -166,6 +199,8 @@ void * startThread(void *args)
     ThreadPool *threadPool = threadArgs->threadPool;
     TraversalThread *thread = threadArgs->thread;
 
+    printf("Starting Thread: %d\n", thread->threadID);
+
     for (;;)
     {
         if (shouldExit(threadPool, thread->threadID)) break;
@@ -173,11 +208,15 @@ void * startThread(void *args)
         pthread_mutex_lock(&(thread->mutex));
         while (!(thread->busy || threadPool->finished))
         {
+            printf("Thread Waiting: Thread = %d , Busy? = %s , Finished = %s\n", thread->threadID, thread->busy ? "True" : "False", threadPool->finished ? "True" : "False");
             pthread_cond_wait(&(thread->cond), &(thread->mutex));
+            printf("Thread Awoken: Thread = %d , Busy? = %s\n", thread->threadID, thread->busy ? "True" : "False");
+            printf("Task: Root = %d\n", thread->task.root->id);
         }
 
         // may cause deadlock here
         if (shouldExit(threadPool, thread->threadID)) {
+            // handle thread and threadPool changes on completion
             pthread_mutex_unlock(&(thread->mutex));
             break;
         };
@@ -186,6 +225,8 @@ void * startThread(void *args)
 
         execTraversalTask(thread, threadPool);
     }
+
+    printf("Finishing Thread: %d\n", thread->threadID);
 
     return NULL;
 }
@@ -222,20 +263,30 @@ void startThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs)
 
 void joinThreadPool(ThreadPool *threadPool)
 {
+    // printf("Joining Threads from Main Thread\n");
+
     pthread_mutex_lock(&(threadPool->mutex));
     threadPool->addingTasks = false;
     if (threadPool->taskCount == 0) wakeAllThreads(threadPool, 0);
     pthread_mutex_unlock(&(threadPool->mutex));
 
+    printf("Set Adding Tasks to False\n");
+
     int i;
     TraversalThread *t;
     for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
     {
+        // pthread_mutex_lock(&(t->mutex));
+        // pthread_cond_signal(&(t->cond));
+        // pthread_mutex_unlock(&(t->mutex));
+
         if (pthread_join(t->thread, NULL) != 0)
         {
             perror("Failed to join the thread");
         }
     }
+
+    // printf("Printing Work Done By Each Thread\n");
 
     // edit this if you remove main thread from threadPool
     for (i=0, t=threadPool->threads; i<threadPool->size+1; i++, t++)
@@ -282,10 +333,11 @@ bool submitTraversalTask(ThreadPool *threadPool,
             thread->task.traversalFunc = traversalFunc;
             thread->task.callback = callback;
             thread->totalTasks++;
+            printf("Submitting Task: Root = %d , To = %d , From = %d\n", root->id, thread->threadID, threadID);
             pthread_mutex_unlock(&(thread->mutex));
             pthread_mutex_unlock(&(threadPool->mutex));
             pthread_cond_signal(&(thread->cond));
-
+            printf("Finished Submitting Task: Root = %d , To = %d , From = %d\n", root->id, thread->threadID, threadID);
             return true;
         }
     }
@@ -309,51 +361,41 @@ void preOrderMT(
     callback(root);
     thread->totalCallbacks++;
 
-    if (root->left != NULL)
-    {
-        if (!submitTraversalTask(threadPool, root->left, preOrderMT, callback, thread->threadID))
+	if (root->left != NULL)
+	{
+        if (root->right != NULL)
+        {
+            if (!submitTraversalTask(threadPool, root->left, preOrderMT, callback, thread->threadID))
+            {
+                preOrderMT(root->left, callback, thread, threadPool);
+            }
+		    preOrderMT(root->right, callback, thread, threadPool);
+        }
+        else
         {
             preOrderMT(root->left, callback, thread, threadPool);
         }
-    }
-
-    if (root->right != NULL)
+	}
+    else 
     {
-        if (!submitTraversalTask(threadPool, root->right, preOrderMT, callback, thread->threadID))
+        if (root->right != NULL)
         {
             preOrderMT(root->right, callback, thread, threadPool);
         }
     }
-
-
-	// if (root->left != NULL)
-	// {
-    //     if (root->right != NULL)
-    //     {
-    //         if (!submitTraversalTask(threadPool, root->left, preOrderMT, callback, thread->threadID))
-    //         {
-    //             preOrderMT(root->left, callback, thread, threadPool);
-    //         }
-	// 	    preOrderMT(root->right, callback, thread, threadPool);
-    //     }
-    //     else
-    //     {
-    //         preOrderMT(root->left, callback, thread, threadPool);
-    //     }
-	// }
-    // else 
-    // {
-    //     if (root->right != NULL)
-    //     {
-    //         preOrderMT(root->right, callback, thread, threadPool);
-    //     }
-    // }
 }
 void preOrderMTWrapper(Tree *root, TreeCallback callback, ThreadPool *threadPool, StartThreadArgs *startArgs)
 {
+    printf("\nStarting Pre-Order Traversal\n");
+
     startThreadPool(threadPool, startArgs);
+    printf("Thread Pool Started\n");
+
 	preOrderMT(root, callback, &(threadPool->threads[threadPool->size]), threadPool);
+    printf("Tree Traversed\n");
+
     joinThreadPool(threadPool);
+    printf("Thread Pool Joined\n");
 }
 
 
@@ -363,55 +405,44 @@ void postOrderMT(
     TraversalThread *thread, ThreadPool *threadPool
 )
 {
-    if (root->left != NULL)
-    {
-        if (!submitTraversalTask(threadPool, root->left, postOrderMT, callback, thread->threadID))
+	if (root->left != NULL)
+	{
+        if (root->right != NULL)
+        {
+            if (!submitTraversalTask(threadPool, root->left, postOrderMT, callback, thread->threadID))
+            {
+                postOrderMT(root->left, callback, thread, threadPool);
+            }
+		    postOrderMT(root->right, callback, thread, threadPool);
+        }
+        else
         {
             postOrderMT(root->left, callback, thread, threadPool);
         }
-    }
-
-    if (root->right != NULL)
+	}
+    else 
     {
-        if (!submitTraversalTask(threadPool, root->right, postOrderMT, callback, thread->threadID))
+        if (root->right != NULL)
         {
             postOrderMT(root->right, callback, thread, threadPool);
         }
     }
-
-
-	// if (root->left != NULL)
-	// {
-    //     if (root->right != NULL)
-    //     {
-    //         if (!submitTraversalTask(threadPool, root->left, postOrderMT, callback, thread->threadID))
-    //         {
-    //             postOrderMT(root->left, callback, thread, threadPool);
-    //         }
-	// 	    postOrderMT(root->right, callback, thread, threadPool);
-    //     }
-    //     else
-    //     {
-    //         postOrderMT(root->left, callback, thread, threadPool);
-    //     }
-	// }
-    // else 
-    // {
-    //     if (root->right != NULL)
-    //     {
-    //         postOrderMT(root->right, callback, thread, threadPool);
-    //     }
-    // }
-
 
     callback(root);
     thread->totalCallbacks++;
 }
 void postOrderMTWrapper(Tree *root, TreeCallback callback, ThreadPool *threadPool, StartThreadArgs *startArgs)
 {
+    printf("\nStarting Post-Order Traversal\n");
+
     startThreadPool(threadPool, startArgs);
-    postOrderMT(root, callback, &(threadPool->threads[threadPool->size]), threadPool);
+    printf("Thread Pool Started\n");
+
+	postOrderMT(root, callback, &(threadPool->threads[threadPool->size]), threadPool);
+    printf("Tree Traversed\n");
+
     joinThreadPool(threadPool);
+    printf("Thread Pool Joined\n");
 }
 
 

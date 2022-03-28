@@ -42,6 +42,7 @@ extern void printNodeStdErr(Tree *t);
 extern void incrementID(Tree *t);
 extern void searchKey(Tree *t);
 extern void sleepNode(Tree *t);
+extern void randArray(Tree *t);
 
 /* traversals */
 extern void preOrder(Tree *root);

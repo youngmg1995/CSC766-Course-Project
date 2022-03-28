@@ -22,8 +22,10 @@
 #include <unistd.h>
 
 #include "types.h"
+#include "util.h"
 
 static int sampleKey = 849037849;
+static double testArray[100];
 
 /******************************************************************************* 
 -------------------------------- FUNCTION DEFS ---------------------------------
@@ -201,15 +203,16 @@ void searchKey(Tree *t)
 
 void sleepNode(Tree *t)
 {
-	usleep(2000);
-	// int i;
-	// int *data = (int *) malloc(100000 * sizeof(int));
-	// for (i=0; i<100000; i++)
-	// {
-	// 	data[i] = 0;
-	// }
-	// t->data = (void *) data;
-	// free(data);
+	usleep(200);
+}
+
+void randArray(Tree *t)
+{
+	int i;
+	for (i=0; i<100; i++)
+	{
+		t->id = (int) genrand64_real2();
+	}
 }
 
 
