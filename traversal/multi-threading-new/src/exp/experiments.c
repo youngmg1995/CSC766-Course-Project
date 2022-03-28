@@ -18,8 +18,10 @@
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "binaryTree.h"
+#include "threadpool.h"
 #include "util.h"
 
 #include "batches.h"
@@ -49,11 +51,15 @@ int main(int argc, char *argv[])
 	bool printResults = true;
 	bool verbose = false;
 
+	ThreadPool *threadPool = (ThreadPool *) malloc(sizeof(ThreadPool));
+	StartThreadArgs *startArgs = (StartThreadArgs *) malloc((NUM_THREADS-1) * sizeof(StartThreadArgs));
+	initThreadPool(threadPool, startArgs, NUM_THREADS-1);
+
 	/* ---------------------------------------------------------------------- */
 	int depth, i, runs;
 
-	int minDepth = 18;
-	int maxDepth = 18;
+	int minDepth = 10;
+	int maxDepth = 10;
 	int samples = 1;
 
 	for (depth = minDepth; depth<=maxDepth; depth++)
@@ -68,15 +74,33 @@ int main(int argc, char *argv[])
 
 			// traversalBatch(depth, runs, printResults, verbose);
 
-			traversalBatchCB(depth, runs, incrementCallback, "increment-id", printResults, verbose);
+			// traversalBatchMT(
+			// 	depth, runs, incrementCallback, threadPool, startArgs,
+			// 	"increment-id", printResults, verbose
+			// );
 
-			traversalBatchCB(depth, runs, searchCallback, "search-id", printResults, verbose);
+			// traversalBatchMT(
+			// 	depth, runs, searchCallback, threadPool, startArgs,
+			// 	"search-id", printResults, verbose
+			// );
 
-			traversalBatchCB(depth, runs, printCallback, "print-id", printResults, verbose);
+			// traversalBatchMT(
+			// 	depth, runs, printCallback, threadPool, startArgs,
+			// 	"print-id", printResults, verbose
+			// );
 
-			// traversalBatchCB(depth, runs, sleepCallback, "sleep-10ms", printResults, verbose);
+			traversalBatchMT(
+				depth, runs, sleepCallback, threadPool, startArgs,
+				"sleep", printResults, verbose
+			);
 		}
 	}
+
+	/* ---------------------------------------------------------------------- */
+
+	destroyThreadPool(threadPool, startArgs);
+	free(threadPool);
+	free(startArgs);
 
 	/* ---------------------------------------------------------------------- */
 	

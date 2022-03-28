@@ -69,7 +69,7 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 # ------------------------------------------------------------------------------
 
 # flags
-GCC_CFLAGS		:= -O3 -Wall -pthread
+GCC_CFLAGS		:= -O1 -Wall -pthread
 GCC_LFLAGS		:= -lm -pthread -lpthread
 
 EMCC_CFLAGS		:= -O3 -Wall  -pthread

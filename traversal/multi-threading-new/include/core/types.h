@@ -19,11 +19,12 @@
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-
+#include <pthread.h>
+#include <stdbool.h>
 
 
 /******************************************************************************* 
----------------------------------- TYPE DEFS -----------------------------------
+--------------------------------- BINARY TREE ----------------------------------
 *******************************************************************************/
 
 /* basic binary tree (primary type used in module) */
@@ -35,6 +36,12 @@ struct Tree
 	Tree *left;
 	Tree *right;
 };
+
+
+
+/******************************************************************************* 
+------------------------------- TREE GENERATION --------------------------------
+*******************************************************************************/
 
 /* type used while building binary tree from inversion table */
 typedef struct ITNode ITNode;
@@ -55,6 +62,12 @@ typedef struct TreeInfo
 	Tree *root;
 } TreeInfo;
 
+
+
+/******************************************************************************* 
+-------------------------------- TREE TRAVERSAL --------------------------------
+*******************************************************************************/
+
 /* defines callback function type for performing actions during tree traversal */
 typedef void (*TreeCallback)(Tree *);
 
@@ -68,23 +81,72 @@ typedef struct TreeQueue
 	Tree **queue;
 } TreeQueue;
 
-
-typedef struct ThreadInfo {
-    int threadID;
-	int tasks;
-    int callbacks;
-} ThreadInfo;
-
 /* types for passing function pointer to traversal function */
-typedef void (*TraversalFunc)(Tree *, TreeCallback);
-typedef void (*TraversalFuncCBInner)(Tree *, TreeCallback, TraversalThread *);
+typedef void (*TraversalFunc)(Tree *);
+typedef void (*TraversalFuncCB)(Tree *, TreeCallback);
+typedef void (*TraversalFuncLevel)(Tree *, TreeQueue *);
+typedef void (*TraversalFuncLevelCB)(Tree *, TreeQueue *, TreeCallback);
+typedef void (*TraversalFuncCont)(Tree *, int);
+typedef void (*TraversalFuncContCB)(Tree *, int, TreeCallback);
 
-/* types used for multi-threading */
+
+
+/******************************************************************************* 
+------------------------------- MULTI-THREADING --------------------------------
+*******************************************************************************/
+
+typedef struct TraversalThread TraversalThread;
+typedef struct ThreadPool ThreadPool;
+typedef struct StartThreadArgs StartThreadArgs;
+
+/* types for passing function pointer to multi-threaded traversal functions */
+typedef void (*TraversalFuncMT)(Tree *, TreeCallback, TraversalThread *, ThreadPool *);
+typedef void (*TraversalFuncMTWrapper)(Tree *, TreeCallback, ThreadPool *, StartThreadArgs *);
+
+/* stores task executed by each thread */
 typedef struct TraversalTask {
-	TraversalFuncCBInner traversalFunc;
+	TraversalFuncMT traversalFunc;
 	Tree * root;
 	TreeCallback callback;
 } TraversalTask;
+
+/* stores threads and info related to each (such as current task) */
+typedef struct TraversalThread
+{
+    int threadID;
+    bool started;
+    bool busy;
+    TraversalTask task;
+    pthread_t thread;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+
+    int totalTasks;
+    int totalCallbacks;
+} TraversalThread;
+
+/* pool that stores all threads and info used during mult-threaded traversal */
+typedef struct ThreadPool
+{
+    int size;
+    int taskCount;
+    int availThreads;
+    int nextThread;
+    bool addingTasks;
+	bool finished;
+    pthread_mutex_t mutex;
+    TraversalThread *threads;
+} ThreadPool;
+
+/* used for passing various arguments to thread entry point */
+typedef struct StartThreadArgs
+{
+    ThreadPool * threadPool;
+    TraversalThread * thread;
+} StartThreadArgs;
+
+
+
 
 #endif
 /******************************************************************************* 

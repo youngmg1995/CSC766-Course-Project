@@ -26,15 +26,23 @@
 ---------------------------------- FUNC DECL -----------------------------------
 *******************************************************************************/
 
-/* functions for timing each tree traversal */
-extern void traversalBatch(
-	int depth, int samples, bool printResults, bool verbose
+/* functions for timing multi-threaded tree traversal */
+extern void traversalBatchMT(
+	int depth, int samples, TreeCallback callback, 
+	ThreadPool *threadPool, StartThreadArgs *startArgs,
+	const char callbackName[], bool printResults, bool verbose
 );
 
-extern void traversalBatchCB(
-	int depth, int samples, TreeCallback callback, const char callbackName[], 
-	bool printResults, bool verbose
-);
+
+// /* functions for timing each tree traversal */
+// extern void traversalBatch(
+// 	int depth, int samples, bool printResults, bool verbose
+// );
+
+// extern void traversalBatchCB(
+// 	int depth, int samples, TreeCallback callback, const char callbackName[], 
+// 	bool printResults, bool verbose
+// );
 
 
 

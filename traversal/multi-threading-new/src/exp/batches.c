@@ -35,9 +35,10 @@
 
 /* -------------------------------------------------------------------------- */
 
-void traversalBatchCB(
-	int depth, int samples, TreeCallback callback, const char callbackName[], 
-	bool printResults, bool verbose
+void traversalBatchMT(
+	int depth, int samples, TreeCallback callback, 
+	ThreadPool *threadPool, StartThreadArgs *startArgs,
+	const char callbackName[], bool printResults, bool verbose
 )
 {
 	int N = (1<<(depth+1)) - 1;
@@ -55,8 +56,8 @@ void traversalBatchCB(
 	TreeQueue *treeQueue = &tq;
 	initTQ(treeQueue, N);
 	
-	TraversalFuncCB preOrderTraversalCB = &preOrderMTWrapper;
-	TraversalFuncCB postOrderTraversalCB = &postOrderMTWrapper;
+	TraversalFuncMTWrapper preOrderTraversalMT = &preOrderMTWrapper;
+	TraversalFuncMTWrapper postOrderTraversalMT = &postOrderMTWrapper;
 
 
 	/* ---------------------------------------------------------------------- */
@@ -65,12 +66,14 @@ void traversalBatchCB(
 
 	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose,
 		"random", "fragmented", "pre-order", callbackName
 	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"random", "fragmented", "post-order", callbackName
 	);
 
@@ -82,12 +85,14 @@ void traversalBatchCB(
 
 	treeInfo = genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, N, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"random", "contiguous", "pre-order", callbackName
 	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"random", "contiguous", "post-order", callbackName
 	);
 
@@ -97,12 +102,14 @@ void traversalBatchCB(
 
 	treeInfo = genBalancedTreeOptimized(invTable, itNodeArray, depth, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"balanced", "fragmented", "pre-order", callbackName
 	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"balanced", "fragmented", "post-order", callbackName
 	);
 
@@ -114,12 +121,14 @@ void traversalBatchCB(
 
 	treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"balanced", "contiguous", "pre-order", callbackName
 	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	timeTraversalMT(
+		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+		samples, printResults, verbose, 
 		"balanced", "contiguous", "post-order", callbackName
 	);
 

@@ -23,6 +23,7 @@
 
 #include "types.h"
 #include "queue.h"
+#include "threadpool.h"
 
 #include "exp.h"
 
@@ -63,6 +64,57 @@ double wallTimeDiff(struct timeval start, struct timeval end)
 
 /******************************************************************************* 
 ------------------------------- PRIMARY EXPORTS --------------------------------
+*******************************************************************************/
+
+/* -------------------------------------------------------------------------- */
+
+TimeInfo timeTraversalMT(
+	TreeInfo treeInfo, TraversalFuncMTWrapper traversalFunc, TreeCallback callback,
+	ThreadPool *threadPool, StartThreadArgs *startArgs,
+	int samples, bool printResults, bool verbose, const char treeType[], 
+	const char storageType[], const char traversalName[], const char callbackName[]
+)
+{
+	TimeInfo timeInfo = {0};
+
+	int i;
+	clock_t tic, toc;
+	struct timeval startTime, endTime;
+
+	gettimeofday(&startTime, NULL);
+	tic = clock();
+	for (i=0; i<samples; i++)
+	{
+		traversalFunc(treeInfo.root, callback, threadPool, startArgs);
+	}
+	toc = clock();
+	gettimeofday(&endTime, NULL);
+
+	timeInfo.samples 		= samples;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
+
+	if (printResults)
+	{
+		printExpResults(
+			treeInfo, timeInfo, treeType, storageType, traversalName, 
+			callbackName, verbose
+		);
+	}
+
+	return timeInfo;
+}
+
+/* -------------------------------------------------------------------------- */
+
+
+
+/******************************************************************************* 
+------------------------- NON-MULTI-THREADED FUNCTIONS -------------------------
 *******************************************************************************/
 
 /* -------------------------------------------------------------------------- */

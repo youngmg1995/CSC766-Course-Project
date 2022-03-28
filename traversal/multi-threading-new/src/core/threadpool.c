@@ -24,7 +24,6 @@
 #include <unistd.h>
 
 #include "types.h"
-#include "threadpool.h"
 
 
 
@@ -32,52 +31,12 @@
 ------------------------------- GLOBAL VARIABLES -------------------------------
 *******************************************************************************/
 
-pthread_t threadPool[NUM_THREADS-1];
-volatile int threadCount = 0;
-
-pthread_mutex_t queueMutex;
-pthread_cond_t queueCond;
-
-bool addingTasks = false;
-
-ThreadInfo threadInfoArray[NUM_THREADS];  
-
 
 
 /******************************************************************************* 
 ---------------------------------- TASK QUEUE ----------------------------------
 *******************************************************************************/
 
-typedef struct TraversalThread
-{
-    int threadID;
-    bool started;
-    bool busy;
-    TraversalTask task;
-    pthread_t thread;
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-
-    int totalTasks;
-    int totalCallbacks;
-} TraversalThread;
-
-typedef struct ThreadPool
-{
-    int size;
-    int availThreads;
-    int nextThread;
-    int taskCount;
-    bool addingTasks;
-    pthread_mutex_t mutex;
-    TraversalThread *threads;
-} ThreadPool;
-
-typedef struct StartThreadArgs
-{
-    ThreadPool * threadPool;
-    TraversalThread * thread;
-} StartThreadArgs;
 
 void initThread(TraversalThread *thread, int threadID)
 {
@@ -87,8 +46,8 @@ void initThread(TraversalThread *thread, int threadID)
     thread->started = false;
     thread->busy = false;
 
-    int totalTasks = 0;
-    int totalCallbacks = 0;
+    thread->totalTasks = 0;
+    thread->totalCallbacks = 0;
 }
 
 void destroyThread(TraversalThread *thread)
@@ -97,41 +56,107 @@ void destroyThread(TraversalThread *thread)
     pthread_cond_destroy(&(thread->cond));
 }
 
-void initThreadPool(ThreadPool threadPool, int size)
+void initThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs, int size)
 {
-    threadPool.size = size;
-    threadPool.availThreads = 0;
-    threadPool.nextThread = 0;
-    threadPool.taskCount = 0;
-    pthread_mutex_init(&(threadPool.mutex), NULL);
-    threadPool.threads = (TraversalThread *) malloc(size * sizeof(TraversalThread));
+    threadPool->size            = size;
+    threadPool->availThreads    = 0;
+    threadPool->nextThread      = 0;
+    threadPool->taskCount       = 0;
+    threadPool->addingTasks     = true;
+    threadPool->finished        = false;
+    pthread_mutex_init(&(threadPool->mutex), NULL);
+    // edit this if you remove main thread from threadPool
+    threadPool->threads = (TraversalThread *) malloc((size+1) * sizeof(TraversalThread));
 
     TraversalThread *t;
     int i;
-    for (i=0, t=threadPool.threads; i<threadPool.size; i++, t++)
+    for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
     {
         initThread(t, i);
     }
+
+    // maybe remove later (treats main thread as last in thread poo)
+    threadPool->threads[size].threadID = size;
+    threadPool->threads[size].totalTasks = 0;
+    threadPool->threads[size].totalCallbacks = 0;
+
+    StartThreadArgs *s;
+    for (i=0, t=threadPool->threads, s=startArgs; i<threadPool->size; i++, t++, s++)
+    {
+        s->thread = t;
+        s->threadPool = threadPool;
+    }
 }
 
-void destroyThreadPool(ThreadPool threadPool)
+void destroyThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs)
 {
     int i;
     TraversalThread *t;
-    for (i=0, t=threadPool.threads; i<threadPool.size; i++, t++)
+    for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
     {
         destroyThread(t);
     }
-    free(threadPool.threads);
+    free(threadPool->threads);
 
-    pthread_mutex_destroy(&(threadPool.mutex));
+    pthread_mutex_destroy(&(threadPool->mutex));
 }
+
+
+
 
 
 void execTraversalTask(TraversalThread *thread, ThreadPool *threadPool)
 {  
+    // printf("Executing Traversal Task: Root = %d , Thread = %d\n", thread->task.root->id, thread->threadID);
+
     TraversalTask task = thread->task;
-    task.traversalFunc(task.root, task.callback, thread);
+    task.traversalFunc(task.root, task.callback, thread, threadPool);
+
+    // locks may not be necessary for altering thread (would anyone else try to acquire it while busy = true?)
+    pthread_mutex_lock(&(thread->mutex));
+    thread->busy = false;
+    pthread_mutex_unlock(&(thread->mutex));
+
+    pthread_mutex_lock(&(threadPool->mutex));
+    threadPool->availThreads++;
+    threadPool->taskCount--;
+    if (threadPool->availThreads == 1)
+    {
+        threadPool->nextThread = thread->threadID;
+    }
+    pthread_mutex_unlock(&(threadPool->mutex));
+}
+
+bool shouldExit(ThreadPool *threadPool)
+{
+    if (threadPool->finished)
+    {
+        return true;
+    }
+    else
+    {
+        pthread_mutex_lock(&(threadPool->mutex));
+
+        // printf("Should Exit?: AddingTasks = %s, TaskCount = %d\n",
+        //     threadPool->addingTasks ? "True" : "False", threadPool->taskCount
+        // );
+        bool result = !(threadPool->addingTasks || threadPool->taskCount > 0);
+
+        if (result)
+        {
+            // printf("Signaling All Threads to Finish\n");
+            threadPool->finished = true;
+            int i;
+            TraversalThread *t;
+            for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
+            {
+                pthread_cond_signal(&(t->cond));
+            }
+        }
+
+        pthread_mutex_unlock(&(threadPool->mutex));
+        return result;
+    }
 }
 
 void * startThread(void *args)
@@ -140,17 +165,24 @@ void * startThread(void *args)
     ThreadPool *threadPool = threadArgs->threadPool;
     TraversalThread *thread = threadArgs->thread;
 
+    // printf("Starting Thread: %d\n", thread->threadID);
+
     for (;;)
     {
-        // if (!threadPool->addingTasks && threadPool->taskCount > 0) break;
+        if (shouldExit(threadPool)) break;
 
         pthread_mutex_lock(&(thread->mutex));
-        while (!thread->busy)
+        while (!(thread->busy || threadPool->finished))
         {
+            // printf("Thread Waiting: Thread = %d , Busy? = %s\n", thread->threadID, thread->busy ? "True" : "False");
             pthread_cond_wait(&(thread->cond), &(thread->mutex));
+            // printf("Thread Awoken: Thread = %d , Busy? = %s\n", thread->threadID, thread->busy ? "True" : "False");
+            // printf("Task: Root = %d\n", thread->task.root->id);
         }
 
-        if (!threadPool->addingTasks && threadPool->taskCount > 0) {
+        // may cause deadlock here
+        if (shouldExit(threadPool)) {
+            // handle thread and threadPool changes on completion
             pthread_mutex_unlock(&(thread->mutex));
             break;
         };
@@ -158,214 +190,125 @@ void * startThread(void *args)
         pthread_mutex_unlock(&(thread->mutex));
 
         execTraversalTask(thread, threadPool);
-
-        // pthread_mutex_lock(&queueMutex);
-        // threadCount++;
-        // pthread_mutex_unlock(&queueMutex);
     }
 
-    // printf("Finishing Thread\n");
+    // printf("Finishing Thread: %d\n", thread->threadID);
 
     return NULL;
 }
 
 
 
-/******************************************************************************* 
----------------------------------- TASK QUEUE ----------------------------------
-*******************************************************************************/
-typedef struct TaskQueue
-{
-    int size;
-    int capacity;
-    int front;
-    int back;
-    TraversalTask queue[NUM_THREADS-1];
-} TaskQueue;
 
-void initTaskQueue(volatile TaskQueue *tq, int capacity)
-{
-	tq->capacity    = capacity;
-	tq->size 	    = 0;
-	tq->front 	    = 0;
-	tq->back 	    = 0;
-	// tq->queue 	    = (TraversalTask **) malloc(capacity * sizeof(TraversalTask *));
-}
+void startThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs)
+{    
+    threadPool->taskCount       = 0;
+    threadPool->availThreads    = threadPool->size;
+    threadPool->nextThread      = 0;
+    threadPool->addingTasks     = true;
+    threadPool->finished        = false;
 
-// void freeTaskQueue(volatile TaskQueue *tq)
-// {
-// 	free(tq->queue);
-// 	tq->queue = NULL;
-// }
-
-void resetTaskQueue(volatile TaskQueue *tq)
-{
-    tq->capacity    = NUM_THREADS-1;
-	tq->size 	    = 0;
-	tq->front 	    = 0;
-	tq->back 	    = 0;
-}
-
-bool isEmptyTaskQueue(volatile TaskQueue *tq)
-{
-	return tq->size == 0;
-}
-
-bool isFullTaskQueue(volatile TaskQueue *tq)
-{
-	return tq->size == tq->capacity;
-}
-
-void enQueueTaskQueue(volatile TaskQueue *tq, TraversalTask t)
-{
-    // printf("Enqueueing Task #: %d\n", tq->size+1);
-	tq->queue[tq->back] = t;
-	tq->back++;
-	if (tq->back == tq->capacity) { tq->back = 0;}
-	tq->size++;
-}
-
-TraversalTask deQueueTaskQueue(volatile TaskQueue *tq)
-{
-    // printf("Dequeueing Task #: %d\n", tq->size);
-    TraversalTask tmp = tq->queue[tq->front];
-    tq->front++;
-    if (tq->front == tq->capacity) { tq->front = 0;}
-    tq->size--;
-    return tmp;
-}
-
-volatile TaskQueue taskQueue = {0};
-
-/******************************************************************************* 
-------------------------------- THREAD FUNCTIONS -------------------------------
-*******************************************************************************/
-
-void execTraversalTask(TraversalTask *task, ThreadInfo *threadInfo)
-{
-    threadInfo->tasks++;
-    // printf("Executing Task: Thread = %d\n", threadInfo->threadID);
-    // printf("Executing Task: Thread = %d , Root = %d\n", threadInfo->threadID, task->root->id);
-    task->traversalFunc(task->root, task->callback, threadInfo);
-    // task->callback(task->root);
-}
-
-void submitTraversalTask(TraversalTask task)
-{   
-    pthread_mutex_lock(&queueMutex);
-    enQueueTaskQueue(&taskQueue, task);
-    threadCount--;
-    pthread_mutex_unlock(&queueMutex);
-    pthread_cond_signal(&queueCond);
-}
-
-void * startThread(void *args)
-{
-    // printf("Starting Thread\n");
-    ThreadInfo *threadInfo = (ThreadInfo *) args;
-    // printf("Starting Thread: %d\n", threadInfo->threadID);
-
-    for (;;)
+    int i;
+    TraversalThread *t;
+    for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
     {
-        if (!addingTasks && isEmptyTaskQueue(&taskQueue)) break;
-
-        TraversalTask task;
-
-        pthread_mutex_lock(&queueMutex);
-        while (addingTasks && isEmptyTaskQueue(&taskQueue))
-        {
-            pthread_cond_wait(&queueCond, &queueMutex);
-        }
-
-        if (!addingTasks && isEmptyTaskQueue(&taskQueue)) {
-            pthread_mutex_unlock(&queueMutex);
-            break;
-        };
-
-        // this queue can be improved/optimized
-        task = deQueueTaskQueue(&taskQueue);
-        pthread_mutex_unlock(&queueMutex);
-        // printf("Executing Task: Node ID = %d\n", task.root->id);
-        execTraversalTask(&task, threadInfo); 
-
-        pthread_mutex_lock(&queueMutex);
-        threadCount++;
-        pthread_mutex_unlock(&queueMutex);
-    }
-
-    // printf("Finishing Thread\n");
-
-    return NULL;
-}
-
-void initThreadPool()
-{
-    // printf("Initializing Threads from Main Thread\n");
-
-    pthread_mutex_init(&queueMutex, NULL);
-    pthread_cond_init(&queueCond, NULL);
-
-    resetTaskQueue(&taskQueue);
-    threadCount = NUM_THREADS-1;
-    addingTasks = true;
-
-    threadInfoArray[0].threadID = 0;
-    threadInfoArray[0].tasks = 1;
-    threadInfoArray[0].callbacks = 0;
-
-    int t;
-    for (t=0; t<NUM_THREADS-1; t++)
-    {
-        threadInfoArray[t+1].threadID = t+1;
-        threadInfoArray[t+1].tasks = 0;
-        threadInfoArray[t+1].callbacks = 0;
-
-        if (pthread_create(&threadPool[t], NULL, &startThread, (void *) &(threadInfoArray[t+1])) != 0)
+        t->started          = true;
+        t->busy             = false;
+        t->totalTasks       = 0;
+        t->totalCallbacks   = 0;
+        if (pthread_create(&(t->thread), NULL, &startThread, (void *) &(startArgs[i])) != 0)
         {
             perror("Failed to create the thread");
         }
     }
 
-    // sleep(10);
-    // printf("Finished Initializing Threads from Main Thread\n");
+    // maybe remove later (treats main thread as last in thread poo)
+    t->totalTasks = 0;
+    t->totalCallbacks = 0;  
 }
 
-void joinThreadPool()
+void joinThreadPool(ThreadPool *threadPool)
 {
     // printf("Joining Threads from Main Thread\n");
 
-    pthread_mutex_lock(&queueMutex);
-    addingTasks = false;
-    pthread_cond_broadcast(&queueCond);
-    pthread_mutex_unlock(&queueMutex);
+    pthread_mutex_lock(&(threadPool->mutex));
+    threadPool->addingTasks = false;
+    pthread_mutex_unlock(&(threadPool->mutex));
 
     // printf("Set Adding Tasks to False\n");
 
-    int t;
-    for (t=0; t<NUM_THREADS-1; t++)
+    int i;
+    TraversalThread *t;
+    for (i=0, t=threadPool->threads; i<threadPool->size; i++, t++)
     {
-        if (pthread_join(threadPool[t], NULL) != 0)
+        // pthread_mutex_lock(&(t->mutex));
+        // pthread_cond_signal(&(t->cond));
+        // pthread_mutex_unlock(&(t->mutex));
+
+        if (pthread_join(t->thread, NULL) != 0)
         {
             perror("Failed to join the thread");
         }
     }
 
-    int i;
-    for (i=0; i<NUM_THREADS; i++)
+    // printf("Printing Work Done By Each Thread\n");
+
+    // edit this if you remove main thread from threadPool
+    for (i=0, t=threadPool->threads; i<threadPool->size+1; i++, t++)
     {
         printf(
             "Thread: %d , Tasks: %d , Callbacks: %d\n", 
-            threadInfoArray[i].threadID, threadInfoArray[i].tasks, threadInfoArray[i].callbacks
+            t->threadID, t->totalTasks, t->totalCallbacks
         );
     }
+}
 
-    threadCount = 0;
-    // freeTaskQueue(&taskQueue);
 
-    pthread_mutex_destroy(&queueMutex);
-    pthread_cond_destroy(&queueCond);
+bool submitTraversalTask(ThreadPool *threadPool, 
+    Tree *root, TraversalFuncMT traversalFunc, TreeCallback callback
+)
+{   
+    if (threadPool->availThreads > 0)
+    {
+        pthread_mutex_lock(&(threadPool->mutex));
+        if (threadPool->availThreads == 0)
+        {
+            pthread_mutex_unlock(&(threadPool->mutex));
+            return false;
+        }
+        else
+        {
+            // this code may cause deadlock (what due to trying to grab all the locks)
+            TraversalThread *thread = (threadPool->threads + threadPool->nextThread);
+            threadPool->availThreads--;
+            threadPool->taskCount++;
+            if (threadPool->availThreads > 0)
+            {
+                int i = threadPool->nextThread;
+                do {
+                    i++;
+                    if (i==threadPool->size) i=0;
+                } while (threadPool->threads[i].busy);
+                threadPool->nextThread = i;
+            }
 
-    // printf("Finished Joining Threads from Main Thread\n");
+            pthread_mutex_lock(&(thread->mutex));
+            thread->busy = true;
+            thread->task.root = root;
+            thread->task.traversalFunc = traversalFunc;
+            thread->task.callback = callback;
+            thread->totalTasks++;
+            // printf("Submitting Task: Root = %d , Thread = %d\n", root->id, thread->threadID);
+            pthread_mutex_unlock(&(thread->mutex));
+            pthread_mutex_unlock(&(threadPool->mutex));
+            pthread_cond_signal(&(thread->cond));
+            return true;
+        }
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
@@ -374,645 +317,93 @@ void joinThreadPool()
 /******************************************************************************* 
 -------------------------- MULTI-THREADED TRAVERSALS ---------------------------
 *******************************************************************************/
-
-
-
-
-
-
-
-
-
-
-// void preOrderMT(Tree * root, TreeCallback callback, ThreadInfo *threadInfo)
-// {
-// 	if (root != NULL)
-// 	{
-//         callback(root);
-//         threadInfo->callbacks++;
-
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = preOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             preOrderMT(root->left, callback, threadInfo);
-//         }
-
-// 		preOrderMT(root->right, callback, threadInfo);
-// 	}
-// }
-// void preOrderMTWrapper(Tree * root, TreeCallback callback)
-// {
-//     initThreadPool();
-//     ThreadInfo *threadInfo = &(threadInfoArray[0]);
-    
-// 	if (root != NULL)
-// 	{	
-//         callback(root);
-//         threadInfo->callbacks++;
-
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = preOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             preOrderMT(root->left, callback, threadInfo);
-//         }
-
-// 		preOrderMT(root->right, callback, threadInfo);
-// 	}
-
-//     joinThreadPool();
-// }
-
-// void postOrderMT(Tree *root, TreeCallback callback, ThreadInfo *threadInfo)
-// {
-// 	if (root != NULL)
-// 	{	
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = postOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             postOrderMT(root->left, callback, threadInfo);
-//         }
-
-// 		postOrderMT(root->right, callback, threadInfo);
-
-
-//         callback(root);
-//         threadInfo->callbacks++;
-// 	}
-// }
-// void postOrderMTWrapper(Tree *root, TreeCallback callback)
-// {
-//     initThreadPool();
-//     ThreadInfo *threadInfo = &(threadInfoArray[0]);
-
-// 	if (root != NULL)
-// 	{	
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = postOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             postOrderMT(root->left, callback, threadInfo);
-//         }
-
-// 		postOrderMT(root->right, callback, threadInfo);
-
-
-//         callback(root);
-//         threadInfo->callbacks++;
-// 	}
-
-//     joinThreadPool();
-// }
-
-
-
-
-
-
-
-
-
-
-
-// void preOrderMT(Tree * root, TreeCallback callback, ThreadInfo *threadInfo)
-// {
-//     callback(root);
-//     threadInfo->callbacks++;
-
-// 	if (root->left != NULL)
-// 	{
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = preOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             preOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-
-//     if (root->right != NULL)
-//     {
-//         preOrderMT(root->right, callback, threadInfo);
-//     }
-// }
-// void preOrderMTWrapper(Tree * root, TreeCallback callback)
-// {
-//     initThreadPool();
-//     ThreadInfo *threadInfo = &(threadInfoArray[0]);
-    
-//     callback(root);
-//     threadInfo->callbacks++;
-
-// 	if (root->left != NULL)
-// 	{
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = preOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             preOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-
-//     if (root->right != NULL)
-//     {
-//         preOrderMT(root->right, callback, threadInfo);
-//     }
-
-//     joinThreadPool();
-// }
-
-// void postOrderMT(Tree *root, TreeCallback callback, ThreadInfo *threadInfo)
-// {
-// 	if (root->left != NULL)
-// 	{
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = postOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             postOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-
-//     if (root->right != NULL)
-//     {
-//         postOrderMT(root->right, callback, threadInfo);
-//     }
-
-//     callback(root);
-//     threadInfo->callbacks++;
-// }
-// void postOrderMTWrapper(Tree *root, TreeCallback callback)
-// {
-//     initThreadPool();
-//     ThreadInfo *threadInfo = &(threadInfoArray[0]);
-
-// 	if (root->left != NULL)
-// 	{
-//         if (threadCount > 0)
-//         {
-//             // printf("Creating Task for Root: id = %d\n", root->id);
-//             TraversalTask task = {
-//                 .traversalFunc = postOrderMT,
-//                 .root = root->left,
-//                 .callback = callback,
-//             };
-//             submitTraversalTask(task);
-//         }
-//         else
-//         {
-//             postOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-
-//     if (root->right != NULL)
-//     {
-//         postOrderMT(root->right, callback, threadInfo);
-//     }
-
-//     callback(root);
-//     threadInfo->callbacks++;
-
-//     joinThreadPool();
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// int getThreadCount()
-// {
-//     pthread_mutex_lock(&queueMutex);
-//     int count = threadCount;
-//     pthread_mutex_unlock(&queueMutex);
-//     return count;
-//     // printf("Thread Count: %d\n", count);
-//     // return 1;
-// }
-
-// void preOrderMT(Tree * root, TreeCallback callback, ThreadInfo *threadInfo)
-// {
-//     callback(root);
-//     threadInfo->callbacks++;
-
-// 	if (root->left != NULL)
-// 	{
-//         if (root->right != NULL)
-//         {
-//             if (getThreadCount() > 0)
-//             {
-//                 TraversalTask task = {
-//                     .traversalFunc = preOrderMT,
-//                     .root = root->left,
-//                     .callback = callback,
-//                 };
-//                 submitTraversalTask(task);
-//             }
-//             else
-//             {
-//                 preOrderMT(root->left, callback, threadInfo);
-//             }
-// 		    preOrderMT(root->right, callback, threadInfo);
-//         }
-//         else
-//         {
-//             preOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-//     else 
-//     {
-//         if (root->right != NULL)
-//         {
-//             preOrderMT(root->right, callback, threadInfo);
-//         }
-//     }
-// }
-// void preOrderMTWrapper(Tree * root, TreeCallback callback)
-// {
-//     initThreadPool();
-//     ThreadInfo *threadInfo = &(threadInfoArray[0]);
-    
-//     callback(root);
-//     threadInfo->callbacks++;
-
-// 	if (root->left != NULL)
-// 	{
-//         if (root->right != NULL)
-//         {
-//             if (getThreadCount() > 0)
-//             {
-//                 TraversalTask task = {
-//                     .traversalFunc = preOrderMT,
-//                     .root = root->left,
-//                     .callback = callback,
-//                 };
-//                 submitTraversalTask(task);
-//             }
-//             else
-//             {
-//                 preOrderMT(root->left, callback, threadInfo);
-//             }
-// 		    preOrderMT(root->right, callback, threadInfo);
-//         }
-//         else
-//         {
-//             preOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-//     else 
-//     {
-//         if (root->right != NULL)
-//         {
-//             preOrderMT(root->right, callback, threadInfo);
-//         }
-//     }
-
-//     joinThreadPool();
-// }
-
-// void postOrderMT(Tree *root, TreeCallback callback, ThreadInfo *threadInfo)
-// {
-// 	if (root->left != NULL)
-// 	{
-//         if (root->right != NULL)
-//         {
-//             if (getThreadCount() > 0)
-//             {
-//                 TraversalTask task = {
-//                     .traversalFunc = postOrderMT,
-//                     .root = root->left,
-//                     .callback = callback,
-//                 };
-//                 submitTraversalTask(task);
-//             }
-//             else
-//             {
-//                 postOrderMT(root->left, callback, threadInfo);
-//             }
-// 		    postOrderMT(root->right, callback, threadInfo);
-//         }
-//         else
-//         {
-//             postOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-//     else 
-//     {
-//         if (root->right != NULL)
-//         {
-//             postOrderMT(root->right, callback, threadInfo);
-//         }
-//     }
-
-//     callback(root);
-//     threadInfo->callbacks++;
-// }
-// void postOrderMTWrapper(Tree *root, TreeCallback callback)
-// {
-//     initThreadPool();
-//     ThreadInfo *threadInfo = &(threadInfoArray[0]);
-
-// 	if (root->left != NULL)
-// 	{
-//         if (root->right != NULL)
-//         {
-//             if (getThreadCount() > 0)
-//             {
-//                 TraversalTask task = {
-//                     .traversalFunc = postOrderMT,
-//                     .root = root->left,
-//                     .callback = callback,
-//                 };
-//                 submitTraversalTask(task);
-//             }
-//             else
-//             {
-//                 postOrderMT(root->left, callback, threadInfo);
-//             }
-// 		    postOrderMT(root->right, callback, threadInfo);
-//         }
-//         else
-//         {
-//             postOrderMT(root->left, callback, threadInfo);
-//         }
-// 	}
-//     else 
-//     {
-//         if (root->right != NULL)
-//         {
-//             postOrderMT(root->right, callback, threadInfo);
-//         }
-//     }
-
-//     callback(root);
-//     threadInfo->callbacks++;
-
-//     joinThreadPool();
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-int getThreadCount()
-{
-    // pthread_mutex_lock(&queueMutex);
-    int count = threadCount;
-    // pthread_mutex_unlock(&queueMutex);
-    return count;
-    // printf("Thread Count: %d\n", count);
-    // return 1;
-}
-
-void preOrderMT(Tree * root, TreeCallback callback, ThreadInfo *threadInfo)
+void preOrderMT(
+    Tree *root, TreeCallback callback, 
+    TraversalThread *thread, ThreadPool *threadPool
+)
 {
     callback(root);
-    threadInfo->callbacks++;
-
-	if (root->left != NULL)
-	{
-        if (getThreadCount() > 0)
-        {
-            TraversalTask task = {
-                .traversalFunc = preOrderMT,
-                .root = root->left,
-                .callback = callback,
-            };
-            submitTraversalTask(task);
-        }
-        else
-        {
-            preOrderMT(root->left, callback, threadInfo);
-        }
-    }
-
-	if (root->right != NULL)
-	{
-        if (getThreadCount() > 0)
-        {
-            TraversalTask task = {
-                .traversalFunc = preOrderMT,
-                .root = root->right,
-                .callback = callback,
-            };
-            submitTraversalTask(task);
-        }
-        else
-        {
-            preOrderMT(root->right, callback, threadInfo);
-        }
-    }
-}
-void masterPreOrderMT(Tree *root, TreeCallback callback, ThreadInfo *threadInfo)
-{
-    callback(root);
-    threadInfo->callbacks++;
+    thread->totalCallbacks++;
 
 	if (root->left != NULL)
 	{
         if (root->right != NULL)
         {
-            if (getThreadCount() > 0)
+            if (!submitTraversalTask(threadPool, root->left, preOrderMT, callback))
             {
-                TraversalTask task = {
-                    .traversalFunc = preOrderMT,
-                    .root = root->left,
-                    .callback = callback,
-                };
-                submitTraversalTask(task);
+                preOrderMT(root->left, callback, thread, threadPool);
             }
-            else
-            {
-                masterPreOrderMT(root->left, callback, threadInfo);
-            }
-		    masterPreOrderMT(root->right, callback, threadInfo);
+		    preOrderMT(root->right, callback, thread, threadPool);
         }
         else
         {
-            masterPreOrderMT(root->left, callback, threadInfo);
+            preOrderMT(root->left, callback, thread, threadPool);
         }
 	}
     else 
     {
         if (root->right != NULL)
         {
-            masterPreOrderMT(root->right, callback, threadInfo);
+            preOrderMT(root->right, callback, thread, threadPool);
         }
     }
 }
-void preOrderMTWrapper(Tree *root, TreeCallback callback)
+void preOrderMTWrapper(Tree *root, TreeCallback callback, ThreadPool *threadPool, StartThreadArgs *startArgs)
 {
-    initThreadPool();
-    ThreadInfo *threadInfo = &(threadInfoArray[0]);
+    startThreadPool(threadPool, startArgs);
+    // printf("Thread Pool Started\n");
 
-	masterPreOrderMT(root, callback, threadInfo);
+	preOrderMT(root, callback, &(threadPool->threads[threadPool->size]), threadPool);
+    // printf("Tree Traversed\n");
 
-    joinThreadPool();
+    joinThreadPool(threadPool);
+    // printf("Thread Pool Joined\n");
 }
 
-void postOrderMT(Tree *root, TreeCallback callback, ThreadInfo *threadInfo)
-{
-	if (root->left != NULL)
-	{
-        if (getThreadCount() > 0)
-        {
-            TraversalTask task = {
-                .traversalFunc = postOrderMT,
-                .root = root->left,
-                .callback = callback,
-            };
-            submitTraversalTask(task);
-        }
-        else
-        {
-            postOrderMT(root->left, callback, threadInfo);
-        }
-    }
 
-	if (root->right != NULL)
-	{
-        if (getThreadCount() > 0)
-        {
-            TraversalTask task = {
-                .traversalFunc = postOrderMT,
-                .root = root->right,
-                .callback = callback,
-            };
-            submitTraversalTask(task);
-        }
-        else
-        {
-            postOrderMT(root->right, callback, threadInfo);
-        }
-    }
 
-    callback(root);
-    threadInfo->callbacks++;
-}
-void masterPostOrderMT(Tree *root, TreeCallback callback, ThreadInfo *threadInfo)
+void postOrderMT(
+    Tree *root, TreeCallback callback, 
+    TraversalThread *thread, ThreadPool *threadPool
+)
 {
 	if (root->left != NULL)
 	{
         if (root->right != NULL)
         {
-            if (getThreadCount() > 0)
+            if (!submitTraversalTask(threadPool, root->left, postOrderMT, callback))
             {
-                TraversalTask task = {
-                    .traversalFunc = postOrderMT,
-                    .root = root->left,
-                    .callback = callback,
-                };
-                submitTraversalTask(task);
+                postOrderMT(root->left, callback, thread, threadPool);
             }
-            else
-            {
-                masterPostOrderMT(root->left, callback, threadInfo);
-            }
-		    masterPostOrderMT(root->right, callback, threadInfo);
+		    postOrderMT(root->right, callback, thread, threadPool);
         }
         else
         {
-            masterPostOrderMT(root->left, callback, threadInfo);
+            postOrderMT(root->left, callback, thread, threadPool);
         }
 	}
     else 
     {
         if (root->right != NULL)
         {
-            masterPostOrderMT(root->right, callback, threadInfo);
+            postOrderMT(root->right, callback, thread, threadPool);
         }
     }
 
     callback(root);
-    threadInfo->callbacks++;
+    thread->totalCallbacks++;
 }
-void postOrderMTWrapper(Tree *root, TreeCallback callback)
+void postOrderMTWrapper(Tree *root, TreeCallback callback, ThreadPool *threadPool, StartThreadArgs *startArgs)
 {
-    initThreadPool();
-    ThreadInfo *threadInfo = &(threadInfoArray[0]);
+    startThreadPool(threadPool, startArgs);
+    // printf("Thread Pool Started\n");
 
-	masterPostOrderMT(root, callback, threadInfo);
+	postOrderMT(root, callback, &(threadPool->threads[threadPool->size]), threadPool);
+    // printf("Tree Traversed\n");
 
-    joinThreadPool();
+    joinThreadPool(threadPool);
+    // printf("Thread Pool Joined\n");
 }
-
-
 
 
 

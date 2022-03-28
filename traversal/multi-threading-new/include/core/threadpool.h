@@ -20,11 +20,9 @@
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include <stdbool.h>
-
 #include "types.h"
 
-#define NUM_THREADS 8
+#define NUM_THREADS 4
 
 
 
@@ -33,15 +31,12 @@
 *******************************************************************************/
 
 /* functions for thread pool and task queue */
-extern void execTraversalTask(TraversalTask *task, ThreadInfo *);
-extern void submitTraversalTask(TraversalTask task);
-extern void * startThread(void *args);
-extern void initThreadPool();
-extern void joinThreadPool();
+extern void initThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs, int size);
+extern void destroyThreadPool(ThreadPool *threadPool, StartThreadArgs *startArgs);
 
 /* new multi-threaded traversal functions */
-extern void preOrderMTWrapper(Tree * root, TreeCallback callback);
-extern void postOrderMTWrapper(Tree *root, TreeCallback callback);
+extern void preOrderMTWrapper(Tree *root, TreeCallback callback, ThreadPool *threadPool, StartThreadArgs *startArgs);
+extern void postOrderMTWrapper(Tree *root, TreeCallback callback, ThreadPool *threadPool, StartThreadArgs *startArgs);
 
 
 

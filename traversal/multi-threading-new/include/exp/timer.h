@@ -26,6 +26,15 @@
 ---------------------------------- FUNC DECL -----------------------------------
 *******************************************************************************/
 
+/* functions for timing multi-threaded tree traversal */
+extern TimeInfo timeTraversalMT(
+	TreeInfo treeInfo, TraversalFuncMTWrapper traversalFunc, TreeCallback callback,
+	ThreadPool *threadPool, StartThreadArgs *startArgs,
+	int samples, bool printResults, bool verbose, const char treeType[], 
+	const char storageType[], const char traversalName[], const char callbackName[]
+);
+
+
 /* functions for timing each tree traversal */
 extern TimeInfo timeTraversal(
 	TreeInfo treeInfo, TraversalFunc traversalFunc, int samples, 

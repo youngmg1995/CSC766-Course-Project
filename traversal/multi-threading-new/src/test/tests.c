@@ -556,6 +556,11 @@ void validateMultiThread()
 	TreeCallback callback = &printNode;
 
 
+	ThreadPool *threadPool = (ThreadPool *) malloc(sizeof(ThreadPool));
+	StartThreadArgs *startArgs = (StartThreadArgs *) malloc((NUM_THREADS-1) * sizeof(StartThreadArgs));
+	initThreadPool(threadPool, startArgs, NUM_THREADS-1);
+
+
 	printf("Generated Binary Tree: N = %d\n", TEST_8_N);
 	printf("************************************\n");
 	print_ascii_tree(binaryTree);
@@ -563,12 +568,12 @@ void validateMultiThread()
 
 	printf("Multi-Thread Pre-Order Traversal: Callback = %s\n", "printNode");
 	printf("********************************************\n");
-	preOrderMTWrapper(binaryTree, callback);
+	preOrderMTWrapper(binaryTree, callback, threadPool, startArgs);
 	printf("\n\n");
 
 	printf("Multi-Thread Post-Order Traversal: Callback = %s\n", "printNode");
 	printf("********************************************\n");
-	postOrderMTWrapper(binaryTree, callback);
+	postOrderMTWrapper(binaryTree, callback, threadPool, startArgs);
 	printf("\n\n");
 
 
@@ -589,13 +594,18 @@ void validateMultiThread()
 
 	printf("Multi-Thread Pre-Order Traversal: Callback = %s\n", "printNode");
 	printf("********************************************\n");
-	preOrderMTWrapper(binaryTree, callback);
+	preOrderMTWrapper(binaryTree, callback, threadPool, startArgs);
 	printf("\n\n");
 
 	printf("Multi-Thread Post-Order Traversal: Callback = %s\n", "printNode");
 	printf("********************************************\n");
-	postOrderMTWrapper(binaryTree, callback);
+	postOrderMTWrapper(binaryTree, callback, threadPool, startArgs);
 	printf("\n\n");
+
+
+	destroyThreadPool(threadPool, startArgs);
+	free(threadPool);
+	free(startArgs);
 
 
 	free(invTable);
