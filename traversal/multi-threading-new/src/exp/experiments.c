@@ -41,13 +41,19 @@ int main(int argc, char *argv[])
 	// printf("###############################################################################\n");
 	// printf("\n");
 
+	// printf("Size of int: %d\n", (int) sizeof(int));
+	// printf("Size of Tree: %d\n", (int) sizeof(Tree));
+	// printf("Size of ITNode: %d\n", (int) sizeof(ITNode));
+
 	init_genrand64(time(0));
+	initSearchTree();
 
 	TreeCallback incrementCallback = &incrementID;
 	TreeCallback printCallback = &printNodeStdErr;
 	TreeCallback searchCallback = &searchKey;
 	TreeCallback sleepCallback = &sleepNode;
 	TreeCallback randCallback = &randArray;
+	TreeCallback searchTreeCallback = &searchTreeBenchmark; 
 
 	bool printResults = true;
 	bool verbose = false;
@@ -99,6 +105,11 @@ int main(int argc, char *argv[])
 				depth, runs, sleepCallback, threadPool, startArgs,
 				"sleep", printResults, verbose
 			);
+
+			// traversalBatchMT(
+			// 	depth, runs, searchTreeCallback, threadPool, startArgs,
+			// 	"tree-search", printResults, verbose
+			// );
 		}
 	}
 
@@ -107,6 +118,7 @@ int main(int argc, char *argv[])
 	destroyThreadPool(threadPool, startArgs);
 	free(threadPool);
 	free(startArgs);
+	freeSearchTree();
 
 	/* ---------------------------------------------------------------------- */
 	

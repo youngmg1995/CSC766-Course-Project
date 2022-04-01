@@ -22,10 +22,14 @@
 #include <unistd.h>
 
 #include "types.h"
+#include "binaryTreeGen.h"
 #include "util.h"
 
 static int sampleKey = 849037849;
 static double testArray[100];
+
+#define searchTreeDepth	10
+static Tree *searchTree;
 
 /******************************************************************************* 
 -------------------------------- FUNCTION DEFS ---------------------------------
@@ -212,6 +216,28 @@ void randArray(Tree *t)
 	for (i=0; i<100; i++)
 	{
 		t->id = (int) genrand64_real2();
+	}
+}
+
+
+void initSearchTree()
+{
+	searchTree = genBalancedTree(searchTreeDepth, true);
+}
+
+void freeSearchTree()
+{
+	searchTree = make_empty(searchTree);
+}
+
+void searchTreeBenchmark(Tree *t)
+{
+	if (t->left == NULL && t->right == NULL)
+	{
+		t->id++;
+		t->data = (void *) find(t->id, searchTree);
+		// Tree *tmpTree = genRandomTree(32, true);
+		// tmpTree = make_empty(tmpTree);
 	}
 }
 

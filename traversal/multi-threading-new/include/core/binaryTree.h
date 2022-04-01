@@ -43,6 +43,9 @@ extern void incrementID(Tree *t);
 extern void searchKey(Tree *t);
 extern void sleepNode(Tree *t);
 extern void randArray(Tree *t);
+extern void initSearchTree();
+extern void freeSearchTree();
+extern void searchTreeBenchmark(Tree *t);
 
 /* traversals */
 extern void preOrder(Tree *root);
