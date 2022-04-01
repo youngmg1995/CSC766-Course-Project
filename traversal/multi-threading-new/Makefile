@@ -72,8 +72,9 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 GCC_CFLAGS		:= -O3 -Wall -pthread
 GCC_LFLAGS		:= -lm -pthread -lpthread
 
-EMCC_CFLAGS		:= -O3 -Wall  -pthread
-EMCC_LFLAGS 	:= -lm -pthread -lpthread -s ASSERTIONS=1 -s INITIAL_MEMORY=134217728 -s PTHREAD_POOL_SIZE=8 #-s INITIAL_MEMORY=2147418112 -s ALLOW_MEMORY_GROWTH=1  
+EMCC_CFLAGS		:= -O3 -Wall  -pthread   
+# EMCC_LFLAGS 	:= -lm -pthread -lpthread -s ASSERTIONS=1 -s INITIAL_MEMORY=134217728 -s PTHREAD_POOL_SIZE=8 #-s INITIAL_MEMORY=2147418112 -s ALLOW_MEMORY_GROWTH=1  
+EMCC_LFLAGS 	:= -lm -pthread -lpthread -s ASSERTIONS=1 -s PROXY_TO_PTHREAD -s INITIAL_MEMORY=134217728 -s #-s INITIAL_MEMORY=2147418112 -s ALLOW_MEMORY_GROWTH=1  
 NO_WASM_LFLAG 	:= -s WASM=0
 
 # ------------------------------------------------------------------------------
@@ -379,7 +380,7 @@ run-native-wasm-test : build-native-wasm-test
 
 .PHONY: run-native-wasm-exp
 run-native-wasm-exp : build-native-wasm-exp
-	node --max-old-space-size=4096 $(NATIVE_WASM_EXP)
+	node --max-old-space-size=4096 --experimental-wasm-threads --experimental-wasm-bulk-memory $(NATIVE_WASM_EXP)
 
 
 .PHONY: build-native-wasm

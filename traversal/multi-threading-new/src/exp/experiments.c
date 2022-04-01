@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 	int depth, i, runs;
 
-	int minDepth = 23;
-	int maxDepth = 23;
+	int minDepth = 13;
+	int maxDepth = 13;
 	int samples = 1;
 
 	for (depth = minDepth; depth<=maxDepth; depth++)
@@ -75,15 +75,15 @@ int main(int argc, char *argv[])
 
 			// traversalBatch(depth, runs, printResults, verbose);
 
-			traversalBatchMT(
-				depth, runs, incrementCallback, threadPool, startArgs,
-				"increment-id", printResults, verbose
-			);
+			// traversalBatchMT(
+			// 	depth, runs, incrementCallback, threadPool, startArgs,
+			// 	"increment-id", printResults, verbose
+			// );
 
-			traversalBatchMT(
-				depth, runs, searchCallback, threadPool, startArgs,
-				"search-id", printResults, verbose
-			);
+			// traversalBatchMT(
+			// 	depth, runs, searchCallback, threadPool, startArgs,
+			// 	"search-id", printResults, verbose
+			// );
 
 			// traversalBatchMT(
 			// 	depth, runs, printCallback, threadPool, startArgs,
@@ -95,10 +95,10 @@ int main(int argc, char *argv[])
 			// 	"randArray", printResults, verbose
 			// );
 
-			// traversalBatchMT(
-			// 	depth, runs, sleepCallback, threadPool, startArgs,
-			// 	"sleep", printResults, verbose
-			// );
+			traversalBatchMT(
+				depth, runs, sleepCallback, threadPool, startArgs,
+				"sleep", printResults, verbose
+			);
 		}
 	}
 
