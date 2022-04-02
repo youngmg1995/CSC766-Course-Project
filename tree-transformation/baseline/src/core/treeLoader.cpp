@@ -34,6 +34,7 @@
 
 
 #define small_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/small_tree.json"
+#define output_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/output_tree.json"
 
 /******************************************************************************* 
 ---------------------------- TREE LOADER & BUILDER -----------------------------
@@ -117,12 +118,35 @@ int loadJSON(const char fileName[], std::unordered_map<std::string, int> &keyMap
 
     *root = convertJSON2Tree(jsonObject, keyMap, &n, NULL);
 
-    // while (!jsonObject.empty())
-    // {
-    //     jsonObject.pop_back();
-    // }
-
     return totalNodes;
+}
+
+/* could improve by sorting by keys in children */
+void convertTree2JSON(std::unordered_map<int, std::string> &invKeyMap, node *root, nlohmann::json &parentObject)
+{
+    if (root != NULL)
+    {
+        nlohmann::json rootObject;
+        rootObject["n"] = invKeyMap[root->key];
+        rootObject["c"] = nlohmann::json::array();
+
+        convertTree2JSON(invKeyMap, root->children, rootObject);
+        parentObject["c"].push_back(rootObject);
+
+        convertTree2JSON(invKeyMap, root->left, parentObject);
+        convertTree2JSON(invKeyMap, root->right, parentObject);
+    }
+}
+
+void outputJSON(const char fileName[], std::unordered_map<int, std::string> &invKeyMap, node *root)
+{
+    nlohmann::json outputJSON;
+    outputJSON["n"] = invKeyMap[root->key];
+    outputJSON["c"] = nlohmann::json::array();
+    convertTree2JSON(invKeyMap, root->children, outputJSON);
+
+    std::ofstream outputStream(fileName);
+    outputStream << std::setw(4) << outputJSON << std::endl;
 }
 
 
@@ -160,6 +184,9 @@ void treeLoaderUnitTest()
     printf("Root Children\n");
     print_ascii_tree(root->children);
     printf("\n");
+
+
+    outputJSON(output_tree_file, invKeyMap, root);
 
 
     free(splayArray);
