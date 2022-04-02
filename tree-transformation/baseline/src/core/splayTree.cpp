@@ -2,7 +2,7 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file binaryTree.c
+ * @file binaryTree.cpp
  * @author Mitchell Young (mgyoung@ncsu.edu)
  *  - code base pulled from: https://www.geeksforgeeks.org/splay-tree-set-2-insert-delete/
  *  - modifications made by author to fit into project
@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <types.h>
+#include "util.h"
  
 
 
@@ -38,6 +39,12 @@ node * newNode(int key)
     n->key   = key;
     n->left  = n->right  = NULL;
     return (n);
+}
+
+void initNode(node *n)
+{
+    n->key = -1;
+    n->left = n->right = n->parent = n->children = NULL;
 }
 
 node * freeTree(node *root)
@@ -232,11 +239,10 @@ void preOrder(node *root)
 ---------------------------------- UNIT TESTS ----------------------------------
 *******************************************************************************/
 // /* Driver program to test above function*/
-int splayTreeUnitTest()
+void splayTreeUnitTest()
 {
+    node *tmp;
     node *root = newNode(100);
-
-    extern void print_ascii_tree(node * t);
 
     root->left = newNode(50);
     root->right = newNode(200);
@@ -270,13 +276,15 @@ int splayTreeUnitTest()
 
     printf("Insert: 80\n");
     printf("--------------\n");
-    root = insert(root, 80);
+    tmp = newNode(80);
+    root = insertNode(root, tmp);
     print_ascii_tree(root);
     printf("\n");
 
     printf("Insert: 150\n");
     printf("--------------\n");
-    root = insert(root, 150);
+    tmp = newNode(150);
+    root = insertNode(root, tmp);
     print_ascii_tree(root);
     printf("\n");
 
@@ -304,7 +312,12 @@ int splayTreeUnitTest()
     print_ascii_tree(root);
     printf("\n");
 
-    return 0;
+    printf("Insert: 17\n");
+    printf("--------------\n");
+    tmp = newNode(17);
+    root = insertNode(root, tmp);
+    print_ascii_tree(root);
+    printf("\n");
 }
 
 

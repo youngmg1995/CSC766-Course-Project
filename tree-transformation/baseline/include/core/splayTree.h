@@ -31,6 +31,7 @@
 
 /* splay tree methods */
 extern node * newNode(int key);
+extern void initNode(node *n);
 extern node * freeTree(node *root);
 extern node * search(node *root, int key);
 extern node * insert(node *root, int key);
@@ -39,7 +40,7 @@ extern void preOrder(node *root);
 
 
 /* unit test */
-extern int splayTreeUnitTest();
+extern void splayTreeUnitTest();
 
 
 

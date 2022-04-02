@@ -2,7 +2,7 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file tests.c
+ * @file tests.cpp
  * @author Mitchell Young (mgyoung@ncsu.edu)
  * @brief Runs unit tests for generating binary trees.
  * @version 0.1
@@ -23,6 +23,7 @@
 #include <time.h>
 
 #include "types.h"
+#include "treeLoader.h"
 #include "splayTree.h"
 #include "util.h"
 
@@ -88,8 +89,13 @@ int main(int argc, char *argv[])
 
 	/* ---------------------------------------------------------------------- */
 	
-	printUnitTestMsg(&testNum, "Validate Splay Tree");
-	splayTreeUnitTest();
+	// printUnitTestMsg(&testNum, "Validate Splay Tree");
+	// splayTreeUnitTest();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Validate Tree Loader");
+	treeLoaderUnitTest();
 
 	/* ---------------------------------------------------------------------- */
 

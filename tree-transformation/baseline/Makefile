@@ -70,8 +70,8 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 # ------------------------------------------------------------------------------
 
 # flags
-GCC_CFLAGS		:= -O3 -Wall -Werror -std=c++11
-GCC_LFLAGS		:= -lm -std=c++11
+GCC_CFLAGS		:= -O3 -Wall -Werror -std=c++20
+GCC_LFLAGS		:= -lm -std=c++20
 
 EMCC_CFLAGS		:= -O3 -Wall
 EMCC_LFLAGS 	:= -lm -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1  #INITIAL_MEMORY=2147418112
@@ -112,7 +112,7 @@ EXP_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(EXP_DIR)/%.cpp,$(OBJ_DIR)/$(EMCC_
 
 .PHONY: thing
 thing:
-	@echo $(LIB_INC)
+	@echo $(CORE_INC)
 
 # ------------------------------------------------------------------------------
 # top level build rules

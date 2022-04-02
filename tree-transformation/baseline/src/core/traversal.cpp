@@ -2,7 +2,7 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file traversal.c
+ * @file traversal.cpp
  * @author Mitchell Young (mgyoung@ncsu.edu)
  * @brief Defines functions for traversing splay trees.
  * @version 0.1

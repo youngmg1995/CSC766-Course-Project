@@ -2,7 +2,7 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file binaryTreeDrawer.c
+ * @file treeDrawer.cpp
  * @author Unknown - taken from this Stack Overflow Post: 
  * 		- https://stackoverflow.com/questions/801740/c-how-to-draw-a-binary-tree-to-the-console
  * @brief Defines functionality for drawing binary trees to the console.
