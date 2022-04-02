@@ -70,7 +70,7 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 # ------------------------------------------------------------------------------
 
 # flags
-GCC_CFLAGS		:= -O3 -Wall -std=c++11
+GCC_CFLAGS		:= -O3 -Wall -Werror -std=c++11
 GCC_LFLAGS		:= -lm -std=c++11
 
 EMCC_CFLAGS		:= -O3 -Wall
@@ -85,24 +85,24 @@ NO_WASM_LFLAG 	:= -s WASM=0
 
 # ------------------------------------------------------------------------------
 
-CORE_SRC_FILES			:= $(wildcard $(SRC_DIR)/$(CORE_DIR)/*.c)
+CORE_SRC_FILES			:= $(wildcard $(SRC_DIR)/$(CORE_DIR)/*.cpp)
 CORE_INC_FILES			:= $(wildcard $(INC_DIR)/$(CORE_DIR)/*.h)
-CORE_GCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(CORE_DIR)/%.c,$(OBJ_DIR)/$(GCC_DIR)/$(CORE_DIR)/%.o,$(CORE_SRC_FILES))
-CORE_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(CORE_DIR)/%.c,$(OBJ_DIR)/$(EMCC_DIR)/$(CORE_DIR)/%.o,$(CORE_SRC_FILES))
+CORE_GCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(CORE_DIR)/%.cpp,$(OBJ_DIR)/$(GCC_DIR)/$(CORE_DIR)/%.o,$(CORE_SRC_FILES))
+CORE_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(CORE_DIR)/%.cpp,$(OBJ_DIR)/$(EMCC_DIR)/$(CORE_DIR)/%.o,$(CORE_SRC_FILES))
 
 # ------------------------------------------------------------------------------
 
-TEST_SRC_FILES			:= $(wildcard $(SRC_DIR)/$(TEST_DIR)/*.c)
+TEST_SRC_FILES			:= $(wildcard $(SRC_DIR)/$(TEST_DIR)/*.cpp)
 TEST_INC_FILES			:= $(wildcard $(INC_DIR)/$(TEST_DIR)/*.h)
-TEST_GCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(TEST_DIR)/%.c,$(OBJ_DIR)/$(GCC_DIR)/$(TEST_DIR)/%.o,$(TEST_SRC_FILES))
-TEST_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(TEST_DIR)/%.c,$(OBJ_DIR)/$(EMCC_DIR)/$(TEST_DIR)/%.o,$(TEST_SRC_FILES))
+TEST_GCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(TEST_DIR)/%.cpp,$(OBJ_DIR)/$(GCC_DIR)/$(TEST_DIR)/%.o,$(TEST_SRC_FILES))
+TEST_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(TEST_DIR)/%.cpp,$(OBJ_DIR)/$(EMCC_DIR)/$(TEST_DIR)/%.o,$(TEST_SRC_FILES))
 
 # ------------------------------------------------------------------------------
 
-EXP_SRC_FILES			:= $(wildcard $(SRC_DIR)/$(EXP_DIR)/*.c)
+EXP_SRC_FILES			:= $(wildcard $(SRC_DIR)/$(EXP_DIR)/*.cpp)
 EXP_INC_FILES			:= $(wildcard $(INC_DIR)/$(EXP_DIR)/*.h)
-EXP_GCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(EXP_DIR)/%.c,$(OBJ_DIR)/$(GCC_DIR)/$(EXP_DIR)/%.o,$(EXP_SRC_FILES))
-EXP_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(EXP_DIR)/%.c,$(OBJ_DIR)/$(EMCC_DIR)/$(EXP_DIR)/%.o,$(EXP_SRC_FILES))
+EXP_GCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(EXP_DIR)/%.cpp,$(OBJ_DIR)/$(GCC_DIR)/$(EXP_DIR)/%.o,$(EXP_SRC_FILES))
+EXP_EMCC_OBJ_FILES		:= $(patsubst $(SRC_DIR)/$(EXP_DIR)/%.cpp,$(OBJ_DIR)/$(EMCC_DIR)/$(EXP_DIR)/%.o,$(EXP_SRC_FILES))
 
 # ------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ build-gcc-core : gcc-core-directories $(CORE_GCC_OBJ_FILES)
 gcc-core-directories :
 	@mkdir -p $(OBJ_DIR)/$(GCC_DIR)/$(CORE_DIR)
 
-$(OBJ_DIR)/$(GCC_DIR)/$(CORE_DIR)/%.o : $(SRC_DIR)/$(CORE_DIR)/%.c $(CORE_INC_FILES)
+$(OBJ_DIR)/$(GCC_DIR)/$(CORE_DIR)/%.o : $(SRC_DIR)/$(CORE_DIR)/%.cpp $(CORE_INC_FILES)
 	$(CC) $(GCC_CFLAGS) $(CORE_INC) -c -o $@ $<
 
 .PHONY: clean-gcc-core
@@ -187,7 +187,7 @@ build-gcc-test : build-gcc-core gcc-test-directories $(TEST_GCC_OBJ_FILES)
 gcc-test-directories :
 	@mkdir -p $(OBJ_DIR)/$(GCC_DIR)/$(TEST_DIR)
 
-$(OBJ_DIR)/$(GCC_DIR)/$(TEST_DIR)/%.o : $(SRC_DIR)/$(TEST_DIR)/%.c $(TEST_INC_FILES) $(CORE_INC_FILES)
+$(OBJ_DIR)/$(GCC_DIR)/$(TEST_DIR)/%.o : $(SRC_DIR)/$(TEST_DIR)/%.cpp $(TEST_INC_FILES) $(CORE_INC_FILES)
 	$(CC) $(GCC_CFLAGS) $(TEST_INC) -c -o $@ $<
 
 .PHONY: clean-gcc-test
@@ -207,7 +207,7 @@ build-gcc-exp : build-gcc-core gcc-exp-directories $(EXP_GCC_OBJ_FILES)
 gcc-exp-directories :
 	@mkdir -p $(OBJ_DIR)/$(GCC_DIR)/$(EXP_DIR)
 
-$(OBJ_DIR)/$(GCC_DIR)/$(EXP_DIR)/%.o : $(SRC_DIR)/$(EXP_DIR)/%.c $(EXP_INC_FILES) $(CORE_INC_FILES)
+$(OBJ_DIR)/$(GCC_DIR)/$(EXP_DIR)/%.o : $(SRC_DIR)/$(EXP_DIR)/%.cpp $(EXP_INC_FILES) $(CORE_INC_FILES)
 	$(CC) $(GCC_CFLAGS) $(EXP_INC) -c -o $@ $<
 
 .PHONY: clean-gcc-exp
@@ -239,7 +239,7 @@ build-emcc-core : emcc-core-directories $(CORE_EMCC_OBJ_FILES)
 emcc-core-directories :
 	@mkdir -p $(OBJ_DIR)/$(EMCC_DIR)/$(CORE_DIR)
 
-$(OBJ_DIR)/$(EMCC_DIR)/$(CORE_DIR)/%.o : $(SRC_DIR)/$(CORE_DIR)/%.c $(CORE_INC_FILES)
+$(OBJ_DIR)/$(EMCC_DIR)/$(CORE_DIR)/%.o : $(SRC_DIR)/$(CORE_DIR)/%.cpp $(CORE_INC_FILES)
 	$(EMCC) $(EMCC_CFLAGS) $(CORE_INC) -c -o $@ $<
 
 .PHONY: clean-emcc-core
@@ -258,7 +258,7 @@ build-emcc-test : build-emcc-core emcc-test-directories $(TEST_EMCC_OBJ_FILES)
 emcc-test-directories :
 	@mkdir -p $(OBJ_DIR)/$(EMCC_DIR)/$(TEST_DIR)
 
-$(OBJ_DIR)/$(EMCC_DIR)/$(TEST_DIR)/%.o : $(SRC_DIR)/$(TEST_DIR)/%.c $(TEST_INC_FILES) $(CORE_INC_FILES)
+$(OBJ_DIR)/$(EMCC_DIR)/$(TEST_DIR)/%.o : $(SRC_DIR)/$(TEST_DIR)/%.cpp $(TEST_INC_FILES) $(CORE_INC_FILES)
 	$(EMCC) $(EMCC_CFLAGS) $(TEST_INC) -c -o $@ $<
 
 .PHONY: clean-emcc-test
@@ -278,7 +278,7 @@ build-emcc-exp : build-emcc-core emcc-exp-directories $(EXP_EMCC_OBJ_FILES)
 emcc-exp-directories :
 	@mkdir -p $(OBJ_DIR)/$(EMCC_DIR)/$(EXP_DIR)
 
-$(OBJ_DIR)/$(EMCC_DIR)/$(EXP_DIR)/%.o : $(SRC_DIR)/$(EXP_DIR)/%.c $(EXP_INC_FILES) $(CORE_INC_FILES)
+$(OBJ_DIR)/$(EMCC_DIR)/$(EXP_DIR)/%.o : $(SRC_DIR)/$(EXP_DIR)/%.cpp $(EXP_INC_FILES) $(CORE_INC_FILES)
 	$(EMCC) $(EMCC_CFLAGS) $(EXP_INC) -c -o $@ $<
 
 .PHONY: clean-emcc-exp
