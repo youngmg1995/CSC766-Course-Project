@@ -10,3 +10,6 @@ obj/
 
 # vscode settings
 .vscode/
+
+# tree data files
+.data/
