@@ -23,8 +23,9 @@
 #include <time.h>
 
 #include "types.h"
-#include "treeLoader.h"
 #include "splayTree.h"
+#include "treeLoader.h"
+#include "treeConversion.h"
 #include "util.h"
 
 
@@ -94,8 +95,13 @@ int main(int argc, char *argv[])
 
 	/* ---------------------------------------------------------------------- */
 	
-	printUnitTestMsg(&testNum, "Validate Tree Loader");
-	treeLoaderUnitTest();
+	// printUnitTestMsg(&testNum, "Validate Tree Loader");
+	// treeLoaderUnitTest();
+
+	/* ---------------------------------------------------------------------- */
+	
+	printUnitTestMsg(&testNum, "Validate Tree Conversion");
+	treeConvUnitTest(big_tree_file);
 
 	/* ---------------------------------------------------------------------- */
 

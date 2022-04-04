@@ -37,7 +37,7 @@ node * newNode(int key)
 {
     node* n = (node *) malloc(sizeof(node));
     n->key   = key;
-    n->left  = n->right  = NULL;
+    n->left = n->right = n->parent = n->children = NULL;
     return (n);
 }
 
@@ -111,7 +111,9 @@ node * splay(node *root, int key)
  
             // Do first rotation for root->left
             if (root->left->right != NULL)
-                root->left = leftRotate(root->left);
+            {
+                 root->left = leftRotate(root->left);
+            }
         }
  
         // Do second rotation for root
@@ -219,6 +221,48 @@ node * insertNode(node *root, node *n)
     }
  
     return n; // newnode becomes new root
+}
+
+// Function to insert a new key k in splay tree with given root
+node * insertCont(node *root, int k, node **nodeArray)
+{
+    // Simple Case: If tree is empty
+    if (root == NULL)
+    {
+        node *newnode = (*nodeArray)++;
+        newnode->key = k;
+        return newnode;
+    }
+ 
+    // Bring the closest leaf node to root
+    root = splay(root, k);
+ 
+    // If key is already present, then return
+    if (root->key == k) return root;
+ 
+    // Otherwise allocate memory for new node
+    node *newnode = (*nodeArray)++;
+    newnode->key = k;
+ 
+    // If root's key is greater, make root as right child
+    // of newnode and copy the left child of root to newnode
+    if (root->key > k)
+    {
+        newnode->right = root;
+        newnode->left = root->left;
+        root->left = NULL;
+    }
+ 
+    // If root's key is smaller, make root as left child
+    // of newnode and copy the right child of root to newnode
+    else
+    {
+        newnode->left = root;
+        newnode->right = root->right;
+        root->right = NULL;
+    }
+ 
+    return newnode; // newnode becomes new root
 }
  
 // A utility function to print preorder traversal of the tree.

@@ -18,23 +18,19 @@
 *******************************************************************************/
 #include <stddef.h>
 #include <stdio.h>
-#include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <nlohmann/json.hpp>
 
 #include "types.h"
 #include "splayTree.h"
+#include "treeLoader.h"
 #include "util.h"
 
-// using namespace std;
-// using namespace nholmann;
 
-
-#define small_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/small_tree.json"
-#define output_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/output_tree.json"
 
 /******************************************************************************* 
 ---------------------------- TREE LOADER & BUILDER -----------------------------
@@ -128,11 +124,18 @@ void convertTree2JSON(std::unordered_map<int, std::string> &invKeyMap, node *roo
     {
         nlohmann::json rootObject;
         rootObject["n"] = invKeyMap[root->key];
-        rootObject["c"] = nlohmann::json::array();
 
-        convertTree2JSON(invKeyMap, root->children, rootObject);
+        if (root->children == NULL)
+        {
+            rootObject["c"] = nlohmann::json::value_t::null;
+        }
+        else
+        {
+            rootObject["c"] = nlohmann::json::array();
+            convertTree2JSON(invKeyMap, root->children, rootObject);
+        }
+
         parentObject["c"].push_back(rootObject);
-
         convertTree2JSON(invKeyMap, root->left, parentObject);
         convertTree2JSON(invKeyMap, root->right, parentObject);
     }
@@ -154,14 +157,13 @@ void outputJSON(const char fileName[], std::unordered_map<int, std::string> &inv
 /******************************************************************************* 
 ---------------------------------- UNIT TESTS ----------------------------------
 *******************************************************************************/
-// /* Driver program to test above function*/
-void treeLoaderUnitTest()
+void treeLoaderUnitTest(const char tree_input_file[])
 {
     node *splayArray = NULL;
     node *root = NULL;
 
     std::unordered_map<std::string, int> keyMap;
-    int treeSize = loadJSON(small_tree_file, keyMap, &splayArray, &root);
+    int treeSize = loadJSON(tree_input_file, keyMap, &splayArray, &root);
 
     std::unordered_map<int, std::string> invKeyMap;
     for (std::pair<std::string, int> element : keyMap)
@@ -173,7 +175,7 @@ void treeLoaderUnitTest()
     printf("\n");
     printf("Info on Loaded Tree\n");
     printf("-------------------\n");
-    printf("JSON File Path: %s\n", small_tree_file);
+    printf("JSON File Path: %s\n", tree_input_file);
     printf("Tree Size: %d\n", treeSize);
     printf("Unique Keys: %d\n", (int) keyMap.size());
     std::cout << "Root Key: " << invKeyMap[root->key] << "\n";

@@ -2,19 +2,19 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file splayTree.h
+ * @file treeConversion.h
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief Includes the types and functionalites necessary to create and
- * 	manipulate splay trees.
+ * @brief Includes functions for converting top-down trees to bottom-up
+ *  trees and vice versa.
  * @version 0.1
- * @date 2022-03-06
+ * @date 2022-04-05
  * 
  * @copyright Copyright (c) 2022
  * 
  */
 
-#ifndef	__TREETRAV_SPLAY_H
-#define	__TREETRAV_SPLAY_H
+#ifndef	__TREETRAV_TRAV_H
+#define	__TREETRAV_TRAV_H
 
 
 
@@ -23,25 +23,28 @@
 *******************************************************************************/
 #include <types.h>
 
+#define TINY_TREE_SIZE_TD   12
+#define TINY_TREE_SIZE_BU   9
+#define SMALL_TREE_SIZE_TD   2386
+#define SMALL_TREE_SIZE_BU   4378
+#define BIG_TREE_SIZE_TD   709780
+#define BIG_TREE_SIZE_BU   5188410
+
 
 
 /******************************************************************************* 
 --------------------------------- DECLARATIONS ---------------------------------
 *******************************************************************************/
 
-/* splay tree methods */
-extern node * newNode(int key);
-extern void initNode(node *n);
-extern node * freeTree(node *root);
-extern node * search(node *root, int key);
-extern node * insert(node *root, int key);
-extern node * insertNode(node *root, node *n);
-extern node * insertCont(node *root, int k, node **nodeArray);
-extern void preOrder(node *root);
+/* tree conversion functions */
+extern node * td2buTransform(node *tdRoot);
+extern node * td2buTransformCont(node *tdRoot, node *nodeArray);
 
+/* unit tests */
+extern void treeConvUnitTest(const char tree_input_file[]);
 
-/* unit test */
-extern void splayTreeUnitTest();
+/* other useful functions */
+extern int getTreeSize(node *root);
 
 
 
