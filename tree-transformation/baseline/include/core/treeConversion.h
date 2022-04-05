@@ -13,8 +13,8 @@
  * 
  */
 
-#ifndef	__TREETRAV_TRAV_H
-#define	__TREETRAV_TRAV_H
+#ifndef	__TREETRAV_TREECONV_H
+#define	__TREETRAV_TREECONV_H
 
 
 
@@ -39,6 +39,7 @@
 /* tree conversion functions */
 extern node * td2buTransform(node *tdRoot);
 extern node * td2buTransformCont(node *tdRoot, node *nodeArray);
+extern node * td2buTransformCont2(node *inputArray, int inputSize, node *outputArray);
 
 /* unit tests */
 extern void treeConvUnitTest(const char tree_input_file[]);

@@ -57,7 +57,7 @@ WEB_WASM_EXP		:= $(WEB_WASM_BIN)/exp.html
 # ------------------------------------------------------------------------------
 # compliler
 CC				:= g++
-EMCC			:= emcc
+EMCC			:= em++
 
 # ------------------------------------------------------------------------------
 
@@ -73,8 +73,8 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 GCC_CFLAGS		:= -O3 -Wall -Werror -std=c++20
 GCC_LFLAGS		:= -lm -std=c++20
 
-EMCC_CFLAGS		:= -O3 -Wall
-EMCC_LFLAGS 	:= -lm -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1  #INITIAL_MEMORY=2147418112
+EMCC_CFLAGS		:= -O3 -Wall -std=c++20 -s NO_DISABLE_EXCEPTION_CATCHING
+EMCC_LFLAGS 	:= -lm -std=c++20 -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1  #INITIAL_MEMORY=2147418112
 NO_WASM_LFLAG 	:= -s WASM=0
 
 # ------------------------------------------------------------------------------

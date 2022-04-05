@@ -28,11 +28,8 @@
 
 /* functions for timing each tree traversal */
 extern void traversalBatch(
-	int depth, int samples, bool printResults, bool verbose
-);
-
-extern void traversalBatchCB(
-	int depth, int samples, TreeCallback callback, const char callbackName[], 
+	const char tree_input_file[], const char treeType[], 
+	int buTreeSize, int tdTreeSize,
 	bool printResults, bool verbose
 );
 

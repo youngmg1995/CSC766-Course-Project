@@ -29,6 +29,8 @@
 --------------------------------- DECLARATIONS ---------------------------------
 *******************************************************************************/
 
+extern void splayTraversal(node *root);
+extern void splayTraversalCB(node *root, TraversalCallback callback);
 
 
 

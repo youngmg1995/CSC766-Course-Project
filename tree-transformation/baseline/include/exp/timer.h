@@ -28,39 +28,24 @@
 
 /* functions for timing each tree traversal */
 extern TimeInfo timeTraversal(
-	TreeInfo treeInfo, TraversalFunc traversalFunc, int samples, 
-	bool printResults, bool verbose, const char treeType[], const char storageType[],
-	const char traversalName[], const char callbackName[]
+	node * root,
+	bool printResults, bool verbose, 
+	const char treeType[]
 );
-
-extern TimeInfo timeTraversalCB(
-	TreeInfo treeInfo, TraversalFuncCB traversalFunc, TreeCallback callback, int samples, 
-	bool printResults, bool verbose, const char treeType[], const char storageType[],
-	const char traversalName[], const char callbackName[]
+extern TimeInfo timeTransformMalloc(
+	node * root,
+	bool printResults, bool verbose, 
+	const char treeType[]
 );
-
-extern TimeInfo timeTraversalLevel(
-	TreeInfo treeInfo, TreeQueue *treeQueue, TraversalFuncLevel traversalFunc, int samples,
-	bool printResults, bool verbose, const char treeType[], const char storageType[],
-	const char traversalName[], const char callbackName[]
+extern TimeInfo timeTransformNoMalloc(
+	node * root, node *outputArray,
+	bool printResults, bool verbose, 
+	const char treeType[]
 );
-
-extern TimeInfo timeTraversalLevelCB(
-	TreeInfo treeInfo, TreeQueue *treeQueue, TraversalFuncLevelCB traversalFunc, TreeCallback callback, int samples, 
-	bool printResults, bool verbose, const char treeType[], const char storageType[],
-	const char traversalName[], const char callbackName[]
-);
-
-extern TimeInfo timeTraversalCont(
-	TreeInfo treeInfo, Tree *btNodeArray, TraversalFuncCont traversalFunc, int samples, 
-	bool printResults, bool verbose, const char treeType[], const char storageType[],
-	const char traversalName[], const char callbackName[]
-);
-
-extern TimeInfo timeTraversalContCB(
-	TreeInfo treeInfo,  Tree *btNodeArray, TraversalFuncContCB traversalFunc, TreeCallback callback, int samples, 
-	bool printResults, bool verbose, const char treeType[], const char storageType[],
-	const char traversalName[], const char callbackName[]
+extern TimeInfo timeTransformCont(
+	node *inputArray, int inputSize, node *outputArray,
+	bool printResults, bool verbose, 
+	const char treeType[]
 );
 
 

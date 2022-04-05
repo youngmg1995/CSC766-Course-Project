@@ -34,6 +34,9 @@ void splayTraversal(node *root)
 {
 	if (root != NULL)
 	{	
+		int tmp = root->key;
+		root->key = 2;
+		root->key = tmp;
 		splayTraversal(root->children);
 		splayTraversal(root->left);
 		splayTraversal(root->right);
