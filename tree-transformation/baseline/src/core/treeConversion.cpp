@@ -183,7 +183,7 @@ void treeConvUnitTest(const char tree_input_file[])
     printf("Root Children\n");
     // print_ascii_tree(original->children);
     printf("\n");
-    outputJSON(output_tree_file, invKeyMap, original);
+    outputJSON(output_og_tree_file, invKeyMap, original);
 
 
     printf("\n");

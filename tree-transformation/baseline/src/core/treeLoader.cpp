@@ -188,7 +188,7 @@ void treeLoaderUnitTest(const char tree_input_file[])
     printf("\n");
 
 
-    outputJSON(output_tree_file, invKeyMap, root);
+    outputJSON(output_og_tree_file, invKeyMap, root);
 
 
     free(splayArray);

@@ -25,12 +25,12 @@
 #include <unordered_map>
 
 
-#define tiny_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/tiny_tree.json"
-#define small_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/small_tree.json"
-#define big_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/big_tree.json"
-#define output_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/output_tree.json"
-#define output_bu_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/output_bu_tree.json"
-#define output_td_tree_file "/Users/mitchell/Documents/classes/csc766/CSC766-Project/tree-transformation/.data/output_td_tree.json"
+#define tiny_tree_file ".data/inputs/tiny_tree.json"
+#define small_tree_file ".data/inputs/small_tree.json"
+#define big_tree_file ".data/inputs/big_tree.json"
+#define output_og_tree_file ".data/outputs/output_og_tree.json"
+#define output_bu_tree_file ".data/outputs/output_bu_tree.json"
+#define output_td_tree_file ".data/outputs/output_td_tree.json"
 
 
 
