@@ -95,6 +95,78 @@ node * convertJSON2Tree(nlohmann::json rootObject, std::unordered_map<std::strin
     }
 }
 
+int getJSONTreeSize(nlohmann::json jsonObject)
+{
+    if (jsonObject.size() > 0)
+    {
+        int totalNodes = 1;
+
+        for (auto child : jsonObject["c"])
+        {
+            totalNodes += getJSONTreeSize(child);
+        }
+
+        return totalNodes;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+node * convertCompressedJSON2Tree(nlohmann::json rootObject, node **splayArray, node *parent)
+{
+    if (rootObject.size() > 0)
+    {
+        node *root = *splayArray;
+        (*splayArray)++;
+        root->key = rootObject["n"];
+        root->parent = parent;
+
+        nlohmann::json childrenObject = rootObject["c"];
+        if (childrenObject.size() > 0)
+        {
+            node *child;
+            for (auto childObject : childrenObject)
+            {
+                child = convertCompressedJSON2Tree(childObject, splayArray, root);
+                root->children = insertNode(root->children, child);
+            }
+        }
+        else
+        {
+            root->children = NULL;
+        }
+
+        return root;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+int loadCompressedJSON(const char fileName[], node **splayArray, node **root)
+{
+    std::ifstream inputStream(fileName);
+    nlohmann::json jsonObject = nlohmann::json::parse(inputStream);
+
+    int totalNodes = getJSONTreeSize(jsonObject);
+
+    *splayArray = (node *) malloc(totalNodes * sizeof(node));
+    int i;
+    node *n;
+    for (i=0, n=*splayArray; i<totalNodes; i++, n++)
+    {
+        initNode(n);
+    }
+    n = *splayArray;
+
+    *root = convertCompressedJSON2Tree(jsonObject, &n, NULL);
+
+    return totalNodes;
+}
+
 int loadJSON(const char fileName[], std::unordered_map<std::string, int> &keyMap, node **splayArray, node **root)
 {
     std::ifstream inputStream(fileName);
@@ -117,7 +189,6 @@ int loadJSON(const char fileName[], std::unordered_map<std::string, int> &keyMap
     return totalNodes;
 }
 
-/* could improve by sorting by keys in children */
 void convertTree2JSON(std::unordered_map<int, std::string> &invKeyMap, node *root, nlohmann::json &parentObject)
 {
     if (root != NULL)
@@ -150,6 +221,40 @@ void outputJSON(const char fileName[], std::unordered_map<int, std::string> &inv
 
     std::ofstream outputStream(fileName);
     outputStream << std::setw(4) << outputJSON << std::endl;
+}
+
+void convertTree2CompressedJSON(node *root, nlohmann::json &parentObject)
+{
+    if (root != NULL)
+    {
+        nlohmann::json rootObject;
+        rootObject["n"] = root->key;
+
+        if (root->children == NULL)
+        {
+            rootObject["c"] = nlohmann::json::value_t::null;
+        }
+        else
+        {
+            rootObject["c"] = nlohmann::json::array();
+            convertTree2CompressedJSON(root->children, rootObject);
+        }
+
+        parentObject["c"].push_back(rootObject);
+        convertTree2CompressedJSON(root->left, parentObject);
+        convertTree2CompressedJSON(root->right, parentObject);
+    }
+}
+
+void outputCompressedJSON(const char fileName[], node *root)
+{
+    nlohmann::json outputJSON;
+    outputJSON["n"] = root->key;
+    outputJSON["c"] = nlohmann::json::array();
+    convertTree2CompressedJSON(root->children, outputJSON);
+
+    std::ofstream outputStream(fileName);
+    outputStream << outputJSON << std::endl;
 }
 
 
@@ -189,6 +294,7 @@ void treeLoaderUnitTest(const char tree_input_file[])
 
 
     outputJSON(output_og_tree_file, invKeyMap, root);
+    outputCompressedJSON(compressed_output_og_tree_file, root);
 
 
     free(splayArray);

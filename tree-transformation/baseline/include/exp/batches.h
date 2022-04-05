@@ -32,6 +32,16 @@ extern void traversalBatch(
 	int buTreeSize, int tdTreeSize,
 	bool printResults, bool verbose
 );
+extern void traversalBatch2(
+	const char tree_input_file[], const char treeType[], 
+	int buTreeSize, int tdTreeSize,
+	bool printResults, bool verbose
+);
+extern void traversalBatch3(
+	const char tree_input_file[], const char treeType[], 
+	int buTreeSize, int tdTreeSize,
+	bool printResults, bool verbose
+);
 
 
 

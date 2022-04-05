@@ -43,7 +43,17 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 
 	traversalBatch(
-		tiny_tree_file, "tiny", 
+		tiny_tree_file_compressed, "tiny", 
+		TINY_TREE_SIZE_BU, TINY_TREE_SIZE_TD,
+		printResults, verbose
+	);
+	traversalBatch2(
+		tiny_tree_file_compressed, "tiny", 
+		TINY_TREE_SIZE_BU, TINY_TREE_SIZE_TD,
+		printResults, verbose
+	);
+	traversalBatch3(
+		tiny_tree_file_compressed, "tiny", 
 		TINY_TREE_SIZE_BU, TINY_TREE_SIZE_TD,
 		printResults, verbose
 	);
@@ -51,7 +61,17 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 
 	traversalBatch(
-		small_tree_file, "small", 
+		small_tree_file_compressed, "small", 
+		SMALL_TREE_SIZE_BU, SMALL_TREE_SIZE_TD,
+		printResults, verbose
+	);
+	traversalBatch2(
+		small_tree_file_compressed, "small", 
+		SMALL_TREE_SIZE_BU, SMALL_TREE_SIZE_TD,
+		printResults, verbose
+	);
+	traversalBatch3(
+		small_tree_file_compressed, "small", 
 		SMALL_TREE_SIZE_BU, SMALL_TREE_SIZE_TD,
 		printResults, verbose
 	);
@@ -59,7 +79,17 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 
 	traversalBatch(
-		big_tree_file, "big", 
+		big_tree_file_compressed, "big", 
+		BIG_TREE_SIZE_BU, BIG_TREE_SIZE_TD,
+		printResults, verbose
+	);
+	traversalBatch2(
+		big_tree_file_compressed, "big", 
+		BIG_TREE_SIZE_BU, BIG_TREE_SIZE_TD,
+		printResults, verbose
+	);
+	traversalBatch3(
+		big_tree_file_compressed, "big", 
 		BIG_TREE_SIZE_BU, BIG_TREE_SIZE_TD,
 		printResults, verbose
 	);

@@ -33,22 +33,22 @@
 ------------------------------- HELPER FUNCTIONS -------------------------------
 *******************************************************************************/
 void printExpResults(
-	TimeInfo timeInfo, const char treeType[], const char experType[],
+	TimeInfo timeInfo, const char treeType[], const char experType[], const char direction[],
 	bool verbose
 )
 {
 	if (verbose)
 	{
 		fprintf(
-			stdout, "TreeType = %s , ExpType = %s , Samples = %d , Cycles = %ld , Seconds = %f , WallSeconds = %f , AvgCycles = %f , AvgSeconds = %f , AvgWallSeconds = %f\n",
-			treeType, experType, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime, timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
+			stdout, "TreeType = %s , ExpType = %s , Direction = %s , Samples = %d , Cycles = %ld , Seconds = %f , WallSeconds = %f , AvgCycles = %f , AvgSeconds = %f , AvgWallSeconds = %f\n",
+			treeType, experType, direction, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime, timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
 		);
 	}
 	else
 	{
 		fprintf(
-			stdout, "%s,%s,%d,%ld,%f,%f,%f,%f,%f\n",
-			treeType, experType, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime,  timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
+			stdout, "%s,%s,%s,%d,%ld,%f,%f,%f,%f,%f\n",
+			treeType, experType, direction, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime,  timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
 		);
 	}
 }
@@ -70,7 +70,7 @@ double wallTimeDiff(struct timeval start, struct timeval end)
 TimeInfo timeTraversal(
 	node * root,
 	bool printResults, bool verbose, 
-	const char treeType[]
+	const char treeType[], const char direction[]
 )
 {
 	TimeInfo timeInfo = {0};
@@ -94,7 +94,7 @@ TimeInfo timeTraversal(
 
 	if (printResults)
 	{
-		printExpResults(timeInfo, treeType, "plain-traversal", verbose);
+		printExpResults(timeInfo, treeType, "plain-traversal", direction, verbose);
 	}
 
 
@@ -107,20 +107,19 @@ TimeInfo timeTraversal(
 /* ----------------------- Transform With Mem. Alloc. ----------------------- */
 
 TimeInfo timeTransformMalloc(
-	node * root,
+	node * root, node **outputRoot,
 	bool printResults, bool verbose, 
-	const char treeType[]
+	const char treeType[], const char direction[]
 )
 {
 	TimeInfo timeInfo = {0};
 
 	clock_t tic, toc;
 	struct timeval startTime, endTime;
-	node *transfRoot;
 
 	gettimeofday(&startTime, NULL);
 	tic = clock();
-	transfRoot = td2buTransform(root);
+	*outputRoot = td2buTransform(root);
 	toc = clock();
 	gettimeofday(&endTime, NULL);
 
@@ -134,10 +133,8 @@ TimeInfo timeTransformMalloc(
 
 	if (printResults)
 	{
-		printExpResults(timeInfo, treeType, "transform-malloc", verbose);
+		printExpResults(timeInfo, treeType, "transform-malloc", direction, verbose);
 	}
-
-	freeTree(transfRoot);
 
 	return timeInfo;
 }
@@ -150,7 +147,7 @@ TimeInfo timeTransformMalloc(
 TimeInfo timeTransformNoMalloc(
 	node * root, node *outputArray,
 	bool printResults, bool verbose, 
-	const char treeType[]
+	const char treeType[], const char direction[]
 )
 {
 	TimeInfo timeInfo = {0};
@@ -174,7 +171,7 @@ TimeInfo timeTransformNoMalloc(
 
 	if (printResults)
 	{
-		printExpResults(timeInfo, treeType, "transform-no-malloc", verbose);
+		printExpResults(timeInfo, treeType, "transform-no-malloc", direction, verbose);
 	}
 
 	return timeInfo;
@@ -188,7 +185,7 @@ TimeInfo timeTransformNoMalloc(
 TimeInfo timeTransformCont(
 	node *inputArray, int inputSize, node *outputArray,
 	bool printResults, bool verbose, 
-	const char treeType[]
+	const char treeType[], const char direction[]
 )
 {
 	TimeInfo timeInfo = {0};
@@ -212,7 +209,7 @@ TimeInfo timeTransformCont(
 
 	if (printResults)
 	{
-		printExpResults(timeInfo, treeType, "transform-cont", verbose);
+		printExpResults(timeInfo, treeType, "transform-cont", direction, verbose);
 	}
 
 	return timeInfo;

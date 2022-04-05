@@ -22,5 +22,5 @@ if sys.version_info < (3, 7, 5):
 if __name__ == '__main__':
     PORT = 8000
     with socketserver.TCPServer(("", PORT), WasmHandler) as httpd:
-        print("Listening on port {}. Press Ctrl+C to stop.".format(PORT))
+        print("Listening on port {}.\nGo to http://localhost:{}\nPress Ctrl+C to stop.".format(PORT, PORT))
         httpd.serve_forever()
