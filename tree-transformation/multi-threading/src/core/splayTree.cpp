@@ -190,7 +190,7 @@ node * insert(node *root, int k)
     return newnode; // newnode becomes new root
 }
 
-// Function to insert a new key k in splay tree with given root
+// Function to insert a new node with key k in splay tree with given root
 node * insertNode(node *root, node *n)
 {
     // Simple Case: If tree is empty
@@ -223,7 +223,7 @@ node * insertNode(node *root, node *n)
     return n; // newnode becomes new root
 }
 
-// Function to insert a new key k in splay tree with given root
+// Function to insert a next node in array with key k in splay tree with given root
 node * insertCont(node *root, int k, node **nodeArray)
 {
     // Simple Case: If tree is empty
@@ -275,6 +275,31 @@ void preOrder(node *root)
         preOrder(root->left);
         preOrder(root->right);
     }
+}
+
+// merges all the nodes in the right tree into the left tree (assumes right tree not null)
+node * mergeTrees(node *leftRoot, node *rightRoot)
+{
+    node *tmp;
+
+    if (rightRoot->left != NULL)
+    {
+        tmp = rightRoot->left;
+        rightRoot->left = NULL;
+        leftRoot = mergeTrees(leftRoot, tmp);
+    }
+
+    if (rightRoot->right != NULL)
+    {
+        tmp = rightRoot->right;
+        rightRoot->right = NULL;
+        leftRoot = mergeTrees(leftRoot, tmp);
+    }
+
+    rightRoot->parent = leftRoot->parent;
+    leftRoot = insertNode(leftRoot, rightRoot);
+
+    return leftRoot;
 }
 
 

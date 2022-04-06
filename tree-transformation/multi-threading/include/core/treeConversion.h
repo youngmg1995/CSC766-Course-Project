@@ -37,7 +37,7 @@
 *******************************************************************************/
 
 /* tree conversion functions */
-extern node * td2buTransform(node *tdRoot);
+extern node * td2buTransformMain(node *tdRoot);
 extern node * td2buTransformCont(node *tdRoot, node *nodeArray);
 extern node * td2buTransformCont2(node *inputArray, int inputSize, node *outputArray);
 

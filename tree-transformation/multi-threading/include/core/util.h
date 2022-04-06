@@ -2,9 +2,9 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file traversal.cpp
+ * @file util.h
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief Defines functions for traversing splay trees.
+ * @brief Random utilities for project.
  * @version 0.1
  * @date 2022-04-01
  * 
@@ -12,50 +12,31 @@
  * 
  */
 
+#ifndef	__TREETRAV_UTIL_H
+#define	__TREETRAV_UTIL_H
+
+
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
-#include <stddef.h>
-
-#include "types.h"
-
-
-/******************************************************************************* 
-------------------------------- HELPER FUNCTIONS -------------------------------
-*******************************************************************************/
 
 
 
 /******************************************************************************* 
-------------------------------- BASIC TRAVERSALS -------------------------------
+--------------------------------- DECLARATIONS ---------------------------------
 *******************************************************************************/
-void splayTraversal(node *root)
-{
-	if (root != NULL)
-	{	
-		int tmp = root->key;
-		root->key = 2;
-		root->key = tmp;
-		splayTraversal(root->children);
-		splayTraversal(root->left);
-		splayTraversal(root->right);
-	}
-}
 
-void splayTraversalCB(node *root, TraversalCallback callback)
-{
-	if (root != NULL)
-	{	
-		callback(root);
-		splayTraversalCB(root->children, callback);
-		splayTraversalCB(root->left, callback);
-		splayTraversalCB(root->right, callback);
-	}
-}
+/* for printing a tree */
+extern void print_ascii_tree(node * t);
+
+/* random number generation */
+extern double genrand64_real2(void);
+extern void init_genrand64(unsigned long long seed);
 
 
 
+#endif
 /******************************************************************************* 
 --------------------------------- END OF FILE ----------------------------------
 *******************************************************************************/

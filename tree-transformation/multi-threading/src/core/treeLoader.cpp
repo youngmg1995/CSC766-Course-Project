@@ -254,7 +254,7 @@ void outputCompressedJSON(const char fileName[], node *root)
     convertTree2CompressedJSON(root->children, outputJSON);
 
     std::ofstream outputStream(fileName);
-    outputStream << outputJSON << std::endl;
+    outputStream << std::setw(4) << outputJSON << std::endl;
 }
 
 

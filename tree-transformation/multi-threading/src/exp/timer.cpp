@@ -65,43 +65,43 @@ double wallTimeDiff(struct timeval start, struct timeval end)
 ------------------------------- PRIMARY EXPORTS --------------------------------
 *******************************************************************************/
 
-/* ---------------------------- Plain Traversal ----------------------------- */
+// /* ---------------------------- Plain Traversal ----------------------------- */
 
-TimeInfo timeTraversal(
-	node * root,
-	bool printResults, bool verbose, 
-	const char treeType[], const char direction[]
-)
-{
-	TimeInfo timeInfo = {0};
+// TimeInfo timeTraversal(
+// 	node * root,
+// 	bool printResults, bool verbose, 
+// 	const char treeType[], const char direction[]
+// )
+// {
+// 	TimeInfo timeInfo = {0};
 
-	clock_t tic, toc;
-	struct timeval startTime, endTime;
+// 	clock_t tic, toc;
+// 	struct timeval startTime, endTime;
 
-	gettimeofday(&startTime, NULL);
-	tic = clock();
-	splayTraversal(root);
-	toc = clock();
-	gettimeofday(&endTime, NULL);
+// 	gettimeofday(&startTime, NULL);
+// 	tic = clock();
+// 	splayTraversal(root);
+// 	toc = clock();
+// 	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 		= 1;
-	timeInfo.cycles			= toc - tic;
-	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
-	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
-	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
+// 	timeInfo.samples 		= 1;
+// 	timeInfo.cycles			= toc - tic;
+// 	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+// 	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+// 	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+// 	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+// 	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
-	if (printResults)
-	{
-		printExpResults(timeInfo, treeType, "plain-traversal", direction, verbose);
-	}
+// 	if (printResults)
+// 	{
+// 		printExpResults(timeInfo, treeType, "plain-traversal", direction, verbose);
+// 	}
 
 
-	return timeInfo;
-}
+// 	return timeInfo;
+// }
 
-/* -------------------------------------------------------------------------- */
+// /* -------------------------------------------------------------------------- */
 
 
 /* ----------------------- Transform With Mem. Alloc. ----------------------- */
@@ -119,7 +119,7 @@ TimeInfo timeTransformMalloc(
 
 	gettimeofday(&startTime, NULL);
 	tic = clock();
-	*outputRoot = td2buTransform(root);
+	*outputRoot = td2buTransformMain(root);
 	toc = clock();
 	gettimeofday(&endTime, NULL);
 
@@ -142,80 +142,80 @@ TimeInfo timeTransformMalloc(
 /* -------------------------------------------------------------------------- */
 
 
-/* --------------------- Transform Without Mem. Alloc. ---------------------- */
+// /* --------------------- Transform Without Mem. Alloc. ---------------------- */
 
-TimeInfo timeTransformNoMalloc(
-	node * root, node *outputArray,
-	bool printResults, bool verbose, 
-	const char treeType[], const char direction[]
-)
-{
-	TimeInfo timeInfo = {0};
+// TimeInfo timeTransformNoMalloc(
+// 	node * root, node *outputArray,
+// 	bool printResults, bool verbose, 
+// 	const char treeType[], const char direction[]
+// )
+// {
+// 	TimeInfo timeInfo = {0};
 
-	clock_t tic, toc;
-	struct timeval startTime, endTime;
+// 	clock_t tic, toc;
+// 	struct timeval startTime, endTime;
 
-	gettimeofday(&startTime, NULL);
-	tic = clock();
-	td2buTransformCont(root, outputArray);
-	toc = clock();
-	gettimeofday(&endTime, NULL);
+// 	gettimeofday(&startTime, NULL);
+// 	tic = clock();
+// 	td2buTransformCont(root, outputArray);
+// 	toc = clock();
+// 	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 		= 1;
-	timeInfo.cycles			= toc - tic;
-	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
-	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
-	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
+// 	timeInfo.samples 		= 1;
+// 	timeInfo.cycles			= toc - tic;
+// 	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+// 	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+// 	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+// 	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+// 	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
-	if (printResults)
-	{
-		printExpResults(timeInfo, treeType, "transform-no-malloc", direction, verbose);
-	}
+// 	if (printResults)
+// 	{
+// 		printExpResults(timeInfo, treeType, "transform-no-malloc", direction, verbose);
+// 	}
 
-	return timeInfo;
-}
+// 	return timeInfo;
+// }
 
-/* -------------------------------------------------------------------------- */
+// /* -------------------------------------------------------------------------- */
 
 
-/* ------------------ Cont. Transform Without Mem. Alloc. ------------------- */
+// /* ------------------ Cont. Transform Without Mem. Alloc. ------------------- */
 
-TimeInfo timeTransformCont(
-	node *inputArray, int inputSize, node *outputArray,
-	bool printResults, bool verbose, 
-	const char treeType[], const char direction[]
-)
-{
-	TimeInfo timeInfo = {0};
+// TimeInfo timeTransformCont(
+// 	node *inputArray, int inputSize, node *outputArray,
+// 	bool printResults, bool verbose, 
+// 	const char treeType[], const char direction[]
+// )
+// {
+// 	TimeInfo timeInfo = {0};
 
-	clock_t tic, toc;
-	struct timeval startTime, endTime;
+// 	clock_t tic, toc;
+// 	struct timeval startTime, endTime;
 
-	gettimeofday(&startTime, NULL);
-	tic = clock();
-	td2buTransformCont2(inputArray, inputSize, outputArray);
-	toc = clock();
-	gettimeofday(&endTime, NULL);
+// 	gettimeofday(&startTime, NULL);
+// 	tic = clock();
+// 	td2buTransformCont2(inputArray, inputSize, outputArray);
+// 	toc = clock();
+// 	gettimeofday(&endTime, NULL);
 
-	timeInfo.samples 		= 1;
-	timeInfo.cycles			= toc - tic;
-	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
-	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
-	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
-	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
-	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
+// 	timeInfo.samples 		= 1;
+// 	timeInfo.cycles			= toc - tic;
+// 	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+// 	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+// 	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+// 	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+// 	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
-	if (printResults)
-	{
-		printExpResults(timeInfo, treeType, "transform-cont", direction, verbose);
-	}
+// 	if (printResults)
+// 	{
+// 		printExpResults(timeInfo, treeType, "transform-cont", direction, verbose);
+// 	}
 
-	return timeInfo;
-}
+// 	return timeInfo;
+// }
 
-/* -------------------------------------------------------------------------- */
+// /* -------------------------------------------------------------------------- */
 
 /******************************************************************************* 
 --------------------------------- END OF FILE ----------------------------------

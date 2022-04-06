@@ -95,13 +95,13 @@ int main(int argc, char *argv[])
 
 	/* ---------------------------------------------------------------------- */
 	
-	printUnitTestMsg(&testNum, "Validate Tree Loader");
-	treeLoaderUnitTest(tiny_tree_file);
+	// printUnitTestMsg(&testNum, "Validate Tree Loader");
+	// treeLoaderUnitTest(tiny_tree_file);
 
 	/* ---------------------------------------------------------------------- */
 	
-	// printUnitTestMsg(&testNum, "Validate Tree Conversion");
-	// treeConvUnitTest(tiny_tree_file);
+	printUnitTestMsg(&testNum, "Validate Tree Conversion");
+	treeConvUnitTest(big_tree_file_compressed);
 
 	/* ---------------------------------------------------------------------- */
 

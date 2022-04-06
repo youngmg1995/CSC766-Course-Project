@@ -2,9 +2,9 @@
 ------------------------------------- INFO -------------------------------------
 *******************************************************************************/
 /**
- * @file util.h
+ * @file traversal.cpp
  * @author Mitchell Young (mgyoung@ncsu.edu)
- * @brief Random utilities for project.
+ * @brief Defines functions for traversing splay trees.
  * @version 0.1
  * @date 2022-04-01
  * 
@@ -12,27 +12,51 @@
  * 
  */
 
-#ifndef	__TREETRAV_UTIL_H
-#define	__TREETRAV_UTIL_H
-
-
 
 /******************************************************************************* 
 ------------------------------- IMPORTS & PARAMS -------------------------------
 *******************************************************************************/
+#include <stddef.h>
+
+#include "types.h"
+#include "util.h"
+
+
+/******************************************************************************* 
+------------------------------- HELPER FUNCTIONS -------------------------------
+*******************************************************************************/
 
 
 
 /******************************************************************************* 
---------------------------------- DECLARATIONS ---------------------------------
+------------------------------- BASIC TRAVERSALS -------------------------------
 *******************************************************************************/
+void splayTraversal(node *root)
+{
+	if (root != NULL)
+	{	
+		int tmp = root->key;
+		root->key = (int) genrand64_real2()*8;
+		root->key = tmp;
+		splayTraversal(root->children);
+		splayTraversal(root->left);
+		splayTraversal(root->right);
+	}
+}
 
-/* for printing a tree */
-extern void print_ascii_tree(node * t);
+void splayTraversalCB(node *root, TraversalCallback callback)
+{
+	if (root != NULL)
+	{	
+		callback(root);
+		splayTraversalCB(root->children, callback);
+		splayTraversalCB(root->left, callback);
+		splayTraversalCB(root->right, callback);
+	}
+}
 
 
 
-#endif
 /******************************************************************************* 
 --------------------------------- END OF FILE ----------------------------------
 *******************************************************************************/

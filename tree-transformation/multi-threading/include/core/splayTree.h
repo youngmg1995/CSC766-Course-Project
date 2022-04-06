@@ -37,6 +37,7 @@ extern node * search(node *root, int key);
 extern node * insert(node *root, int key);
 extern node * insertNode(node *root, node *n);
 extern node * insertCont(node *root, int k, node **nodeArray);
+extern node * mergeTrees(node *leftRoot, node *rightRoot);
 extern void preOrder(node *root);
 
 
