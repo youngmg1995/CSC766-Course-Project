@@ -42,7 +42,7 @@ void traversalBatch(
 	bool printResults, bool verbose
 )
 {
-	// int i;
+	int i;
 
     node *splayArray = NULL;
     node *original = NULL;
@@ -62,17 +62,17 @@ void traversalBatch(
 /* -------------------------------------------------------------------------- */
 
 
-// 	node *tmp;
-// 	node *buNodeArray = (node *) malloc(buTreeSize * sizeof(node));
+	node *tmp;
+	node *buNodeArray = (node *) malloc(buTreeSize * sizeof(node));
 
 
-// /* --------------------- Transform Without Mem. Alloc. ---------------------- */
-// 	for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
-// 	{
-// 		initNode(tmp);
-// 	}
-// 	timeTransformNoMalloc(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
-// /* -------------------------------------------------------------------------- */
+/* --------------------- Transform Without Mem. Alloc. ---------------------- */
+	for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
+	{
+		initNode(tmp);
+	}
+	timeTransformNoMalloc(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
+/* -------------------------------------------------------------------------- */
 
 
 // /* ------------------ Cont. Transform Without Mem. Alloc. ------------------- */
@@ -85,7 +85,7 @@ void traversalBatch(
 
 
 	free(splayArray);
-	// free(buNodeArray);
+	free(buNodeArray);
 }
 
 /* -------------------------------------------------------------------------- */

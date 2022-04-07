@@ -27,11 +27,11 @@
 *******************************************************************************/
 
 /* functions for timing each tree traversal */
-extern TimeInfo timeTraversal(
-	node * root,
-	bool printResults, bool verbose, 
-	const char treeType[], const char direction[]
-);
+// extern TimeInfo timeTraversal(
+// 	node * root,
+// 	bool printResults, bool verbose, 
+// 	const char treeType[], const char direction[]
+// );
 extern TimeInfo timeTransformMalloc(
 	node * root, node **outputRoot,
 	bool printResults, bool verbose, 
@@ -42,11 +42,11 @@ extern TimeInfo timeTransformNoMalloc(
 	bool printResults, bool verbose, 
 	const char treeType[], const char direction[]
 );
-extern TimeInfo timeTransformCont(
-	node *inputArray, int inputSize, node *outputArray,
-	bool printResults, bool verbose, 
-	const char treeType[], const char direction[]
-);
+// extern TimeInfo timeTransformCont(
+// 	node *inputArray, int inputSize, node *outputArray,
+// 	bool printResults, bool verbose, 
+// 	const char treeType[], const char direction[]
+// );
 
 
 #endif

@@ -38,8 +38,8 @@
 
 /* tree conversion functions */
 extern node * td2buTransformMain(node *tdRoot);
-extern node * td2buTransformCont(node *tdRoot, node *nodeArray);
-extern node * td2buTransformCont2(node *inputArray, int inputSize, node *outputArray);
+extern node * td2buTransformContMain(node *tdRoot, node *nodeArray);
+// extern node * td2buTransformCont2(node *inputArray, int inputSize, node *outputArray);
 
 /* unit tests */
 extern void treeConvUnitTest(const char tree_input_file[]);

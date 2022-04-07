@@ -120,7 +120,7 @@ void * td2buTransformMT(void *args)
 
 node * td2buTransformMain(node *tdRoot)
 {
-    if (NUM_THREADS <= 1)
+    if (NUM_THREADS <= 2)
     {
         node *mainRoot = newNode(0);
         td2buRecursive(tdRoot, mainRoot);
@@ -187,45 +187,184 @@ node * td2buTransformMain(node *tdRoot)
 }
 /* -------------------------------------------------------------------------- */
 
+/* ================================================================================================================================================= */
+/* ================================================================================================================================================= */
+/* ================================================================================================================================================= */
 
-// /* ---------------- Efficient Versions (Nodes Pre-Allocated) ---------------- */
-// void insertPathCont(node *leaf, node *root, node **nodeArray)
-// {
-//     while (leaf->parent != NULL)
-//     {
-//         // printf("Inserting Node: %d\n", leaf->key);
-//         root->children = insertCont(root->children, leaf->key, nodeArray);
-//         root->children->parent = root;
-//         leaf = leaf->parent;
-//         root = root->children;
-//     }
-// }
+/* ---------------- Efficient Versions (Nodes Pre-Allocated) ---------------- */
+void insertPathCont(node *leaf, node *root, node **nodeArray)
+{
+    while (leaf->parent != NULL)
+    {
+        // printf("Inserting Node: %d\n", leaf->key);
+        root->children = insertCont(root->children, leaf->key, nodeArray);
+        root->children->parent = root;
+        leaf = leaf->parent;
+        root = root->children;
+    }
+}
 
-// void td2buRecursiveCont(node *tdRoot, node *buRoot, node **nodeArray)
-// {
-//     // printf("TD2BU on Node: %d\n", tdRoot->key);
-//     if (tdRoot->children == NULL) 
-//     {
-//         insertPathCont(tdRoot, buRoot, nodeArray);
-//     }
-//     else
-//     {
-//         td2buRecursiveCont(tdRoot->children, buRoot, nodeArray);
-//     }
+void td2buRecursiveCont(node *tdRoot, node *buRoot, node **nodeArray)
+{
+    // printf("TD2BU on Node: %d\n", tdRoot->key);
+    if (tdRoot->children == NULL) 
+    {
+        insertPathCont(tdRoot, buRoot, nodeArray);
+    }
+    else
+    {
+        td2buRecursiveCont(tdRoot->children, buRoot, nodeArray);
+    }
     
-//     if (tdRoot->left != NULL) td2buRecursiveCont(tdRoot->left, buRoot, nodeArray);
-//     if (tdRoot->right != NULL) td2buRecursiveCont(tdRoot->right, buRoot, nodeArray);
-// }
+    if (tdRoot->left != NULL) td2buRecursiveCont(tdRoot->left, buRoot, nodeArray);
+    if (tdRoot->right != NULL) td2buRecursiveCont(tdRoot->right, buRoot, nodeArray);
+}
 
-// node * td2buTransformCont(node *tdRoot, node *nodeArray)
+void insertPathContMT(node *leaf, node *root, node **nodeArray, pthread_mutex_t *arrayMutex)
+{
+    while (leaf->parent != NULL)
+    {
+        // printf("Inserting Node: %d\n", leaf->key);
+        root->children = insertContMT(root->children, leaf->key, nodeArray, arrayMutex);
+        root->children->parent = root;
+        leaf = leaf->parent;
+        root = root->children;
+    }
+}
+
+void td2buRecursiveContMT(node *tdRoot, node *buRoot, node **nodeArray, pthread_mutex_t *arrayMutex, int tid)
+{
+    // printf("MT TD2BU on Node: %d\n", tdRoot->key);
+    if (tdRoot->children != NULL) 
+    {
+        td2buRecursiveContMT(tdRoot->children, buRoot, nodeArray, arrayMutex, tid);
+    }
+    else if ((tdRoot->key % (NUM_THREADS-1)) == tid)
+    {
+        insertPathContMT(tdRoot, buRoot, nodeArray, arrayMutex);
+    }
+    
+    if (tdRoot->left != NULL) td2buRecursiveContMT(tdRoot->left, buRoot, nodeArray, arrayMutex, tid);
+    if (tdRoot->right != NULL) td2buRecursiveContMT(tdRoot->right, buRoot, nodeArray, arrayMutex, tid);
+}
+
+struct td2buTransfContArgs 
+{
+    node *tdRoot;
+    node **nodeArray;
+    pthread_mutex_t *arrayMutex;
+    int tid;
+};
+
+// node * td2buTransformContMT(node *tdRoot, node *nodeArray)
 // {   
 //     node *buRoot = nodeArray++;
 //     buRoot->key = 0;
 //     td2buRecursiveCont(tdRoot, buRoot, &nodeArray);
 //     return buRoot;
 // }
-// /* -------------------------------------------------------------------------- */
 
+void * td2buTransformContMT(void *args)
+{
+    struct td2buTransfContArgs *transfArgs = (struct td2buTransfContArgs *) args;
+    int tid                         = transfArgs->tid;
+    node *tdRoot                    = transfArgs->tdRoot;
+    node **nodeArray                = transfArgs->nodeArray;
+    pthread_mutex_t *arrayMutex     = transfArgs->arrayMutex;
+
+    // printf("Starting Transformation Thread: %d\n", tid);
+
+    pthread_mutex_lock(arrayMutex);
+    node *buRoot = (*nodeArray)++;
+    pthread_mutex_unlock(arrayMutex);
+
+    buRoot->key = 0;
+
+    td2buRecursiveContMT(tdRoot, buRoot, nodeArray, arrayMutex, tid);
+    return (void *) buRoot;
+}
+
+node * td2buTransformContMain(node *tdRoot, node *nodeArray)
+{
+    if (NUM_THREADS <= 2)
+    {
+        node *mainRoot = nodeArray++;
+        mainRoot->key = 0;
+        td2buRecursiveCont(tdRoot, mainRoot, &nodeArray);
+        return mainRoot;
+    }
+    else
+    {
+        pthread_t threads[NUM_THREADS-1];
+        pthread_mutex_t arrayMutex;
+        struct td2buTransfContArgs threadArgs[NUM_THREADS-1];
+        int tid;
+
+        pthread_mutex_init(&arrayMutex, NULL);
+
+        node *mainRoot, *threadRoots[NUM_THREADS-1], *threadRoot;
+        mainRoot = nodeArray++;
+        mainRoot->key = 0;
+
+        // printf("Creating Threads\n");
+
+        for (tid=0; tid<NUM_THREADS-1; tid++)
+        {
+            threadArgs[tid].tid = tid;
+            threadArgs[tid].tdRoot = tdRoot;
+            threadArgs[tid].arrayMutex = &arrayMutex;
+            threadArgs[tid].nodeArray = &nodeArray;
+            if (pthread_create(&(threads[tid]), NULL, &td2buTransformContMT, (void *) &(threadArgs[tid])) != 0)
+            {
+                perror("Failed to create the thread");
+            }
+        }
+
+        // printf("Joining Threads\n");
+        
+        for (tid=0; tid<NUM_THREADS-1; tid++)
+        {
+            if (pthread_join(threads[tid], (void **) &(threadRoots[tid])) != 0)
+            {
+                perror("Failed to join the thread");
+            }
+        }
+
+        // printf("Merging Trees\n");
+
+        for (tid=0; tid<NUM_THREADS-1; tid++)
+        {
+            threadRoot = threadRoots[tid];
+
+            if (threadRoot->children == NULL)
+            {
+                threadRoot->key = -1;
+            }
+            else if (mainRoot->children == NULL)
+            {
+                mainRoot->key = -1;
+                mainRoot = threadRoot;
+            }
+            else
+            {
+                mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
+                threadRoot->children = NULL;
+                threadRoot->key = -1;
+            }
+        }
+
+        pthread_mutex_destroy(&arrayMutex);
+
+        // printf("Returning Root\n");
+
+        return mainRoot;
+    }
+}
+/* -------------------------------------------------------------------------- */
+
+/* ================================================================================================================================================= */
+/* ================================================================================================================================================= */
+/* ================================================================================================================================================= */
 
 // /* -------- Super Efficient Versions (Just Traverse Down Node Array) -------- */
 // node * td2buTransformCont2(node *inputArray, int inputSize, node *outputArray)

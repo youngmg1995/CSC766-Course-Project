@@ -142,42 +142,42 @@ TimeInfo timeTransformMalloc(
 /* -------------------------------------------------------------------------- */
 
 
-// /* --------------------- Transform Without Mem. Alloc. ---------------------- */
+/* --------------------- Transform Without Mem. Alloc. ---------------------- */
 
-// TimeInfo timeTransformNoMalloc(
-// 	node * root, node *outputArray,
-// 	bool printResults, bool verbose, 
-// 	const char treeType[], const char direction[]
-// )
-// {
-// 	TimeInfo timeInfo = {0};
+TimeInfo timeTransformNoMalloc(
+	node * root, node *outputArray,
+	bool printResults, bool verbose, 
+	const char treeType[], const char direction[]
+)
+{
+	TimeInfo timeInfo = {0};
 
-// 	clock_t tic, toc;
-// 	struct timeval startTime, endTime;
+	clock_t tic, toc;
+	struct timeval startTime, endTime;
 
-// 	gettimeofday(&startTime, NULL);
-// 	tic = clock();
-// 	td2buTransformCont(root, outputArray);
-// 	toc = clock();
-// 	gettimeofday(&endTime, NULL);
+	gettimeofday(&startTime, NULL);
+	tic = clock();
+	td2buTransformContMain(root, outputArray);
+	toc = clock();
+	gettimeofday(&endTime, NULL);
 
-// 	timeInfo.samples 		= 1;
-// 	timeInfo.cycles			= toc - tic;
-// 	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
-// 	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
-// 	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
-// 	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
-// 	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
+	timeInfo.samples 		= 1;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
 
-// 	if (printResults)
-// 	{
-// 		printExpResults(timeInfo, treeType, "transform-no-malloc", direction, verbose);
-// 	}
+	if (printResults)
+	{
+		printExpResults(timeInfo, treeType, "transform-no-malloc", direction, verbose);
+	}
 
-// 	return timeInfo;
-// }
+	return timeInfo;
+}
 
-// /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 // /* ------------------ Cont. Transform Without Mem. Alloc. ------------------- */

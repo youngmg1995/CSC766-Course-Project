@@ -21,6 +21,7 @@
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include <types.h>
 #include "util.h"
@@ -242,6 +243,53 @@ node * insertCont(node *root, int k, node **nodeArray)
  
     // Otherwise allocate memory for new node
     node *newnode = (*nodeArray)++;
+    newnode->key = k;
+ 
+    // If root's key is greater, make root as right child
+    // of newnode and copy the left child of root to newnode
+    if (root->key > k)
+    {
+        newnode->right = root;
+        newnode->left = root->left;
+        root->left = NULL;
+    }
+ 
+    // If root's key is smaller, make root as left child
+    // of newnode and copy the right child of root to newnode
+    else
+    {
+        newnode->left = root;
+        newnode->right = root->right;
+        root->right = NULL;
+    }
+ 
+    return newnode; // newnode becomes new root
+}
+
+// Function to insert a next node in array with key k in splay tree with given root
+// this version is thread safe since the array is accessed using a mutex
+node * insertContMT(node *root, int k, node **nodeArray, pthread_mutex_t *arrayMutex)
+{
+    // Simple Case: If tree is empty
+    if (root == NULL)
+    {
+        pthread_mutex_lock(arrayMutex);
+        node *newnode = (*nodeArray)++;
+        pthread_mutex_unlock(arrayMutex);
+        newnode->key = k;
+        return newnode;
+    }
+ 
+    // Bring the closest leaf node to root
+    root = splay(root, k);
+ 
+    // If key is already present, then return
+    if (root->key == k) return root;
+ 
+    // Otherwise allocate memory for new node
+    pthread_mutex_lock(arrayMutex);
+    node *newnode = (*nodeArray)++;
+    pthread_mutex_unlock(arrayMutex);
     newnode->key = k;
  
     // If root's key is greater, make root as right child
