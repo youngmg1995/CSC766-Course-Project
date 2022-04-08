@@ -765,6 +765,49 @@ void treeConvUnitTest(const char compressed_tree_input_file[])
 
 
 
+
+    // node **buNodeArrays = (node **) malloc((NUM_THREADS+1) * sizeof(node *));
+    // node **passedPointer = (node **) malloc((NUM_THREADS+1) * sizeof(node *));
+    // int j;
+    // for (j=0; j<(NUM_THREADS+1); j++)
+    // {
+    //     buNodeArrays[j] = (node *) malloc(threadLoads[j] * sizeof(node));
+    //     passedPointer[j] = buNodeArrays[j];
+    //     for (i=0, tmp=buNodeArrays[j]; i<threadLoads[j]; i++, tmp++)
+    //     {
+    //         initNode(tmp);
+    //     }
+    // }
+
+    // printf("\n");
+    // printf("Converted Bottum-Up Tree Info (Method: No-Malloc-2)\n");
+    // printf("------------------------------\n");
+    // buTree = td2buTransformContMain2(original, passedPointer);
+    // buTreeSize = getTreeSize(buTree);
+    // printf("Tree Size: %d\n", buTreeSize);
+    // // printf("Root Children\n");
+    // // print_ascii_tree(buTree->children);
+    // // printf("\n");
+    // outputCompressedJSON(output_bu_tree_file, buTree);
+
+
+    // printf("\n");
+    // printf("Re-Converted Top-Down Tree Info No-Malloc\n");
+    // printf("-----------------------------------------\n");
+    // tdTree = td2buTransformContMain(buTree, tdTreeArray);
+    // tdTreeSize = getTreeSize(tdTree);
+    // printf("Tree Size: %d\n", tdTreeSize);
+    // // printf("Root Children\n");
+    // // print_ascii_tree(tdTree->children);
+    // // printf("\n");
+    // outputCompressedJSON(output_td_tree_file, tdTree);
+
+    // for (j=0; j<(NUM_THREADS+1); j++) { free(buNodeArrays[j]); }
+    // free(buNodeArrays);
+
+
+
+
     free(splayArray);
 }
 
