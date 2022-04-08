@@ -22,7 +22,7 @@
 *******************************************************************************/
 #include "types.h"
 
-#define NUM_THREADS 5
+#define NUM_THREADS 7
 
 
 
@@ -30,6 +30,8 @@
 ---------------------------- FUNCTION DECLARATIONS -----------------------------
 *******************************************************************************/
 
+extern int threadLoads[];
+extern void resetThreadLoads();
 
 
 #endif

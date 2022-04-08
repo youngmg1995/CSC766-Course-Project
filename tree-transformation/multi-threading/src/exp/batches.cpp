@@ -25,6 +25,7 @@
 #include "splayTree.h"
 #include "treeLoader.h"
 #include "treeConversion.h"
+#include "threadpool.h"
 
 #include "exp.h"
 #include "timer.h"
@@ -67,21 +68,52 @@ void traversalBatch(
 
 
 /* --------------------- Transform Without Mem. Alloc. ---------------------- */
+	resetThreadLoads();
 	for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
 	{
 		initNode(tmp);
 	}
 	timeTransformNoMalloc(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
+	printf("Thread Loads: ");
+	for (i=0; i<NUM_THREADS+1; i++)
+	{
+		printf("%d ", threadLoads[i]);
+	}
+	printf("\n");
 /* -------------------------------------------------------------------------- */
 
 
-// /* -------------- Transform Without Mem. Alloc. and No Locking -------------- */
-// 	for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
-// 	{
-// 		initNode(tmp);
-// 	}
-// 	timeTransformNoMalloc2(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
-// /* -------------------------------------------------------------------------- */
+/* -------------- Transform Without Mem. Alloc. and No Locking -------------- */
+	if (NUM_THREADS <= 1)
+	{
+		for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
+		{
+			initNode(tmp);
+		}
+		node *passedPointer = buNodeArray;
+		timeTransformNoMalloc2(original, &passedPointer, true, false, treeType, "td-2-bu-cont");
+		free(buNodeArray);
+	}
+	else
+	{
+		free(buNodeArray);
+		node **buNodeArrays = (node **) malloc((NUM_THREADS+1) * sizeof(node *));
+		node **passedPointer = (node **) malloc((NUM_THREADS+1) * sizeof(node *));
+		int j;
+		for (j=0; j<(NUM_THREADS+1); j++)
+		{
+			buNodeArrays[j] = (node *) malloc(threadLoads[j] * sizeof(node));
+			passedPointer[j] = buNodeArrays[j];
+			for (i=0, tmp=buNodeArrays[j]; i<threadLoads[j]; i++, tmp++)
+			{
+				initNode(tmp);
+			}
+		}
+		timeTransformNoMalloc2(original, passedPointer, true, false, treeType, "td-2-bu-cont");
+		for (j=0; j<(NUM_THREADS+1); j++) { free(buNodeArrays[j]); }
+		free(buNodeArrays);
+	}
+/* -------------------------------------------------------------------------- */
 
 
 // /* ------------------ Cont. Transform Without Mem. Alloc. ------------------- */
@@ -94,7 +126,7 @@ void traversalBatch(
 
 
 	free(splayArray);
-	free(buNodeArray);
+	// free(buNodeArray);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -25,6 +25,7 @@
 
 #include <types.h>
 #include "util.h"
+#include "threadpool.h"
  
 
 
@@ -268,13 +269,14 @@ node * insertCont(node *root, int k, node **nodeArray)
 
 // Function to insert a next node in array with key k in splay tree with given root
 // this version is thread safe since the array is accessed using a mutex
-node * insertContMT(node *root, int k, node **nodeArray, pthread_mutex_t *arrayMutex)
+node * insertContMT(node *root, int k, node **nodeArray, pthread_mutex_t *arrayMutex, int tid)
 {
     // Simple Case: If tree is empty
     if (root == NULL)
     {
         pthread_mutex_lock(arrayMutex);
         node *newnode = (*nodeArray)++;
+        threadLoads[tid]++;
         pthread_mutex_unlock(arrayMutex);
         newnode->key = k;
         return newnode;
@@ -289,6 +291,7 @@ node * insertContMT(node *root, int k, node **nodeArray, pthread_mutex_t *arrayM
     // Otherwise allocate memory for new node
     pthread_mutex_lock(arrayMutex);
     node *newnode = (*nodeArray)++;
+    threadLoads[tid]++;
     pthread_mutex_unlock(arrayMutex);
     newnode->key = k;
  

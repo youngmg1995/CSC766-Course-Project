@@ -28,6 +28,9 @@
 #include "util.h"
 
 
+int threadLoads[NUM_THREADS+1] = {0};
+
+
 
 /******************************************************************************* 
 ------------------------------- HELPER FUNCTIONS -------------------------------
@@ -45,6 +48,15 @@ int getTreeSize(node *root)
         size += getTreeSize(root->left);
         size += getTreeSize(root->right);
         return size;
+    }
+}
+
+void resetThreadLoads()
+{
+    int i;
+    for (i=0; i<NUM_THREADS+1; i++)
+    {
+        threadLoads[i] = 0;
     }
 }
 
@@ -220,12 +232,12 @@ void td2buRecursiveCont(node *tdRoot, node *buRoot, node **nodeArray)
     if (tdRoot->right != NULL) td2buRecursiveCont(tdRoot->right, buRoot, nodeArray);
 }
 
-void insertPathContMT(node *leaf, node *root, node **nodeArray, pthread_mutex_t *arrayMutex)
+void insertPathContMT(node *leaf, node *root, node **nodeArray, pthread_mutex_t *arrayMutex, int tid)
 {
     while (leaf->parent != NULL)
     {
         // printf("Inserting Node: %d\n", leaf->key);
-        root->children = insertContMT(root->children, leaf->key, nodeArray, arrayMutex);
+        root->children = insertContMT(root->children, leaf->key, nodeArray, arrayMutex, tid);
         root->children->parent = root;
         leaf = leaf->parent;
         root = root->children;
@@ -241,7 +253,7 @@ void td2buRecursiveContMT(node *tdRoot, node *buRoot, node **nodeArray, pthread_
     }
     else if ((tdRoot->key % (NUM_THREADS)) == tid)
     {
-        insertPathContMT(tdRoot, buRoot, nodeArray, arrayMutex);
+        insertPathContMT(tdRoot, buRoot, nodeArray, arrayMutex, tid);
     }
     
     if (tdRoot->left != NULL) td2buRecursiveContMT(tdRoot->left, buRoot, nodeArray, arrayMutex, tid);
@@ -276,22 +288,13 @@ void * td2buTransformContMT(void *args)
 
     pthread_mutex_lock(arrayMutex);
     node *buRoot = (*nodeArray)++;
+    threadLoads[tid]++;
     pthread_mutex_unlock(arrayMutex);
 
     buRoot->key = 0;
 
     td2buRecursiveContMT(tdRoot, buRoot, nodeArray, arrayMutex, tid);
     return (void *) buRoot;
-}
-
-void getArrayOffsets(node *tdRoot, td2buTransfContArgs *threadArgs)
-{
-    int tid = tdRoot->key % (NUM_THREADS);
-    (*(threadArgs[tid].nodeArray))++;
-
-    if (tdRoot->children != NULL) getArrayOffsets(tdRoot->children, threadArgs);
-    if (tdRoot->left != NULL) getArrayOffsets(tdRoot->left, threadArgs);
-    if (tdRoot->right != NULL) getArrayOffsets(tdRoot->right, threadArgs);
 }
 
 node * td2buTransformContMain(node *tdRoot, node *nodeArray)
@@ -314,6 +317,7 @@ node * td2buTransformContMain(node *tdRoot, node *nodeArray)
 
         node *mainRoot, *threadRoots[NUM_THREADS], *threadRoot;
         mainRoot = nodeArray++;
+        threadLoads[NUM_THREADS]++;
         mainRoot->key = 0;
 
         // printf("Creating Threads\n");
@@ -375,6 +379,152 @@ node * td2buTransformContMain(node *tdRoot, node *nodeArray)
 /* ================================================================================================================================================= */
 /* ================================================================================================================================================= */
 /* ================================================================================================================================================= */
+
+/* ----------- Efficient Versions (Nodes Pre-Allocated) Version 2 ----------- */
+// Passes in arrays for each thread (so it assumes we know beforehand how many each needs)
+
+void td2buRecursiveContMT2(node *tdRoot, node *buRoot, node **nodeArray, int tid)
+{
+    // printf("MT TD2BU on Node: %d\n", tdRoot->key);
+    if (tdRoot->children != NULL) 
+    {
+        td2buRecursiveContMT2(tdRoot->children, buRoot, nodeArray, tid);
+    }
+    else if ((tdRoot->key % (NUM_THREADS)) == tid)
+    {
+        insertPathCont(tdRoot, buRoot, nodeArray);
+    }
+    
+    if (tdRoot->left != NULL) td2buRecursiveContMT2(tdRoot->left, buRoot, nodeArray, tid);
+    if (tdRoot->right != NULL) td2buRecursiveContMT2(tdRoot->right, buRoot, nodeArray, tid);
+}
+
+struct td2buTransfContArgs2
+{
+    node *tdRoot;
+    node *nodeArray;
+    int tid;
+};
+
+void * td2buTransformContMT2(void *args)
+{
+    struct td2buTransfContArgs2 *transfArgs = (struct td2buTransfContArgs2 *) args;
+    int tid                         = transfArgs->tid;
+    node *tdRoot                    = transfArgs->tdRoot;
+    node *nodeArray                 = transfArgs->nodeArray;
+
+    // printf("Starting Transformation Thread: %d\n", tid);
+
+    node *buRoot = nodeArray++;
+    buRoot->key = 0;
+
+    td2buRecursiveContMT2(tdRoot, buRoot, &nodeArray, tid);
+    return (void *) buRoot;
+}
+
+node * td2buTransformContMain2(node *tdRoot, node **nodeArrays)
+{
+    if (NUM_THREADS <= 1)
+    {
+        node *mainRoot = (nodeArrays[0])++;
+        mainRoot->key = 0;
+        td2buRecursiveCont(tdRoot, mainRoot, nodeArrays);
+        return mainRoot;
+    }
+    else
+    {
+        pthread_t threads[NUM_THREADS];
+        struct td2buTransfContArgs2 threadArgs[NUM_THREADS];
+        int tid;
+
+        node *mainRoot, *threadRoots[NUM_THREADS], *threadRoot;
+        mainRoot = (nodeArrays[0])++;
+        mainRoot->key = 0;
+
+        // printf("Creating Threads\n");
+
+        for (tid=0; tid<NUM_THREADS; tid++)
+        {
+            threadArgs[tid].tid = tid;
+            threadArgs[tid].tdRoot = tdRoot;
+            threadArgs[tid].nodeArray = nodeArrays[tid];
+            if (pthread_create(&(threads[tid]), NULL, &td2buTransformContMT2, (void *) &(threadArgs[tid])) != 0)
+            {
+                perror("Failed to create the thread");
+            }
+        }
+
+        // printf("Joining Threads\n");
+        
+        for (tid=0; tid<NUM_THREADS; tid++)
+        {
+            if (pthread_join(threads[tid], (void **) &(threadRoots[tid])) != 0)
+            {
+                perror("Failed to join the thread");
+            }
+        }
+
+        // printf("Merging Trees\n");
+
+        for (tid=0; tid<NUM_THREADS; tid++)
+        {
+            threadRoot = threadRoots[tid];
+
+            if (threadRoot->children == NULL)
+            {
+                threadRoot->key = -1;
+            }
+            else if (mainRoot->children == NULL)
+            {
+                mainRoot->key = -1;
+                mainRoot = threadRoot;
+            }
+            else
+            {
+                mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
+                threadRoot->children = NULL;
+                threadRoot->key = -1;
+            }
+        }
+
+        // printf("Returning Root\n");
+
+        return mainRoot;
+    }
+}
+/* -------------------------------------------------------------------------- */
+
+/* ================================================================================================================================================= */
+/* ================================================================================================================================================= */
+/* ================================================================================================================================================= */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // /* ----------- Efficient Versions (Nodes Pre-Allocated) Version 2 ----------- */
 
@@ -530,7 +680,7 @@ node * td2buTransformContMain(node *tdRoot, node *nodeArray)
 ---------------------------------- UNIT TESTS ----------------------------------
 *******************************************************************************/
 // /* Driver program to test above function*/
-void treeConvUnitTest(const char compressed_tree_input_file[], int testID)
+void treeConvUnitTest(const char compressed_tree_input_file[])
 {
     // int i;
 
@@ -548,65 +698,71 @@ void treeConvUnitTest(const char compressed_tree_input_file[], int testID)
     // printf("Root Children\n");
     // print_ascii_tree(original->children);
     // printf("\n");
-    outputCompressedJSON(output_og_tree_file, original);
+    // outputCompressedJSON(output_og_tree_file, original);
 
-    if (testID == 1)
-    {
-        printf("\n");
-        printf("Converted Bottum-Up Tree Info (Method: Malloc)\n");
-        printf("----------------------------------------------\n");
-        node *buTree = td2buTransformMain(original);
-        int buTreeSize = getTreeSize(buTree);
-        printf("Tree Size: %d\n", buTreeSize);
-        // printf("Root Children\n");
-        // print_ascii_tree(buTree->children);
-        // printf("\n");
-        outputCompressedJSON(output_bu_tree_file, buTree);
+    printf("\n");
+    printf("Converted Bottum-Up Tree Info (Method: Malloc)\n");
+    printf("----------------------------------------------\n");
+    node *buTree = td2buTransformMain(original);
+    int buTreeSize = getTreeSize(buTree);
+    printf("Tree Size: %d\n", buTreeSize);
+    // printf("Root Children\n");
+    // print_ascii_tree(buTree->children);
+    // printf("\n");
+    // outputCompressedJSON(output_bu_tree_file, buTree);
 
 
-        printf("\n");
-        printf("Re-Converted Top-Down Tree Info (Method: Malloc)\n");
-        printf("------------------------------------------------\n");
-        node *tdTree = td2buTransformMain(buTree);
-        int tdTreeSize = getTreeSize(tdTree);
-        printf("Tree Size: %d\n", tdTreeSize);
-        // printf("Root Children\n");
-        // print_ascii_tree(tdTree->children);
-        // printf("\n");
-        outputCompressedJSON(output_td_tree_file, tdTree);
+    printf("\n");
+    printf("Re-Converted Top-Down Tree Info (Method: Malloc)\n");
+    printf("------------------------------------------------\n");
+    node *tdTree = td2buTransformMain(buTree);
+    int tdTreeSize = getTreeSize(tdTree);
+    printf("Tree Size: %d\n", tdTreeSize);
+    // printf("Root Children\n");
+    // print_ascii_tree(tdTree->children);
+    // printf("\n");
+    // outputCompressedJSON(output_td_tree_file, tdTree);
 
-        freeTree(buTree);
-        freeTree(tdTree);
-    }
-    // else if (testID == 2)
-    // {
-    //     int i;
-
-    //     node *buTreeArray = (node *) malloc(); 
-
-    //     printf("\n");
-    //     printf("Converted Bottum-Up Tree Info (Method: No-Malloc)\n");
-    //     printf("------------------------------\n");
-    //     node *buTree = td2buTransformMainCont(original);
-    //     int buTreeSize = getTreeSize(buTree);
-    //     printf("Tree Size: %d\n", buTreeSize);
-    //     // printf("Root Children\n");
-    //     // print_ascii_tree(buTree->children);
-    //     // printf("\n");
-    //     outputCompressedJSON(output_bu_tree_file, buTree);
+    freeTree(buTree);
+    freeTree(tdTree);
 
 
-    //     printf("\n");
-    //     printf("Re-Converted Top-Down Tree Info No-Malloc\n");
-    //     printf("-----------------------------------------\n");
-    //     node *tdTree = td2buTransformMainCont(buTree);
-    //     int tdTreeSize = getTreeSize(tdTree);
-    //     printf("Tree Size: %d\n", tdTreeSize);
-    //     // printf("Root Children\n");
-    //     // print_ascii_tree(tdTree->children);
-    //     // printf("\n");
-    //     outputCompressedJSON(output_td_tree_file, tdTree);
-    // }
+
+
+    int i;
+    node *tmp;
+    node *buTreeArray = (node *) malloc((buTreeSize+NUM_THREADS+1) * sizeof(node)); 
+    node *tdTreeArray = (node *) malloc((tdTreeSize+NUM_THREADS+1) * sizeof(node));
+    for (i=0, tmp=buTreeArray; i<buTreeSize; i++, tmp++) { initNode(tmp); }
+    for (i=0, tmp=tdTreeArray; i<tdTreeSize; i++, tmp++) { initNode(tmp); }
+
+    printf("\n");
+    printf("Converted Bottum-Up Tree Info (Method: No-Malloc)\n");
+    printf("------------------------------\n");
+    buTree = td2buTransformContMain(original, buTreeArray);
+    buTreeSize = getTreeSize(buTree);
+    printf("Tree Size: %d\n", buTreeSize);
+    // printf("Root Children\n");
+    // print_ascii_tree(buTree->children);
+    // printf("\n");
+    outputCompressedJSON(output_bu_tree_file, buTree);
+
+
+    printf("\n");
+    printf("Re-Converted Top-Down Tree Info No-Malloc\n");
+    printf("-----------------------------------------\n");
+    tdTree = td2buTransformContMain(buTree, tdTreeArray);
+    tdTreeSize = getTreeSize(tdTree);
+    printf("Tree Size: %d\n", tdTreeSize);
+    // printf("Root Children\n");
+    // print_ascii_tree(tdTree->children);
+    // printf("\n");
+    outputCompressedJSON(output_td_tree_file, tdTree);
+
+    free(buTreeArray);
+    free(tdTreeArray);
+
+
 
 
     free(splayArray);
