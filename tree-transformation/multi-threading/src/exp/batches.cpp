@@ -67,11 +67,20 @@ void traversalBatch(
 
 
 /* --------------------- Transform Without Mem. Alloc. ---------------------- */
+	// for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
+	// {
+	// 	initNode(tmp);
+	// }
+	// timeTransformNoMalloc(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
+/* -------------------------------------------------------------------------- */
+
+
+/* -------------- Transform Without Mem. Alloc. and No Locking -------------- */
 	for (i=0, tmp=buNodeArray; i<buTreeSize; i++, tmp++)
 	{
 		initNode(tmp);
 	}
-	timeTransformNoMalloc(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
+	timeTransformNoMalloc2(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
 /* -------------------------------------------------------------------------- */
 
 

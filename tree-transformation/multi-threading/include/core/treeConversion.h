@@ -39,7 +39,7 @@
 /* tree conversion functions */
 extern node * td2buTransformMain(node *tdRoot);
 extern node * td2buTransformContMain(node *tdRoot, node *nodeArray);
-// extern node * td2buTransformCont2(node *inputArray, int inputSize, node *outputArray);
+extern node * td2buTransformContMain2(node *tdRoot, node *nodeArray);
 
 /* unit tests */
 extern void treeConvUnitTest(const char tree_input_file[]);

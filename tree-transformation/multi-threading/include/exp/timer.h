@@ -42,6 +42,11 @@ extern TimeInfo timeTransformNoMalloc(
 	bool printResults, bool verbose, 
 	const char treeType[], const char direction[]
 );
+extern TimeInfo timeTransformNoMalloc2(
+	node * root, node *outputArray,
+	bool printResults, bool verbose, 
+	const char treeType[], const char direction[]
+);
 // extern TimeInfo timeTransformCont(
 // 	node *inputArray, int inputSize, node *outputArray,
 // 	bool printResults, bool verbose, 

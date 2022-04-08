@@ -180,6 +180,44 @@ TimeInfo timeTransformNoMalloc(
 /* -------------------------------------------------------------------------- */
 
 
+/* --------------------- Transform Without Mem. Alloc. ---------------------- */
+
+TimeInfo timeTransformNoMalloc2(
+	node * root, node *outputArray,
+	bool printResults, bool verbose, 
+	const char treeType[], const char direction[]
+)
+{
+	TimeInfo timeInfo = {0};
+
+	clock_t tic, toc;
+	struct timeval startTime, endTime;
+
+	gettimeofday(&startTime, NULL);
+	tic = clock();
+	td2buTransformContMain2(root, outputArray);
+	toc = clock();
+	gettimeofday(&endTime, NULL);
+
+	timeInfo.samples 		= 1;
+	timeInfo.cycles			= toc - tic;
+	timeInfo.seconds		= (double) (toc - tic) / CLOCKS_PER_SEC;
+	timeInfo.wallTime		= wallTimeDiff(startTime, endTime);
+	timeInfo.avgCycles		= (double) timeInfo.cycles / timeInfo.samples;
+	timeInfo.avgSeconds		= timeInfo.seconds / timeInfo.samples;
+	timeInfo.avgWallTime	= timeInfo.wallTime / timeInfo.samples;
+
+	if (printResults)
+	{
+		printExpResults(timeInfo, treeType, "transform-no-malloc-2", direction, verbose);
+	}
+
+	return timeInfo;
+}
+
+/* -------------------------------------------------------------------------- */
+
+
 // /* ------------------ Cont. Transform Without Mem. Alloc. ------------------- */
 
 // TimeInfo timeTransformCont(
