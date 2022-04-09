@@ -25,9 +25,15 @@ emcc -v
 ```
 ## 2. compile and run example
 ```
-make comp
+make comp_emcc_simd
+make run_emcc
 ```
-execute python local server and open html in browser.
+or execute python local server and open html in browser.
+
+```
+make comp_cc
+make run_cc
+```
 
 ## 3. result
 to be done.<br> 
@@ -39,4 +45,7 @@ to be done.<br>
 ## 4. TBD
 1. Currently I can not run code with big data base. <br>
     I can successfully compiled but it failed while executing using node command or using browser. they all throw exceptions due to memory allocation limit.<br>
-2. simd did not speed up, even getting worse.
+```
+foo.js:1 Cannot enlarge memory, asked to go up to 2147487744 bytes, but the limit is 2147483648 bytes!
+```
+2. simd only speed up a little bit, sometime even getting worse.

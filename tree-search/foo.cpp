@@ -11,13 +11,17 @@
 // =====================================================================================
 
 // -------------------------------------------------
+// #define SIMD // or you can use -DSIMD during em++/g++ compile
+// -------------------------------------------------
 // include header
+#ifdef SIMD
+#include <wasm_simd128.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-
-#include <wasm_simd128.h>
 #include <chrono>
 #include "json.hpp"
 #include <unordered_map>
@@ -31,9 +35,6 @@ using namespace std;
 
 #include "foo.h"
 // -------------------------------------------------
-
-
-
 void printFindArray( vector<node* >FindArray, int find ){
     if(find==0) return;
 
@@ -211,6 +212,7 @@ int searchTree(node* root, vector<node* > &FindArray, TYPE* search_key){
 
     return find;
 };
+#ifdef SIMD
 
 int searchTree_SIMD8(node* root, vector<node* > &FindArray, TYPE* search_key){
     int find = 0;
@@ -300,6 +302,7 @@ int searchTree_SIMD8(node* root, vector<node* > &FindArray, TYPE* search_key){
 
     return find;
 };
+#endif
 
 int main()
 {
@@ -357,8 +360,8 @@ int main()
         end1 = clock_::now();
         duration1= ((double) duration_cast<ms>( end1 - start1 ).count() );// / CLOCKS_PER_SEC;
         cpu_time_used_1 += duration1;
-        cout << "Duration of original search: (ms)"<<duration1 << endl;
-        cout<<"find "<<find1<<" elements in original search"<<endl;
+        cout << "Duration of binary search: (ms)"<<duration1 << endl;
+        cout<<"find "<<find1<<" elements in binary search"<<endl;
 
         // if ( golden_find == find1 ){
         //     cout<<"PASS"<<endl;
@@ -372,8 +375,8 @@ int main()
         end3 = clock_::now();
         duration3= ((double) duration_cast<ms>( end3 - start3 ).count() );// / CLOCKS_PER_SEC;
         cpu_time_used_3 += duration3;
-        cout << "Duration of original search: (ms)"<<duration3 << endl;
-        cout<<"find "<<find3<<" elements in original search"<<endl;
+        cout << "Duration of same level child search: (ms)"<<duration3 << endl;
+        cout<<"find "<<find3<<" elements in same level child search"<<endl;
         // printFindArray(FindArray_test, find1);
 
         // if ( golden_find == find2 ){
@@ -385,7 +388,7 @@ int main()
         //     printFindArray(FindArray_test, find2);
         //     exit(0);
         // }
-
+#ifdef SIMD
         start2 = clock_::now();
         find2 = searchTree_SIMD8(virtual_root, FindArray_simd, search_key_arr);
         end2 = clock_::now();
@@ -404,10 +407,12 @@ int main()
             printFindArray(FindArray_simd, find2);
             exit(0);
         }
+#endif
     }
     cout << "avg Duration of original search: (ms)"<<cpu_time_used_1/repeat_times << endl;
-    cout << "avg Duration of SIMD8 search: (ms)"<<cpu_time_used_2/repeat_times << endl;
     cout << "avg Duration of serial slow search: (ms)"<<cpu_time_used_3/repeat_times << endl;
-
+#ifdef SIMD
+    cout << "avg Duration of SIMD8 search: (ms)"<<cpu_time_used_2/repeat_times << endl;
+#endif
     return 0;
 }

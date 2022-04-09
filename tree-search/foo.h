@@ -6,7 +6,7 @@
 #define small_tree ".data/small_tree.json"
 #define big_tree ".data/big_tree.json"
 
-#define dataset big_tree
+#define dataset small_tree
 
 
 // uint32_t getTreeKeys(nlohmann::json jsonObject);
