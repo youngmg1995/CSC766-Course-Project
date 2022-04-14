@@ -26,7 +26,7 @@ comp_cc:
 	$(CC) $(OPT) foo.cpp -o foo.out
 
 run_emcc: 
-	node --experimental-wasm-simd --experimental-wasm-threads --experimental-wasm-modules --experimental-wasm-bulk-memory --wasm-simd-post-mvp foo.js
+	node --experimental-wasm-simd --experimental-wasm-modules --experimental-wasm-bulk-memory --wasm-simd-post-mvp foo.js
 
 run_cc:
 	./foo.out

@@ -45,7 +45,7 @@ void printFindArray( vector<node* >FindArray, int find ){
 }
 int get_golden_find( node* n, int size, TYPE search_key ){
     int find_ans=0;
-    cout<<search_key<<endl;
+    // cout<<search_key<<endl;
     for(int i=0;i<size;i++, n++ ) {
         if( n->key == search_key ){ find_ans++;} 
     }
@@ -302,15 +302,43 @@ int searchTree_SIMD8(node* root, vector<node* > &FindArray, TYPE* search_key){
 
     return find;
 };
+int searchTree_SIMD4(node* root, vector<node* > &FindArray, TYPE* search_key){
+    int find = 0;
+    // int k=0;
+
+    if(root->child_num == 0) return 0;
+
+    for( int i=0; i< root->child_num; i+=4 ){
+        
+        v128_t a = wasm_v128_load(&root->childs_keys[i+0]);
+        v128_t b = wasm_v128_load(&search_key[0]);
+
+        v128_t cmp = wasm_i16x8_eq(a, b);
+        uint16_t mask = wasm_i16x8_bitmask(cmp);
+        // uint16_t mask = wasm_i32x4_bitmask(cmp);
+        
+        if( (mask & (1)) ){ FindArray.push_back(root->childs[i+0]); find++; }
+        if( (mask & (2)) ){ FindArray.push_back(root->childs[i+1]); find++; }
+        if( (mask & (4)) ){ FindArray.push_back(root->childs[i+2]); find++; }
+        if( (mask & (8)) ){ FindArray.push_back(root->childs[i+3]); find++; }
+
+    }
+        
+    for(int i=0;i<root->child_num;i++)
+        find += searchTree_SIMD8(root->childs[i], FindArray, search_key );
+
+    return find;
+};
+
 #endif
 
 int main()
 {
     srand(time(0));
-    timepoint_ start1,start2,end1,end2,start3,end3;
+    timepoint_ start1,start2,end1,end2,start3,end3,start4,end4;
 
-    double duration1, duration2, duration3, cpu_time_used_3, cpu_time_used_1 ,cpu_time_used_2;
-    cpu_time_used_3 = cpu_time_used_1 = cpu_time_used_2 =0;
+    double duration1, duration2, duration3,duration4, cpu_time_used_4,cpu_time_used_3, cpu_time_used_1 ,cpu_time_used_2;
+    cpu_time_used_4 = cpu_time_used_3 = cpu_time_used_1 = cpu_time_used_2 =0;
     // const int capacity = 1000000;
     //node arr[capacity];
     node *arr = NULL;
@@ -318,7 +346,7 @@ int main()
     vector<node*> FindArray_ans;
     vector<node*> FindArray_test;
     vector<node*> FindArray_simd;
-    int find1, find2 ,find3, golden_find=0;
+    int find1, find2 ,find3,find4, golden_find=0;
     int arr_size=0;
     // std::unordered_map<std::string, int> keyMap;
     // int treeSize = loadJSON(tree_input_file, keyMap, &splayArray, &root);
@@ -340,7 +368,23 @@ int main()
     TYPE search_key;
     TYPE* search_key_arr;
     search_key_arr = (TYPE*)malloc(32*sizeof(TYPE));
+//     find1 = originalSearchTree(virtual_root, FindArray_ans, 0 );
+//     find3 = searchTree(virtual_root, FindArray_test,search_key_arr);
     find1 = originalSearchTree(virtual_root, FindArray_ans, 0 );
+#ifdef SIMD
+    find2 = searchTree_SIMD8(virtual_root, FindArray_simd, search_key_arr);
+    find4 = searchTree_SIMD4(virtual_root, FindArray_simd, search_key_arr);
+#endif
+    find1 = originalSearchTree(virtual_root, FindArray_ans, 0 );
+#ifdef SIMD
+    find2 = searchTree_SIMD8(virtual_root, FindArray_simd, search_key_arr);
+    find4 = searchTree_SIMD4(virtual_root, FindArray_simd, search_key_arr);
+#endif
+    find1 = originalSearchTree(virtual_root, FindArray_ans, 0 );
+#ifdef SIMD
+    find2 = searchTree_SIMD8(virtual_root, FindArray_simd, search_key_arr);
+    find4 = searchTree_SIMD4(virtual_root, FindArray_simd, search_key_arr);
+#endif
 
     int repeat_times = 2;
     for(int k=0;k<repeat_times;k++)
@@ -359,7 +403,7 @@ int main()
         find1 = originalSearchTree(virtual_root, FindArray_ans,search_key);
         end1 = clock_::now();
         duration1= ((double) duration_cast<ms>( end1 - start1 ).count() );// / CLOCKS_PER_SEC;
-        cpu_time_used_1 += duration1;
+        cpu_time_used_1 += duration1/repeat_times;
         cout << "Duration of binary search: (ms)"<<duration1 << endl;
         cout<<"find "<<find1<<" elements in binary search"<<endl;
 
@@ -370,14 +414,14 @@ int main()
         //     cout<<"FAIL in original test "<<endl;
         // }
 
-        start3 = clock_::now();
-        find3 = searchTree(virtual_root, FindArray_test,search_key_arr);
-        end3 = clock_::now();
-        duration3= ((double) duration_cast<ms>( end3 - start3 ).count() );// / CLOCKS_PER_SEC;
-        cpu_time_used_3 += duration3;
-        cout << "Duration of same level child search: (ms)"<<duration3 << endl;
-        cout<<"find "<<find3<<" elements in same level child search"<<endl;
-        // printFindArray(FindArray_test, find1);
+        // start3 = clock_::now();
+        // find3 = searchTree(virtual_root, FindArray_test,search_key_arr);
+        // end3 = clock_::now();
+        // duration3= ((double) duration_cast<ms>( end3 - start3 ).count() );// / CLOCKS_PER_SEC;
+        // cpu_time_used_3 += duration3/repeat_times;
+        // cout << "Duration of same level child search: (ms)"<<duration3 << endl;
+        // cout<<"find "<<find3<<" elements in same level child search"<<endl;
+        // // printFindArray(FindArray_test, find1);
 
         // if ( golden_find == find2 ){
         //     cout<<"PASS"<<endl;
@@ -393,7 +437,7 @@ int main()
         find2 = searchTree_SIMD8(virtual_root, FindArray_simd, search_key_arr);
         end2 = clock_::now();
         duration2 = ((double) duration_cast<ms>( end2 - start2 ).count() );// / CLOCKS_PER_SEC;
-        cpu_time_used_2 += duration2;
+        cpu_time_used_2 += duration2/repeat_times;
         cout << "Duration of SIMD8 search: (ms)"<<duration2 << endl;
         cout<<"find "<<find2<<" elements in SIMD8 search"<<endl;
         // printFindArray(FindArray_simd, find2);
@@ -407,12 +451,32 @@ int main()
             printFindArray(FindArray_simd, find2);
             exit(0);
         }
+
+        start4 = clock_::now();
+        find4 = searchTree_SIMD4(virtual_root, FindArray_simd, search_key_arr);
+        end4 = clock_::now();
+        duration4 = ((double) duration_cast<ms>( end4 - start4 ).count() );// / CLOCKS_PER_SEC;
+        cpu_time_used_4 += duration4/repeat_times;
+        cout << "Duration of SIMD4 search: (ms)"<<duration4 << endl;
+        cout<<"find "<<find4<<" elements in SIMD4 search"<<endl;
+        // printFindArray(FindArray_simd, find2);
+
+        if (  golden_find == find4 ){
+            cout<<"PASS"<<endl;
+        }else {
+            
+            cout<<"FAIL in simd test "<<endl;
+            printFindArray(FindArray_ans, find1);
+            printFindArray(FindArray_simd, find4);
+            exit(0);
+        }
 #endif
     }
-    cout << "avg Duration of original search: (ms)"<<cpu_time_used_1/repeat_times << endl;
-    cout << "avg Duration of serial slow search: (ms)"<<cpu_time_used_3/repeat_times << endl;
+    cout << "avg Duration of original search: (ms)"<<cpu_time_used_1 << endl;
+    // cout << "avg Duration of serial slow search: (ms)"<<cpu_time_used_3 << endl;
 #ifdef SIMD
-    cout << "avg Duration of SIMD8 search: (ms)"<<cpu_time_used_2/repeat_times << endl;
+    cout << "avg Duration of SIMD8 search: (ms)"<<cpu_time_used_2 << endl;
+    cout << "avg Duration of SIMD4 search: (ms)"<<cpu_time_used_4 << endl;
 #endif
     return 0;
 }
