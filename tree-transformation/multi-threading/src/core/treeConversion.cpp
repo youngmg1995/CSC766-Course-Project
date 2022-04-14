@@ -144,10 +144,15 @@ node * td2buTransformMain(node *tdRoot)
         struct td2buTransfArgs threadArgs[NUM_THREADS];
         int tid;
 
+        node *mainRoot, *threadRoots[NUM_THREADS], *threadRoot;
+        mainRoot = newNode(0);
+
         // printf("Creating Threads\n");
 
         for (tid=0; tid<NUM_THREADS; tid++)
         {
+            threadRoots[tid] = NULL;
+
             threadArgs[tid].tid = tid;
             threadArgs[tid].tdRoot = tdRoot;
             if (pthread_create(&(threads[tid]), NULL, &td2buTransformMT, (void *) &(threadArgs[tid])) != 0)
@@ -155,9 +160,6 @@ node * td2buTransformMain(node *tdRoot)
                 perror("Failed to create the thread");
             }
         }
-
-        node *mainRoot, *threadRoots[NUM_THREADS], *threadRoot;
-        mainRoot = newNode(0);
 
         // printf("Joining Threads\n");
         
@@ -175,20 +177,23 @@ node * td2buTransformMain(node *tdRoot)
         {
             threadRoot = threadRoots[tid];
 
-            if (threadRoot->children == NULL)
+            if (threadRoot != NULL)
             {
-                free(threadRoot);
-            }
-            else if (mainRoot->children == NULL)
-            {
-                free(mainRoot);
-                mainRoot = threadRoot;
-            }
-            else
-            {
-                mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
-                threadRoot->children = NULL;
-                freeTree(threadRoot);
+                if (threadRoot->children == NULL)
+                {
+                    free(threadRoot);
+                }
+                else if (mainRoot->children == NULL)
+                {
+                    free(mainRoot);
+                    mainRoot = threadRoot;
+                }
+                else
+                {
+                    mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
+                    threadRoot->children = NULL;
+                    freeTree(threadRoot);
+                }
             }
         }
 
@@ -324,6 +329,8 @@ node * td2buTransformContMain(node *tdRoot, node *nodeArray)
 
         for (tid=0; tid<NUM_THREADS; tid++)
         {
+            threadRoots[tid] = NULL;
+
             threadArgs[tid].tid = tid;
             threadArgs[tid].tdRoot = tdRoot;
             threadArgs[tid].arrayMutex = &arrayMutex;
@@ -350,20 +357,23 @@ node * td2buTransformContMain(node *tdRoot, node *nodeArray)
         {
             threadRoot = threadRoots[tid];
 
-            if (threadRoot->children == NULL)
+            if (threadRoot != NULL)
             {
-                threadRoot->key = -1;
-            }
-            else if (mainRoot->children == NULL)
-            {
-                mainRoot->key = -1;
-                mainRoot = threadRoot;
-            }
-            else
-            {
-                mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
-                threadRoot->children = NULL;
-                threadRoot->key = -1;
+                if (threadRoot->children == NULL)
+                {
+                    threadRoot->key = -1;
+                }
+                else if (mainRoot->children == NULL)
+                {
+                    mainRoot->key = -1;
+                    mainRoot = threadRoot;
+                }
+                else
+                {
+                    mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
+                    threadRoot->children = NULL;
+                    threadRoot->key = -1;
+                }
             }
         }
 
@@ -445,6 +455,8 @@ node * td2buTransformContMain2(node *tdRoot, node **nodeArrays)
 
         for (tid=0; tid<NUM_THREADS; tid++)
         {
+            threadRoots[tid] = NULL;
+
             threadArgs[tid].tid = tid;
             threadArgs[tid].tdRoot = tdRoot;
             threadArgs[tid].nodeArray = nodeArrays[tid];
@@ -470,20 +482,23 @@ node * td2buTransformContMain2(node *tdRoot, node **nodeArrays)
         {
             threadRoot = threadRoots[tid];
 
-            if (threadRoot->children == NULL)
+            if (threadRoot != NULL)
             {
-                threadRoot->key = -1;
-            }
-            else if (mainRoot->children == NULL)
-            {
-                mainRoot->key = -1;
-                mainRoot = threadRoot;
-            }
-            else
-            {
-                mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
-                threadRoot->children = NULL;
-                threadRoot->key = -1;
+                if (threadRoot->children == NULL)
+                {
+                    threadRoot->key = -1;
+                }
+                else if (mainRoot->children == NULL)
+                {
+                    mainRoot->key = -1;
+                    mainRoot = threadRoot;
+                }
+                else
+                {
+                    mainRoot->children = mergeTrees(mainRoot->children, threadRoot->children);
+                    threadRoot->children = NULL;
+                    threadRoot->key = -1;
+                }
             }
         }
 
@@ -761,6 +776,49 @@ void treeConvUnitTest(const char compressed_tree_input_file[])
 
     free(buTreeArray);
     free(tdTreeArray);
+
+
+
+
+
+    // node **buNodeArrays = (node **) malloc((NUM_THREADS+1) * sizeof(node *));
+    // node **passedPointer = (node **) malloc((NUM_THREADS+1) * sizeof(node *));
+    // int j;
+    // for (j=0; j<(NUM_THREADS+1); j++)
+    // {
+    //     buNodeArrays[j] = (node *) malloc(threadLoads[j] * sizeof(node));
+    //     passedPointer[j] = buNodeArrays[j];
+    //     for (i=0, tmp=buNodeArrays[j]; i<threadLoads[j]; i++, tmp++)
+    //     {
+    //         initNode(tmp);
+    //     }
+    // }
+
+    // printf("\n");
+    // printf("Converted Bottum-Up Tree Info (Method: No-Malloc-2)\n");
+    // printf("------------------------------\n");
+    // buTree = td2buTransformContMain2(original, passedPointer);
+    // buTreeSize = getTreeSize(buTree);
+    // printf("Tree Size: %d\n", buTreeSize);
+    // // printf("Root Children\n");
+    // // print_ascii_tree(buTree->children);
+    // // printf("\n");
+    // outputCompressedJSON(output_bu_tree_file, buTree);
+
+    // for (j=0; j<(NUM_THREADS+1); j++) { free(buNodeArrays[j]); }
+    // free(buNodeArrays);
+
+
+    // printf("\n");
+    // printf("Re-Converted Top-Down Tree Info No-Malloc\n");
+    // printf("-----------------------------------------\n");
+    // tdTree = td2buTransformContMain(buTree, tdTreeArray);
+    // tdTreeSize = getTreeSize(tdTree);
+    // printf("Tree Size: %d\n", tdTreeSize);
+    // // printf("Root Children\n");
+    // // print_ascii_tree(tdTree->children);
+    // // printf("\n");
+    // outputCompressedJSON(output_td_tree_file, tdTree);
 
 
 
