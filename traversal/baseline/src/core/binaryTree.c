@@ -201,7 +201,7 @@ void searchKey(Tree *t)
 
 void sleepNode(Tree *t)
 {
-	usleep(2000);
+	usleep(10);
 }
 
 

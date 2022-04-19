@@ -74,12 +74,12 @@ void traversalBatch(
 		initNode(tmp);
 	}
 	timeTransformNoMalloc(original, buNodeArray, true, false, treeType, "td-2-bu-cont");
-	printf("Thread Loads: ");
-	for (i=0; i<NUM_THREADS+1; i++)
-	{
-		printf("%d ", threadLoads[i]);
-	}
-	printf("\n");
+	// printf("Thread Loads: ");
+	// for (i=0; i<NUM_THREADS+1; i++)
+	// {
+	// 	printf("%d ", threadLoads[i]);
+	// }
+	// printf("\n");
 /* -------------------------------------------------------------------------- */
 
 
@@ -126,7 +126,7 @@ void traversalBatch(
 
 
 	free(splayArray);
-	// free(buNodeArray);
+	free(buNodeArray);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -132,7 +132,7 @@ void * td2buTransformMT(void *args)
 
 node * td2buTransformMain(node *tdRoot)
 {
-    if (NUM_THREADS <= 1)
+    if (NUM_THREADS <= 0)
     {
         node *mainRoot = newNode(0);
         td2buRecursive(tdRoot, mainRoot);
@@ -304,7 +304,7 @@ void * td2buTransformContMT(void *args)
 
 node * td2buTransformContMain(node *tdRoot, node *nodeArray)
 {
-    if (NUM_THREADS <= 1)
+    if (NUM_THREADS <= 0)
     {
         node *mainRoot = nodeArray++;
         mainRoot->key = 0;
@@ -434,7 +434,7 @@ void * td2buTransformContMT2(void *args)
 
 node * td2buTransformContMain2(node *tdRoot, node **nodeArrays)
 {
-    if (NUM_THREADS <= 1)
+    if (NUM_THREADS <= 0)
     {
         node *mainRoot = (nodeArrays[0])++;
         mainRoot->key = 0;

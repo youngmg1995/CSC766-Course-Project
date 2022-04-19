@@ -60,24 +60,24 @@ void traversalBatchMT(
 	TraversalFuncMTWrapper postOrderTraversalMT = &postOrderMTWrapper;
 
 
-	/* ---------------------------------------------------------------------- */
-	/* --------------------- Random Tree with Callback ---------------------- */
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
+	// /* --------------------- Random Tree with Callback ---------------------- */
+	// /* ---------------------------------------------------------------------- */
 
-	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
+	// treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
 
-	timeTraversalMT(
-		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose,
-		"random", "fragmented", "pre-order", callbackName
-	);
-	timeTraversalMT(
-		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose, 
-		"random", "fragmented", "post-order", callbackName
-	);
+	// timeTraversalMT(
+	// 	treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose,
+	// 	"random", "fragmented", "pre-order", callbackName
+	// );
+	// timeTraversalMT(
+	// 	treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose, 
+	// 	"random", "fragmented", "post-order", callbackName
+	// );
 
-	make_empty(treeInfo.root);
+	// make_empty(treeInfo.root);
 
 	/* ---------------------------------------------------------------------- */
 	/* ---------------- Contiguous Random Tree with Callback ---------------- */
@@ -85,54 +85,54 @@ void traversalBatchMT(
 
 	treeInfo = genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, N, false);
 
-	timeTraversalMT(
-		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose, 
-		"random", "contiguous", "pre-order", callbackName
-	);
+	// timeTraversalMT(
+	// 	treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose, 
+	// 	"random", "contiguous", "pre-order", callbackName
+	// );
 	timeTraversalMT(
 		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
 		samples, printResults, verbose, 
 		"random", "contiguous", "post-order", callbackName
 	);
 
-	/* ---------------------------------------------------------------------- */
-	/* -------------------- Balanced Tree with Callback --------------------- */
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
+	// /* -------------------- Balanced Tree with Callback --------------------- */
+	// /* ---------------------------------------------------------------------- */
 
-	treeInfo = genBalancedTreeOptimized(invTable, itNodeArray, depth, false);
+	// treeInfo = genBalancedTreeOptimized(invTable, itNodeArray, depth, false);
 
-	timeTraversalMT(
-		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose, 
-		"balanced", "fragmented", "pre-order", callbackName
-	);
-	timeTraversalMT(
-		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose, 
-		"balanced", "fragmented", "post-order", callbackName
-	);
+	// timeTraversalMT(
+	// 	treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose, 
+	// 	"balanced", "fragmented", "pre-order", callbackName
+	// );
+	// timeTraversalMT(
+	// 	treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose, 
+	// 	"balanced", "fragmented", "post-order", callbackName
+	// );
 
-	make_empty(treeInfo.root);
+	// make_empty(treeInfo.root);
 
-	/* ---------------------------------------------------------------------- */
-	/* --------------- Contiguous Balanced Tree with Callback --------------- */
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
+	// /* --------------- Contiguous Balanced Tree with Callback --------------- */
+	// /* ---------------------------------------------------------------------- */
 
-	treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false);
+	// treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false);
 
-	timeTraversalMT(
-		treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose, 
-		"balanced", "contiguous", "pre-order", callbackName
-	);
-	timeTraversalMT(
-		treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
-		samples, printResults, verbose, 
-		"balanced", "contiguous", "post-order", callbackName
-	);
+	// timeTraversalMT(
+	// 	treeInfo, preOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "pre-order", callbackName
+	// );
+	// timeTraversalMT(
+	// 	treeInfo, postOrderTraversalMT, callback, threadPool, startArgs,
+	// 	samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "post-order", callbackName
+	// );
 
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
 
 	free(invTable);
 	free(btNodeArray);

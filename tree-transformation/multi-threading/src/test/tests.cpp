@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 	
 	printUnitTestMsg(&testNum, "Validate Tree Conversion");
-	treeConvUnitTest(small_tree_file_compressed);
+	treeConvUnitTest(big_tree_file_compressed);
 
 	/* ---------------------------------------------------------------------- */
 

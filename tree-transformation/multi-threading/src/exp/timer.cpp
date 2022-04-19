@@ -46,9 +46,17 @@ void printExpResults(
 	}
 	else
 	{
+		// fprintf(
+		// 	stdout, "%s,%s,%s,%d,%ld,%f,%f,%f,%f,%f\n",
+		// 	treeType, experType, direction, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime,  timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
+		// );
+		// fprintf(
+		// 	stdout, "%d,%f\n",
+		// 	treeInfo.size, timeInfo.avgWallTime
+		// );
 		fprintf(
-			stdout, "%s,%s,%s,%d,%ld,%f,%f,%f,%f,%f\n",
-			treeType, experType, direction, timeInfo.samples, timeInfo.cycles, timeInfo.seconds, timeInfo.wallTime,  timeInfo.avgCycles, timeInfo.avgSeconds, timeInfo.avgWallTime
+			stdout, "%f\n",
+			timeInfo.avgWallTime
 		);
 	}
 }

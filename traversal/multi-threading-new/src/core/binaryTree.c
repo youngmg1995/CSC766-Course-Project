@@ -207,7 +207,7 @@ void searchKey(Tree *t)
 
 void sleepNode(Tree *t)
 {
-	usleep(200);
+	usleep(10);
 }
 
 void randArray(Tree *t)

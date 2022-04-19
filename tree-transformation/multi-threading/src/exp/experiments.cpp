@@ -42,11 +42,11 @@ int main(int argc, char *argv[])
 
 	/* ---------------------------------------------------------------------- */
 
-	traversalBatch(
-		tiny_tree_file_compressed, "tiny", 
-		TINY_TREE_SIZE_BU, TINY_TREE_SIZE_TD,
-		printResults, verbose
-	);
+	// traversalBatch(
+	// 	tiny_tree_file_compressed, "tiny", 
+	// 	TINY_TREE_SIZE_BU, TINY_TREE_SIZE_TD,
+	// 	printResults, verbose
+	// );
 	// traversalBatch2(
 	// 	tiny_tree_file_compressed, "tiny", 
 	// 	TINY_TREE_SIZE_BU, TINY_TREE_SIZE_TD,
@@ -78,11 +78,11 @@ int main(int argc, char *argv[])
 
 	/* ---------------------------------------------------------------------- */
 
-	traversalBatch(
-		big_tree_file_compressed, "big", 
-		BIG_TREE_SIZE_BU, BIG_TREE_SIZE_TD,
-		printResults, verbose
-	);
+	// traversalBatch(
+	// 	big_tree_file_compressed, "big", 
+	// 	BIG_TREE_SIZE_BU, BIG_TREE_SIZE_TD,
+	// 	printResults, verbose
+	// );
 	// traversalBatch2(
 	// 	big_tree_file_compressed, "big", 
 	// 	BIG_TREE_SIZE_BU, BIG_TREE_SIZE_TD,

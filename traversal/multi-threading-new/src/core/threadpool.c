@@ -237,14 +237,14 @@ void joinThreadPool(ThreadPool *threadPool)
         }
     }
 
-    // edit this if you remove main thread from threadPool
-    for (i=0, t=threadPool->threads; i<threadPool->size+1; i++, t++)
-    {
-        printf(
-            "Thread: %d , Tasks: %d , Callbacks: %d\n", 
-            t->threadID, t->totalTasks, t->totalCallbacks
-        );
-    }
+    // // edit this if you remove main thread from threadPool
+    // for (i=0, t=threadPool->threads; i<threadPool->size+1; i++, t++)
+    // {
+    //     printf(
+    //         "Thread: %d , Tasks: %d , Callbacks: %d\n", 
+    //         t->threadID, t->totalTasks, t->totalCallbacks
+    //     );
+    // }
 }
 
 

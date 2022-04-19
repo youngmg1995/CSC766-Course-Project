@@ -73,8 +73,8 @@ EXP_INC			:= -I$(INC_DIR)/$(EXP_DIR) $(CORE_INC)
 GCC_CFLAGS		:= -O3 -Wall -Werror -std=c++20 -pthread
 GCC_LFLAGS		:= -O3 -lm -std=c++20 -pthread -lpthread
 
-EMCC_CFLAGS		:= -fsanitize=undefined -O3 -Wall -std=c++20 -pthread
-EMCC_LFLAGS 	:= -fsanitize=undefined -O3 -lm -std=c++20 -pthread -lpthread -s ASSERTIONS=1 -s PROXY_TO_PTHREAD -s PTHREAD_POOL_SIZE=9 -s INITIAL_MEMORY=4294901760 --preload-file .data/
+EMCC_CFLAGS		:= -O3 -Wall -std=c++20 -pthread
+EMCC_LFLAGS 	:= -O3 -lm -std=c++20 -pthread -lpthread -s ASSERTIONS=1 -s PROXY_TO_PTHREAD -s PTHREAD_POOL_SIZE=17 -s INITIAL_MEMORY=4294901760 --preload-file .data/
 NO_WASM_LFLAG 	:= -s WASM=0
 
 # EMCC_CFLAGS		:= -O3 -Wall  -pthread -s PROXY_TO_PTHREAD -s PTHREAD_POOL_SIZE=8

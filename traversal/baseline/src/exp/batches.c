@@ -62,26 +62,26 @@ void traversalBatch(int depth, int samples, bool printResults, bool verbose)
 	/* ---------------------------- Random Tree ----------------------------- */
 	/* ---------------------------------------------------------------------- */
 
-	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
+	// treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
 
-	timeTraversal(
-		treeInfo, preOrderTraversal, samples, printResults, verbose, 
-		"random", "fragmented", "pre-order", "NULL"
-	);
-	timeTraversal(
-		treeInfo, inOrderTraversal, samples, printResults, verbose, 
-		"random", "fragmented", "in-order", "NULL"
-	);
-	timeTraversal(
-		treeInfo, postOrderTraversal, samples, printResults, verbose, 
-		"random", "fragmented", "post-order", "NULL"
-	);
-	timeTraversalLevel(
-		treeInfo, treeQueue, levelOrderTraversal, samples, printResults, verbose, 
-		"random", "fragmented", "level-order", "NULL"
-	);
+	// timeTraversal(
+	// 	treeInfo, preOrderTraversal, samples, printResults, verbose, 
+	// 	"random", "fragmented", "pre-order", "NULL"
+	// );
+	// timeTraversal(
+	// 	treeInfo, inOrderTraversal, samples, printResults, verbose, 
+	// 	"random", "fragmented", "in-order", "NULL"
+	// );
+	// timeTraversal(
+	// 	treeInfo, postOrderTraversal, samples, printResults, verbose, 
+	// 	"random", "fragmented", "post-order", "NULL"
+	// );
+	// timeTraversalLevel(
+	// 	treeInfo, treeQueue, levelOrderTraversal, samples, printResults, verbose, 
+	// 	"random", "fragmented", "level-order", "NULL"
+	// );
 
-	make_empty(treeInfo.root);
+	// make_empty(treeInfo.root);
 
 	/* ---------------------------------------------------------------------- */
 	/* ----------------------- Contiguous Random Tree ----------------------- */
@@ -202,26 +202,26 @@ void traversalBatchCB(
 	/* --------------------- Random Tree with Callback ---------------------- */
 	/* ---------------------------------------------------------------------- */
 
-	treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
+	// treeInfo = genRandomTreeOptimized(invTable, itNodeArray, N, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "fragmented", "pre-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "fragmented", "in-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "fragmented", "post-order", callbackName
-	);
-	timeTraversalLevelCB(
-		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "fragmented", "level-order", callbackName
-	);
+	// timeTraversalCB(
+	// 	treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "fragmented", "pre-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "fragmented", "in-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "fragmented", "post-order", callbackName
+	// );
+	// timeTraversalLevelCB(
+	// 	treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "fragmented", "level-order", callbackName
+	// );
 
-	make_empty(treeInfo.root);
+	// make_empty(treeInfo.root);
 
 	/* ---------------------------------------------------------------------- */
 	/* ---------------- Contiguous Random Tree with Callback ---------------- */
@@ -229,80 +229,80 @@ void traversalBatchCB(
 
 	treeInfo = genContRandomTreeOptimized(invTable, btNodeArray, itNodeArray, N, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "contiguous", "pre-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "contiguous", "in-order", callbackName
-	);
+	// timeTraversalCB(
+	// 	treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "contiguous", "pre-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "contiguous", "in-order", callbackName
+	// );
 	timeTraversalCB(
 		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
 		"random", "contiguous", "post-order", callbackName
 	);
-	timeTraversalLevelCB(
-		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "contiguous", "level-order", callbackName
-	);
-	timeTraversalContCB(
-		treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 
-		"random", "contiguous", "contiguous-order", callbackName
-	);
+	// timeTraversalLevelCB(
+	// 	treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "contiguous", "level-order", callbackName
+	// );
+	// timeTraversalContCB(
+	// 	treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"random", "contiguous", "contiguous-order", callbackName
+	// );
 
-	/* ---------------------------------------------------------------------- */
-	/* -------------------- Balanced Tree with Callback --------------------- */
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
+	// /* -------------------- Balanced Tree with Callback --------------------- */
+	// /* ---------------------------------------------------------------------- */
 
-	treeInfo = genBalancedTreeOptimized(invTable, itNodeArray, depth, false);
+	// treeInfo = genBalancedTreeOptimized(invTable, itNodeArray, depth, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "fragmented", "pre-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "fragmented", "in-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "fragmented", "post-order", callbackName
-	);
-	timeTraversalLevelCB(
-		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "fragmented", "level-order", callbackName
-	);
+	// timeTraversalCB(
+	// 	treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "fragmented", "pre-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "fragmented", "in-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "fragmented", "post-order", callbackName
+	// );
+	// timeTraversalLevelCB(
+	// 	treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "fragmented", "level-order", callbackName
+	// );
 
-	make_empty(treeInfo.root);
+	// make_empty(treeInfo.root);
 
-	/* ---------------------------------------------------------------------- */
-	/* --------------- Contiguous Balanced Tree with Callback --------------- */
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
+	// /* --------------- Contiguous Balanced Tree with Callback --------------- */
+	// /* ---------------------------------------------------------------------- */
 
-	treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false);
+	// treeInfo = genContBalancedTreeOptimized(invTable, btNodeArray, itNodeArray, depth, false);
 
-	timeTraversalCB(
-		treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "contiguous", "pre-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "contiguous", "in-order", callbackName
-	);
-	timeTraversalCB(
-		treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "contiguous", "post-order", callbackName
-	);
-	timeTraversalLevelCB(
-		treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "contiguous", "level-order", callbackName
-	);
-	timeTraversalContCB(
-		treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 
-		"balanced", "contiguous", "contiguous-order", callbackName
-	);
+	// timeTraversalCB(
+	// 	treeInfo, preOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "pre-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, inOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "in-order", callbackName
+	// );
+	// timeTraversalCB(
+	// 	treeInfo, postOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "post-order", callbackName
+	// );
+	// timeTraversalLevelCB(
+	// 	treeInfo, treeQueue, levelOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "level-order", callbackName
+	// );
+	// timeTraversalContCB(
+	// 	treeInfo, btNodeArray, contiguousOrderTraversalCB, callback, samples, printResults, verbose, 
+	// 	"balanced", "contiguous", "contiguous-order", callbackName
+	// );
 
-	/* ---------------------------------------------------------------------- */
+	// /* ---------------------------------------------------------------------- */
 
 	free(invTable);
 	free(btNodeArray);

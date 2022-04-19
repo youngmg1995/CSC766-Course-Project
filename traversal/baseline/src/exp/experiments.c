@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
 	/* ---------------------------------------------------------------------- */
 	int depth, i, runs;
 
-	int minDepth = 20;
-	int maxDepth = 20;
+	int minDepth = 22;
+	int maxDepth = 22;
 	int samples = 1;
 
 	for (depth = minDepth; depth<=maxDepth; depth++)
@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
 			// // fprintf(stderr, "\n");
 			// traversalBatch(depth, runs, printResults, verbose);
 
-			// fprintf(stderr, "\n");
-			traversalBatchCB(depth, runs, incrementCallback, "increment-id", printResults, verbose);
+			// // fprintf(stderr, "\n");
+			// traversalBatchCB(depth, runs, incrementCallback, "increment-id", printResults, verbose);
 
 			// fprintf(stderr, "\n");
 			traversalBatchCB(depth, runs, searchCallback, "search-id", printResults, verbose);
