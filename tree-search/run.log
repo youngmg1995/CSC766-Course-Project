@@ -1,0 +1,1 @@
+node --experimental-wasm-simd --experimental-wasm-threads --experimental-wasm-modules --experimental-wasm-bulk-memory --wasm-simd-post-mvp foo.js
